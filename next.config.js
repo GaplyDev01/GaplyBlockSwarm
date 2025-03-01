@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
@@ -24,6 +26,14 @@ const nextConfig = {
   },
   // Add output: 'standalone' for better optimization in Vercel
   output: 'standalone',
+  // Explicitly define webpack configuration for path resolution
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './'),
+    };
+    return config;
+  },
 }
 
 module.exports = nextConfig
