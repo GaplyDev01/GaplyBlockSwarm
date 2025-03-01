@@ -24,6 +24,21 @@ const nextConfig = {
   },
   // Add output: 'standalone' for better optimization in Vercel
   output: 'standalone',
+  // Ensure proper rewrites for the app router
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: '/src/app/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-vercel-deployment',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig
