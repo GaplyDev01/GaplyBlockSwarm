@@ -36,9 +36,9 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
   const models = currentProvider?.models || [];
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 max-w-screen-lg mx-auto p-4">
+    <div className="flex flex-col sm:flex-row gap-2 max-w-screen-lg mx-auto">
       <div className="flex-1">
-        <label htmlFor="provider-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label htmlFor="provider-select" className="block text-xs font-medium text-emerald-400/70 mb-1">
           AI Provider
         </label>
         <Select
@@ -46,12 +46,20 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
           value={selectedProvider}
           onValueChange={onProviderChange}
         >
-          <SelectTrigger id="provider-select" className="w-full" aria-label="Select AI provider">
+          <SelectTrigger 
+            id="provider-select" 
+            className="w-full bg-sapphire-900/50 border border-emerald-400/20 text-white hover:border-emerald-400/50 focus:border-emerald-400/50 focus:ring-emerald-400/10" 
+            aria-label="Select AI provider"
+          >
             <SelectValue placeholder="Select provider" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-sapphire-800 border border-emerald-400/30 text-white">
             {providers.map((provider) => (
-              <SelectItem key={provider.id} value={provider.id}>
+              <SelectItem 
+                key={provider.id} 
+                value={provider.id}
+                className="hover:bg-emerald-400/10 focus:bg-emerald-400/10"
+              >
                 {provider.name}
               </SelectItem>
             ))}
@@ -60,7 +68,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       </div>
 
       <div className="flex-1">
-        <label htmlFor="model-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label htmlFor="model-select" className="block text-xs font-medium text-emerald-400/70 mb-1">
           Model
         </label>
         <Select
@@ -68,15 +76,23 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
           value={selectedModel}
           onValueChange={onModelChange}
         >
-          <SelectTrigger id="model-select" className="w-full" aria-label="Select AI model">
+          <SelectTrigger 
+            id="model-select" 
+            className="w-full bg-sapphire-900/50 border border-emerald-400/20 text-white hover:border-emerald-400/50 focus:border-emerald-400/50 focus:ring-emerald-400/10" 
+            aria-label="Select AI model"
+          >
             <SelectValue placeholder="Select model" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-sapphire-800 border border-emerald-400/30 text-white">
             {models.map((model) => (
-              <SelectItem key={model.id} value={model.id}>
+              <SelectItem 
+                key={model.id} 
+                value={model.id}
+                className="hover:bg-emerald-400/10 focus:bg-emerald-400/10"
+              >
                 {model.name}
                 {model.contextWindow && (
-                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="ml-2 text-xs text-emerald-400/50">
                     ({Math.floor(model.contextWindow / 1000)}k)
                   </span>
                 )}

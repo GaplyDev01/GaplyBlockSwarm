@@ -875,3 +875,64 @@ export class SolanaServiceV2 implements SolanaService {
 
 // Export singleton instance
 export const solanaServiceV2 = SolanaServiceV2.getInstance();
+
+/**
+ * Get Jupiter DEX aggregator client for Solana 
+ * Used for token swaps and price discovery
+ */
+export async function getJupiterClient() {
+  try {
+    // In a real implementation, this would initialize the Jupiter SDK
+    // For example:
+    // import { Jupiter } from '@jup-ag/core';
+    // const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com');
+    // const jupiter = await Jupiter.load({ connection });
+    // return jupiter;
+    
+    // For now, return a mock client with basic functionality
+    return {
+      async getRoutes({ inputMint, outputMint, amount }: { 
+        inputMint: string; 
+        outputMint: string; 
+        amount: number 
+      }) {
+        // Mock implementation
+        return {
+          routesInfos: [
+            {
+              outAmount: amount * 10, // Mock conversion rate
+              marketInfos: [{ amm: { label: 'Orca' } }],
+              priceImpactPct: 0.5,
+            },
+          ],
+        };
+      },
+      
+      async exchange({ routeInfo }: { routeInfo: any }) {
+        // Mock implementation
+        return {
+          txid: 'mock_transaction_id',
+          inputAmount: routeInfo.inAmount,
+          outputAmount: routeInfo.outAmount,
+        };
+      },
+      
+      async getQuote({ inputMint, outputMint, amount }: {
+        inputMint: string;
+        outputMint: string;
+        amount: number;
+      }) {
+        // Mock implementation
+        return {
+          inputAmount: amount,
+          outputAmount: amount * 10,
+          fee: amount * 0.003,
+          priceImpact: 0.5,
+        };
+      }
+    };
+  } catch (error) {
+    console.error('Error initializing Jupiter client:', error);
+    return null;
+  }
+}

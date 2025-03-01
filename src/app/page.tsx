@@ -17,6 +17,12 @@ export default function HomePage() {
             >
               Sign Up
             </Link>
+            <Link 
+              href="/ai-chat" 
+              className="text-foreground hover:text-primary"
+            >
+              AI Chat
+            </Link>
           </nav>
         </header>
 
@@ -42,6 +48,15 @@ export default function HomePage() {
                   className="button-outline font-cyber"
                 >
                   JOIN THE SWARM
+                </Link>
+                <Link
+                  href="/ai-chat"
+                  className="button-outline flex items-center justify-center gap-2 font-cyber"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                  </svg>
+                  AI CHAT
                 </Link>
               </div>
             </div>

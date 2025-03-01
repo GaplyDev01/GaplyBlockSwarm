@@ -1,10 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs';
 import { z } from 'zod';
-import { AIProviderFactory } from '../../../../infrastructure/ai/AIProviderFactory';
-import { AIProviderRegistry } from '../../../../core/ai/AIProviderRegistry';
 import { AIChatService } from '../../../../application/ai/AIChatService';
 import { PinoLogger } from '../../../../shared/utils/logger';
+import { AIProviderRegistry } from '../../../../core/ai/AIProviderRegistry';
+import { AnthropicProvider } from '../../../../infrastructure/ai/AnthropicProvider';
+import { GroqProvider } from '../../../../infrastructure/ai/GroqProvider';
+// The solanaToolSchema import will be defined directly since it's causing issues
+const solanaToolSchema = [
+  {
+    name: "get_token_price",
+    description: "Get the current price and basic information for any Solana token on the blockchain.",
+    parameters: {
+      type: "object",
+      properties: {
+        token: {
+          type: "string",
+          description: "The token symbol (e.g., 'SOL', 'BONK') or mint address"
+        }
+      },
+      required: ["token"]
+    }
+  },
+  {
+    name: "get_token_analytics",
+    description: "Get detailed market analytics for a Solana token.",
+    parameters: {
+      type: "object",
+      properties: {
+        token: {
+          type: "string",
+          description: "The token symbol or mint address"
+        }
+      },
+      required: ["token"]
+    }
+  },
+  {
+    name: "get_trading_signal",
+    description: "Generate trading recommendations for a token.",
+    parameters: {
+      type: "object",
+      properties: {
+        token: {
+          type: "string",
+          description: "The token symbol or mint address"
+        }
+      },
+      required: ["token"]
+    }
+  }
+];
 
 // Schema for request validation
 const chatRequestSchema = z.object({
@@ -23,16 +69,44 @@ const chatRequestSchema = z.object({
 // Initialize services
 const initializeServices = () => {
   const logger = new PinoLogger();
-  const registry = new AIProviderRegistry();
   
-  // Register providers
-  const anthropicProvider = AIProviderFactory.createAnthropicProvider();
-  const groqProvider = AIProviderFactory.createGroqProvider();
+  // Register Anthropic and Groq providers
+  const anthropicProvider = new AnthropicProvider({
+    model: 'claude-3-7-sonnet-20240229',
+    tools: solanaToolSchema,
+    apiKey: process.env.ANTHROPIC_API_KEY || ''
+  });
   
-  registry.registerProvider(anthropicProvider);
-  registry.registerProvider(groqProvider);
+  const groqProvider = new GroqProvider({
+    model: 'llama3-70b-8192',
+    apiKey: process.env.GROQ_API_KEY || ''
+  });
   
-  // Create chat service
+  // Create new registry instance
+  const registry = {
+    providers: [anthropicProvider, groqProvider],
+    logger: logger,
+    
+    getProvider(name: string) {
+      return this.providers.find(p => p.getName() === name) || this.providers[0];
+    },
+    
+    getProviders() {
+      return [...this.providers];
+    },
+    
+    getDefaultProvider() {
+      return this.providers.length > 0 ? this.providers[0] : null;
+    },
+    
+    registerProvider(provider: any) {
+      if (!this.providers.some(p => p.getName() === provider.getName())) {
+        this.providers.push(provider);
+      }
+    }
+  };
+  
+  // Create chat service with the registry and logger
   return new AIChatService(registry, logger);
 };
 

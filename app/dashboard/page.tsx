@@ -340,14 +340,24 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <a 
-                  href={`https://solscan.io/token/${selectedToken.mint}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-outline w-full block py-2 px-4 text-center rounded-md border border-emerald-400/30 text-emerald-400 hover:bg-emerald-400/10 transition-colors"
-                >
-                  View on Explorer
-                </a>
+                <div className="flex flex-col space-y-2">
+                  <a 
+                    href={`https://solscan.io/token/${selectedToken.mint}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline w-full block py-2 px-4 text-center rounded-md border border-emerald-400/30 text-emerald-400 hover:bg-emerald-400/10 transition-colors"
+                  >
+                    View on Explorer
+                  </a>
+                  
+                  <Link 
+                    href={`/ai-chat?token=${encodeURIComponent(selectedToken.symbol)}&mint=${encodeURIComponent(selectedToken.mint)}`}
+                    className="w-full flex items-center justify-center py-2 px-4 text-center rounded-md bg-emerald-400 text-sapphire-900 font-medium hover:bg-emerald-500 transition-colors"
+                  >
+                    <MessageSquare size={16} className="mr-2" />
+                    Chat About {selectedToken.symbol}
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -438,10 +448,16 @@ export default function DashboardPage() {
                 <div className="text-muted-foreground text-sm mb-1">You</div>
                 <p>What tokens are currently showing the most trading volume?</p>
               </div>
-              <div className="glass-card rounded-lg p-4 border border-emerald-500/30">
+              <div className="glass-card rounded-lg p-4 border border-emerald-500/30 mb-4">
                 <p className="font-cyber text-sm text-emerald-400 mb-1">BlockSwarms AI</p>
                 <p>Based on current data, the tokens with the highest 24h trading volume are SOL, JUP, and BONK. Would you like to see detailed information for any of these tokens?</p>
               </div>
+              <Link href="/ai-chat" className="w-full">
+                <Button variant="primary" className="w-full flex items-center justify-center">
+                  <Brain size={16} className="mr-2" />
+                  Open AI Chat
+                </Button>
+              </Link>
             </div>
           </div>
         );
@@ -571,7 +587,11 @@ export default function DashboardPage() {
           <Link href="#wallet" className="w-10 h-10 mb-4 rounded-md hover:bg-emerald-400/10 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400">
             <BarChart2 size={20} />
           </Link>
-          <Link href="#ai" className="w-10 h-10 mb-4 rounded-md hover:bg-emerald-400/10 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400">
+          <Link 
+            href="/ai-chat" 
+            className="w-10 h-10 mb-4 rounded-md hover:bg-emerald-400/10 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400"
+            title="AI Chat"
+          >
             <Brain size={20} />
           </Link>
           <Link href="#signals" className="w-10 h-10 mb-4 rounded-md hover:bg-emerald-400/10 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400">

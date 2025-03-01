@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { Orbitron } from 'next/font/google';
 import './globals.css';
 import type { Metadata } from 'next';
+import { AIProvider } from '@/src/presentation/context/ai-context';
 
 const orbitron = Orbitron({ 
   subsets: ['latin'],
@@ -25,7 +26,9 @@ export default function RootLayout({
           <link rel="stylesheet" href="/tailwind-fix.css" />
         </head>
         <body className={`${orbitron.variable} bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>
-          {children}
+          <AIProvider>
+            {children}
+          </AIProvider>
         </body>
       </html>
     </ClerkProvider>

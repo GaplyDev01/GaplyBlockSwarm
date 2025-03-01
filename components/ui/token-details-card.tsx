@@ -86,7 +86,7 @@ export function TokenDetailsCard({ token, isLoading = false, className = '' }: T
     );
   }
 
-  // Create chat URL with token info
+  // Create chat URL with token info - ensure we use the correct path
   const chatUrl = `/ai-chat?token=${encodeURIComponent(token.symbol)}&mint=${encodeURIComponent(token.mint)}`;
 
   return (

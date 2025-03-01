@@ -7,9 +7,9 @@ import { ArrowLeft, Loader } from 'lucide-react';
 import Link from 'next/link';
 
 // Import components
-import { ChatContainer } from '@/src/presentation/components/ai/chat-container';
-import { useAIContext } from '@/src/presentation/context/ai-context';
-import { AIProviderOption } from '@/src/presentation/components/ai/provider-selector';
+import { ChatContainer } from '../../src/presentation/components/ai/chat-container';
+import { useAIContext } from '../../src/presentation/context/ai-context';
+import { AIProviderOption } from '../../src/presentation/components/ai/provider-selector';
 
 export default function AIChatPage() {
   const { isSignedIn, isLoaded } = useAuth();
