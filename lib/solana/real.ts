@@ -14,6 +14,7 @@ import {
   TransactionInfo 
 } from './types';
 import { TokenInfo, JupiterToken, CoinGeckoToken, SolanaInstruction } from '../types/tokens';
+import { MockSolanaService } from './mock';
 
 // External APIs for token data
 import axios from 'axios';
@@ -262,10 +263,9 @@ export class RealSolanaService implements SolanaService {
     } catch (error) {
       logger.error('Error fetching wallet balances:', error);
       
-      // Return mock balances as fallback
-      const mockBalances = await mockSolanaService.getWalletBalances();
-      logger.warn(`Using ${mockBalances.length} mock wallet balances due to error`);
-      return mockBalances;
+      // Return empty balances as fallback since we're not using mock data
+      logger.warn('Using empty wallet balances due to error');
+      return [];
     }
   }
 
