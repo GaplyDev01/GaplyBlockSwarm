@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAppStore } from '../store';
-import { Connection } from '@solana/web3.js';
+import { Connection, AccountInfo, ParsedAccountData } from '@solana/web3.js';
 import { WalletAdapterNetwork, WalletReadyState } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {
@@ -89,7 +89,7 @@ const InnerWalletContextProvider = ({
         try {
           subscriptionId = await solanaRpc.subscribeToAccount(
             publicKey.toString(),
-            (accountInfo: any) => {
+            (accountInfo: AccountInfo<ParsedAccountData | Buffer>) => {
               if (!isMounted) return;
               
               const newBalance = accountInfo.lamports / 1_000_000_000;

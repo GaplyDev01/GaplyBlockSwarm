@@ -9,11 +9,11 @@ import { generateId } from '../utils';
 import { solanaRpc } from './rpc';
 import { 
   SolanaService, 
-  TokenInfo, 
   WalletBalance, 
   TradeInfo, 
   TransactionInfo 
 } from './types';
+import { TokenInfo, JupiterToken, CoinGeckoToken, SolanaInstruction } from '../types/tokens';
 
 // External APIs for token data
 import axios from 'axios';
@@ -135,7 +135,7 @@ export class RealSolanaService implements SolanaService {
           });
           
           // Create a map of symbol -> price data
-          cgResponse.data.forEach((token: any) => {
+          cgResponse.data.forEach((token: CoinGeckoToken) => {
             tokenPrices[token.symbol.toUpperCase()] = {
               price: token.current_price,
               change24h: token.price_change_percentage_24h,
@@ -152,8 +152,8 @@ export class RealSolanaService implements SolanaService {
       
       // Map Jupiter tokens to our TokenInfo format
       const tokens: TokenInfo[] = jupiterTokens
-        .filter((token: any) => token.tags && token.tags.includes('popular'))
-        .map((token: any) => {
+        .filter((token: JupiterToken) => token.tags && token.tags.includes('popular'))
+        .map((token: JupiterToken) => {
           const priceData = tokenPrices[token.symbol] || {
             price: 0,
             change24h: 0,
@@ -163,15 +163,16 @@ export class RealSolanaService implements SolanaService {
           
           const tokenInfo: TokenInfo = {
             symbol: token.symbol,
-            name: token.name,
-            mint: token.address,
-            decimals: token.decimals,
-            logoURI: token.logoURI,
+            name: token.name ?? '',
+            mint: token.address ?? '',
+            decimals: token.decimals ?? 9,
+            logoURI: token.logoURI ?? '',
             price: priceData.price,
             change24h: priceData.change24h,
             volume24h: priceData.volume,
             marketCap: priceData.marketCap,
-            supply: 0
+            supply: 0,
+            totalSupply: 0
           };
           
           // Update token map for price lookups
@@ -409,7 +410,7 @@ export class RealSolanaService implements SolanaService {
   /**
    * Check if transaction instructions include a token transfer
    */
-  private isTokenTransfer(instructions: any[]): boolean {
+  private isTokenTransfer(instructions: SolanaInstruction[]): boolean {
     return instructions.some(instr => {
       const programId = typeof instr.programId === 'object' ? instr.programId.toString() : '';
       return programId === TOKEN_PROGRAM_ID.toString();
@@ -419,7 +420,7 @@ export class RealSolanaService implements SolanaService {
   /**
    * Check if transaction instructions include a token swap
    */
-  private isSwapTransaction(instructions: any[]): boolean {
+  private isSwapTransaction(instructions: SolanaInstruction[]): boolean {
     const dexProgramIds = ['Jupiter', 'Orca', 'Raydium'];
     
     return instructions.some(instr => {

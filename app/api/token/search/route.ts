@@ -1,38 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import axios from 'axios';
+import { logger } from '@/lib/logger';
+import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '@/lib/types/tokens';
 
-// Define token interface based on API response structure
-interface TokenData {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap?: number;
-  total_volume?: number;
-  circulating_supply?: number;
-  total_supply?: number;
-}
-
-// Jupiter token interface
-interface JupiterToken {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap?: number;
-  total_volume?: number;
-  circulating_supply?: number;
-  total_supply?: number;
-  tags?: string[];
-  extensions?: Record<string, any>;
-  is_jupiter_token?: boolean;
-  searchNote?: string;
-}
+// Interfaces are now imported from '@/lib/types/tokens'
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,14 +48,14 @@ export async function GET(request: NextRequest) {
       const searchResults = searchResponse.data.coins || [];
       
       // Filter to only include Solana platform tokens
-      const solanaTokens = searchResults.filter((token: any) => 
+      const solanaTokens = searchResults.filter((token: CoinGeckoToken) => 
         token.platforms && 
         (token.platforms.solana || token.name.toLowerCase().includes('solana') || token.symbol.toLowerCase() === 'sol')
       );
       
       if (solanaTokens.length > 0) {
         // For search results, we need to get the full data for each token
-        const tokenIds = solanaTokens.map((token: any) => token.id).join(',');
+        const tokenIds = solanaTokens.map((token: CoinGeckoToken) => token.id).join(',');
         
         // Get detailed data for these tokens
         const apiUrl = `https://api.coingecko.com/api/v3/coins/markets`;
@@ -130,7 +101,7 @@ export async function GET(request: NextRequest) {
       const allTokens = response.data;
       
       // Filter tokens based on the query
-      const filteredTokens = allTokens.filter((token: TokenData) => 
+      const filteredTokens = allTokens.filter((token: CoinGeckoToken) => 
         token.name.toLowerCase().includes(query) || 
         token.symbol.toLowerCase().includes(query) ||
         token.id.toLowerCase().includes(query)
@@ -150,16 +121,16 @@ export async function GET(request: NextRequest) {
         
         // Get specific tokens from the Jupiter API
         const filteredJupiterTokens = jupiterTokens
-          .filter((token: any): boolean => {
+          .filter((token: JupiterToken): boolean => {
             const nameMatch = token.name && token.name.toLowerCase().includes(query);
             const symbolMatch = token.symbol && token.symbol.toLowerCase().includes(query);
             const addressMatch = token.address && token.address.toLowerCase().includes(query);
             const tagMatch = token.tags && Array.isArray(token.tags) && 
                              token.tags.some((tag: string) => tag.toLowerCase().includes(query));
             
-            return nameMatch || symbolMatch || addressMatch || tagMatch;
+            return Boolean(nameMatch || symbolMatch || addressMatch || tagMatch);
           })
-          .map((token: any): JupiterToken => {
+          .map((token: JupiterToken): JupiterToken => {
             // Try to find a logo URL, defaulting to a placeholder if not found
             let logoUrl = token.logoURI;
             if (!logoUrl || logoUrl.includes('unknown')) {
@@ -167,8 +138,8 @@ export async function GET(request: NextRequest) {
             }
             
             return {
-              id: token.address,
-              symbol: token.symbol || '',
+              id: token.address ?? '',
+              symbol: token.symbol ?? '',
               name: token.name || token.symbol || 'Unknown Token',
               image: logoUrl,
               current_price: 0, // Price not available from Jupiter

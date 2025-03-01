@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { CoinGeckoToken, JupiterToken, TokenInfo } from '@/lib/types/tokens';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
 import { WalletContextProvider } from '@/lib/context/wallet-context';
@@ -10,10 +11,10 @@ import Link from 'next/link';
 import { Home, Settings, BarChart2, Brain, Zap, Bot, Plus, X, Layout, Eye, EyeOff, Move, Grid3X3, Search, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TokenInfo } from '@/components/ui/token-info';
+import { TokenInfo as TokenInfoComponent } from '@/components/ui/token-info';
 import { TokenSearch } from '@/components/ui/token-search';
 import { solanaServiceV2 } from '@/lib/solana/v2';
-import { TokenInfo as TokenInfoType } from '@/lib/solana/types';
+// Using TokenInfo from /lib/types/tokens instead of the one from solana/types
 
 // Define card types for the dashboard
 interface DashboardCard {
@@ -30,11 +31,11 @@ export default function DashboardPage() {
   const { isLoaded, isSignedIn, user } = useUser();
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
   const [layoutMode, setLayoutMode] = useState<'default' | 'compact' | 'wide'>('default');
-  const [tokens, setTokens] = useState<TokenInfoType[]>([]);
+  const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(true);
   
   // Add state for selected token
-  const [selectedToken, setSelectedToken] = useState<TokenInfoType | null>(null);
+  const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null);
   
   // Load saved dashboard settings from localStorage on component mount
   useEffect(() => {
@@ -151,18 +152,18 @@ export default function DashboardPage() {
           
           const data = await response.json();
           
-          // Transform data to match our TokenInfoType
-          const tokenData = data.map((token: any) => ({
+          // Transform data to match our TokenInfo interface
+          const tokenData = data.map((token: CoinGeckoToken): TokenInfo => ({
             symbol: token.symbol.toUpperCase(),
             name: token.name,
             mint: token.id, // Using id as mint address for now
             decimals: 9, // Default for Solana tokens
             price: token.current_price,
             change24h: token.price_change_percentage_24h,
-            volume24h: token.total_volume,
-            marketCap: token.market_cap,
-            supply: token.circulating_supply,
-            totalSupply: token.total_supply,
+            volume24h: token.total_volume ?? 0,
+            marketCap: token.market_cap ?? 0,
+            supply: token.circulating_supply ?? 0,
+            totalSupply: token.total_supply ?? 0,
             logoURI: token.image
           }));
           
@@ -183,19 +184,20 @@ export default function DashboardPage() {
             
             // Get top tokens by market cap (based on tags)
             const topTokens = jupiterData
-              .filter((token: any) => token.tags && (token.tags.includes('popular') || token.tags.includes('top-tokens')))
+              .filter((token: JupiterToken) => token.tags && (token.tags.includes('popular') || token.tags.includes('top-tokens')))
               .slice(0, 10)
-              .map((token: any) => ({
+              .map((token: JupiterToken): TokenInfo => ({
                 symbol: token.symbol,
                 name: token.name,
-                mint: token.address,
-                decimals: token.decimals,
+                mint: token.address || '',
+                decimals: token.decimals || 9,
                 price: 0, // Prices not available from Jupiter
                 change24h: 0,
                 volume24h: 0,
                 marketCap: 0,
-                supply: 0,
-                logoURI: token.logoURI
+                supply: token.circulating_supply ?? 0,
+                totalSupply: token.total_supply ?? 0,
+                logoURI: token.logoURI || ''
               }));
               
             setTokens(topTokens);
@@ -257,7 +259,7 @@ export default function DashboardPage() {
               Search for any token on Solana
             </p>
             <TokenSearch onSelectToken={(token) => {
-              // Transform the token to match the expected TokenInfoType
+              // Transform the token to match the expected TokenInfo interface
               const tokenInfo = {
                 name: token.name,
                 symbol: token.symbol,
@@ -362,7 +364,7 @@ export default function DashboardPage() {
           const token = tokens.find(t => t.mint === card.tokenMint);
           // Map the Solana TokenInfo to the shape expected by the TokenInfo component
           return token ? (
-            <TokenInfo token={{
+            <TokenInfoComponent token={{
               name: token.name,
               symbol: token.symbol,
               logoUrl: token.logoURI || `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${token.mint}/logo.png`,
@@ -375,7 +377,7 @@ export default function DashboardPage() {
               explorer: `https://solscan.io/token/${token.mint}`
             }} />
           ) : (
-            <TokenInfo isLoading={isLoadingTokens} token={{
+            <TokenInfoComponent isLoading={isLoadingTokens} token={{
               name: "",
               symbol: "",
               logoUrl: "",

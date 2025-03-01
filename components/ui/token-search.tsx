@@ -1,29 +1,16 @@
-// @ts-nocheck
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { getPriceChangeColor } from '@/lib/utils';
 import { logger } from '@/lib/logger';
+import { Token, TokenInfo } from '@/lib/types/tokens';
 
-interface Token {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap?: number;
-  total_volume?: number;
-  circulating_supply?: number;
-  total_supply?: number;
-  is_jupiter_token?: boolean;
-  searchNote?: string;
-}
+// Token interface is now imported from '@/lib/types/tokens'
 
 interface TokenSearchProps {
   onSelectToken: (token: Token) => void;
-  onSelect?: (token: any) => void; // Keep backward compatibility with existing code
+  onSelect?: (token: TokenInfo) => void; // Updated to use TokenInfo instead of any
   className?: string;
 }
 
@@ -56,7 +43,7 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
 
       setLoading(true);
       try {
-        logger.log(`Searching for tokens with query: ${query}`);
+        logger.info(`Searching for tokens with query: ${query}`);
 
         // Make fetch request timeout after 8 seconds (increased from 5)
         const controller = new AbortController();
@@ -67,7 +54,7 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
           const timestamp = new Date().getTime();
           const url = `/api/token/search?query=${encodeURIComponent(query)}&_=${timestamp}`;
           
-          logger.log(`Fetching from URL: ${url}`);
+          logger.info(`Fetching from URL: ${url}`);
           
           const response = await fetch(url, {
             method: 'GET',
@@ -84,7 +71,7 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
           
           if (!mounted) return;
           
-          logger.log(`Search response status: ${response.status}, ok: ${response.ok}`);
+          logger.info(`Search response status: ${response.status}, ok: ${response.ok}`);
 
           if (response.ok) {
             try {
@@ -123,13 +110,13 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
             }
 
             if (!mounted) return;
-            logger.log('Search API error, no results available');
+            logger.info('Search API error, no results available');
             setTokens([]);
           }
         } catch (fetchError) {
           logger.error('Fetch operation failed:', fetchError);
           // No fallback, just set empty tokens array
-          logger.log('Fetch error, no results available');
+          logger.info('Fetch error, no results available');
           setTokens([]);
         }
       } catch (error) {
@@ -180,7 +167,7 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
     // For backward compatibility with existing code
     if (onSelect) {
       // Map to the shape expected by the old component
-      const tokenInfo = {
+      const tokenInfo: TokenInfo = {
         name: token.name,
         symbol: token.symbol,
         mint: token.id, // Use id as mint
@@ -190,6 +177,7 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
         marketCap: 0, // These would need to be populated if present in the API response
         volume24h: 0,
         supply: 0,
+        totalSupply: 0,
         decimals: 9
       };
       onSelect(tokenInfo);
