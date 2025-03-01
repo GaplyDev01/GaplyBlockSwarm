@@ -1,5 +1,9 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 import React, { useEffect, useState } from 'react';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
 import { LiveWalletBalance } from '@/components/wallet/live-wallet-balance';
@@ -49,7 +53,7 @@ const suggestions = [
   "What are the top Solana dApps?",
 ];
 
-export default function SolanaV2DemoPage() {
+function SolanaV2DemoPage() {
   const [viewMode, setViewMode] = useState<'original' | 'cyberpunk'>('original');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -412,3 +416,7 @@ Is there anything specific about Solana you'd like to learn more about?`;
     </WalletContextProvider>
   );
 }
+
+// Export as default with dynamic import to skip SSR
+import dynamic from 'next/dynamic';
+export default dynamic(() => Promise.resolve(SolanaV2DemoPage), { ssr: false });

@@ -1,5 +1,9 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 import React, { useEffect, useState } from 'react';
 import { useAuth, SignInButton } from '@clerk/nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -11,7 +15,7 @@ import { ChatContainer } from '@/src/presentation/components/ai/chat-container';
 import { useAIContext } from '@/src/presentation/context/ai-context';
 import { AIProviderOption } from '@/src/presentation/components/ai/provider-selector';
 
-export default function AIChatPage() {
+function AIChatPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -132,3 +136,7 @@ export default function AIChatPage() {
     </div>
   );
 }
+
+// Export as default with dynamic import to skip SSR
+import dynamic from 'next/dynamic';
+export default dynamic(() => Promise.resolve(AIChatPage), { ssr: false });

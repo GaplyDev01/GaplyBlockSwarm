@@ -1,8 +1,13 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 import React, { useState, useEffect } from 'react';
 import { CoinGeckoToken, JupiterToken, TokenInfo } from '@/lib/types/tokens';
-import { UserButton, useUser } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
+import { useUserContext } from '@/lib/context/user-context';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
 import { WalletContextProvider } from '@/lib/context/wallet-context';
 import { WalletDashboard } from '@/components/wallet/wallet-dashboard';
@@ -27,8 +32,18 @@ interface DashboardCard {
   tokenMint?: string;
 }
 
-export default function DashboardPage() {
-  const { isLoaded, isSignedIn, user } = useUser();
+function DashboardPage() {
+  const { isLoaded, isSignedIn, user } = useUserContext();
+  
+  // Safely handle case when context is not yet available
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-sapphire-900 flex items-center justify-center">
+        <div className="w-12 h-12 border-t-2 border-emerald-500 rounded-full animate-spin mb-4"></div>
+        <p className="text-emerald-400 ml-3">Loading user data...</p>
+      </div>
+    );
+  }
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
   const [layoutMode, setLayoutMode] = useState<'default' | 'compact' | 'wide'>('default');
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
@@ -925,3 +940,7 @@ export default function DashboardPage() {
     </WalletContextProvider>
   );
 }
+
+// Export as default with dynamic import to skip SSR
+import dynamic from 'next/dynamic';
+export default dynamic(() => Promise.resolve(DashboardPage), { ssr: false });

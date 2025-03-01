@@ -54,7 +54,24 @@ const nextConfig = {
       https: require.resolve('https-browserify'),
       zlib: require.resolve('browserify-zlib'),
       util: require.resolve('util/'),
+      buffer: require.resolve('buffer/'),
+      process: require.resolve('process/browser'),
       vm: false
+    };
+    
+    // Add plugins for proper polyfilling
+    config.plugins.push(
+      new config.webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      })
+    );
+
+    // Increase memory limit for webpack
+    config.performance = {
+      ...config.performance,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
     };
     
     return config;
