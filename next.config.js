@@ -32,6 +32,22 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, './'),
     };
+    
+    // Polyfill Node.js native modules for browser compatibility
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      os: false,
+      path: require.resolve('path-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      http: require.resolve('stream-http'),
+      https: require.resolve('https-browserify'),
+      zlib: require.resolve('browserify-zlib'),
+      util: require.resolve('util/'),
+      vm: false
+    };
+    
     return config;
   },
 }
