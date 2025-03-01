@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+tmp-fixes/deploy-fix-steps.md
+tmp-fixes/deployment-ready.md
+tmp-fixes/file-structure-fix.md
+tmp-fixes/path-fix-examples.md
+tmp-fixes/final-checklist.md
+tmp-fixes/README.md
+tmp-fixes/deployment-fixes.md
