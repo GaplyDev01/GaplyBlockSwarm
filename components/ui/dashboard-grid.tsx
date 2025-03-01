@@ -83,15 +83,19 @@ export function DashboardGrid({
     const originalTargetIndex = allCards.findIndex(c => c.id === targetId);
     
     // Remove the dragged card
-    const [draggedCard] = newCards.splice(originalDraggedIndex, 1);
+    const removed = newCards.splice(originalDraggedIndex, 1);
+    const draggedCard = removed[0];
     
-    // Insert it at the target position
-    // If we're moving a card from above to below, we need to adjust for the removed item
-    const adjustedTargetIndex = originalDraggedIndex < originalTargetIndex 
-      ? originalTargetIndex - 1 
-      : originalTargetIndex;
-    
-    newCards.splice(adjustedTargetIndex, 0, draggedCard);
+    // Only proceed if we actually have a card that was removed
+    if (draggedCard) {
+      // Insert it at the target position
+      // If we're moving a card from above to below, we need to adjust for the removed item
+      const adjustedTargetIndex = originalDraggedIndex < originalTargetIndex 
+        ? originalTargetIndex - 1 
+        : originalTargetIndex;
+      
+      newCards.splice(adjustedTargetIndex, 0, draggedCard);
+    }
     
     // Update the parent component
     onCardsReorder(newCards);
