@@ -89,13 +89,16 @@ const InnerWalletContextProvider = ({
         try {
           subscriptionId = await solanaRpc.subscribeToAccount(
             publicKey.toString(),
-            (accountInfo: AccountInfo<ParsedAccountData | Buffer>) => {
+            (accountInfo: unknown) => {
               if (!isMounted) return;
               
-              const newBalance = accountInfo.lamports / 1_000_000_000;
-              setBalance(newBalance);
-              setWalletState(connected, publicKey.toString(), newBalance);
-              logger.info(`Balance updated: ${newBalance} SOL`);
+              // Type check and cast the account info
+              if (accountInfo && typeof accountInfo === 'object' && 'lamports' in accountInfo && typeof accountInfo.lamports === 'number') {
+                const newBalance = accountInfo.lamports / 1_000_000_000;
+                setBalance(newBalance);
+                setWalletState(connected, publicKey.toString(), newBalance);
+                logger.info(`Balance updated: ${newBalance} SOL`);
+              }
             }
           );
         } catch (subError) {

@@ -7,7 +7,8 @@ const isDev = process.env.NODE_ENV !== 'production';
  * - In development, pretty-print logs with more details
  * - In production, use a more compact format
  */
-export const logger = pino({
+// Create the base logger
+const pinoLogger = pino({
   level: isDev ? 'debug' : 'info',
   transport: isDev 
     ? {
@@ -19,12 +20,13 @@ export const logger = pino({
         }
       }
     : undefined,
-  mixin() {
-    return {
-      log: this.info.bind(this)
-    };
-  }
 });
+
+// Add the log method as an alias for info
+pinoLogger.log = pinoLogger.info;
+
+// Export as a named export
+export const logger = pinoLogger;
 
 if (typeof window !== 'undefined') {
   // Custom browser-side logger that maps to console methods
@@ -48,12 +50,14 @@ if (typeof window !== 'undefined') {
     },
   };
 
-  // @ts-expect-error - Replace the logger with browser version in client
-  logger.debug = browserLogger.debug;
-  logger.info = browserLogger.info;
-  logger.warn = browserLogger.warn;
-  logger.error = browserLogger.error;
-  logger.log = browserLogger.log;
+  // Replace the methods with browser equivalents in client context
+  Object.assign(logger, {
+    debug: browserLogger.debug,
+    info: browserLogger.info,
+    warn: browserLogger.warn,
+    error: browserLogger.error,
+    log: browserLogger.log
+  });
 }
 
 export default logger;
