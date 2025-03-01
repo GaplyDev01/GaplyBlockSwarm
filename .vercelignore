@@ -10,5 +10,5 @@ tmp-fixes/
 jest.config.js
 tsconfig.jest.json
 
-# Ignore the second app directory (we're using src/app)
-app/
+# Use the standard app directory
+src/app/
