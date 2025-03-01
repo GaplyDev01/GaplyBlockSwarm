@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
+const webpack = require('webpack');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -61,7 +62,7 @@ const nextConfig = {
     
     // Add plugins for proper polyfilling
     config.plugins.push(
-      new config.webpack.ProvidePlugin({
+      new webpack.ProvidePlugin({
         process: 'process/browser',
         Buffer: ['buffer', 'Buffer'],
       })
