@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs';
 import { z } from 'zod';
-import { AIChatService } from '../../../../application/ai/AIChatService';
-import { PinoLogger } from '../../../../shared/utils/logger';
-import { AIProviderRegistry } from '../../../../core/ai/AIProviderRegistry';
-import { AnthropicProvider } from '../../../../infrastructure/ai/AnthropicProvider';
-import { GroqProvider } from '../../../../infrastructure/ai/GroqProvider';
-import { AIMessage, AITool } from '../../../../core/ai/interfaces/IAIProvider';
+import { AIChatService } from '@/application/ai/AIChatService';
+import { PinoLogger } from '@/shared/utils/logger';
+import { AIProviderRegistry } from '@/core/ai/AIProviderRegistry';
+import { AnthropicProvider } from '@/infrastructure/ai/AnthropicProvider';
+import { GroqProvider } from '@/infrastructure/ai/GroqProvider';
+import { AIMessage, AITool } from '@/core/ai/interfaces/IAIProvider';
 // The solanaToolSchema import will be defined directly since it's causing issues
 const solanaToolSchema: AITool[] = [
   {
