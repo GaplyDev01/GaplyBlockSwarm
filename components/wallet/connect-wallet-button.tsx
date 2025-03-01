@@ -40,15 +40,12 @@ export function ConnectWalletButton({
     }
   };
 
-  return isConnected ? (
-    <div className="flex items-center space-x-2">
-      <div className={cn(
+  return isConnected ? (    <div className="flex items-center space-x-2">    <div className={cn(
         'rounded-md px-3 py-1.5 text-xs font-mono',
         'glass-card backdrop-blur-sm animate-pulse-glow'
       )}>
         {walletAddress ? shortenAddress(walletAddress) : '...'}
-      </div>
-      <Button
+      </div>    <Button
         onClick={handleDisconnect}
         variant="outline"
         size="sm"
@@ -57,8 +54,7 @@ export function ConnectWalletButton({
         Disconnect
       </Button>
     </div>
-  ) : (
-    <Button
+  ) : (    <Button
       onClick={handleConnect}
       disabled={isConnecting}
       variant={variant}

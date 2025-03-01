@@ -8,8 +8,7 @@ function SolanaV2DemoLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <UserProvider>
+  return (<UserProvider>
       {children}
     </UserProvider>
   );

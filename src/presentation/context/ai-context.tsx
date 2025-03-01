@@ -225,8 +225,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     createNewChat,
   };
   
-  return (
-    <AIContext.Provider value={value}>
+  return (<AIContext.Provider value={value}>
       {children}
     </AIContext.Provider>
   );

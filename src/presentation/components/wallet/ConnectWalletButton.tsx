@@ -84,27 +84,21 @@ export function ConnectWalletButton({
     }
   };
 
-  return isConnected ? (
-    <div className="flex items-center space-x-2">
-      <div className="rounded-md px-3 py-1.5 text-xs font-mono bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
+  return isConnected ? (    <div className="flex items-center space-x-2">    <div className="rounded-md px-3 py-1.5 text-xs font-mono bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
         {walletAddress ? formatAddress(walletAddress) : '...'}
-      </div>
-      <button
+      </div>    <button
         onClick={handleDisconnect}
         className="rounded-md px-3 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
       >
         Disconnect
       </button>
     </div>
-  ) : (
-    <button
+  ) : (    <button
       onClick={handleConnect}
       disabled={isConnecting}
       className={getButtonClasses()}
     >
-      {isConnecting ? (
-        <span className="flex items-center">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      {isConnecting ? (    <span className="flex items-center">    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Connecting...
         </span>
       ) : (

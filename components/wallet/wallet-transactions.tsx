@@ -110,19 +110,12 @@ export function WalletTransactions({
   };
 
   if (!isConnected) {
-    return (
-      <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>
-        <h2 className="text-lg font-cyber text-emerald-400 mb-4">Transaction History</h2>
-        <p className="text-emerald-400/70">Connect your wallet to view your transaction history</p>
+    return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <h2 className="text-lg font-cyber text-emerald-400 mb-4">Transaction History</h2>    <p className="text-emerald-400/70">Connect your wallet to view your transaction history</p>
       </div>
     );
   }
 
-  return (
-    <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-cyber text-emerald-400">Transaction History</h2>
-        <button 
+  return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <div className="flex justify-between items-center mb-4">    <h2 className="text-lg font-cyber text-emerald-400">Transaction History</h2>    <button 
           onClick={fetchTransactions}
           disabled={isLoading}
           className="text-xs bg-emerald-400/10 hover:bg-emerald-400/20 text-emerald-400 px-2 py-1 rounded"
@@ -131,36 +124,20 @@ export function WalletTransactions({
         </button>
       </div>
       
-      {error && (
-        <div className="text-red-400 text-sm mb-2">{error}</div>
+      {error && (    <div className="text-red-400 text-sm mb-2">{error}</div>
       )}
       
-      {isLoading ? (
-        <div className="space-y-2">
-          <Skeleton className="h-16 w-full bg-emerald-400/5" />
-          <Skeleton className="h-16 w-full bg-emerald-400/5" />
-          <Skeleton className="h-16 w-full bg-emerald-400/5" />
+      {isLoading ? (    <div className="space-y-2">    <Skeleton className="h-16 w-full bg-emerald-400/5" />    <Skeleton className="h-16 w-full bg-emerald-400/5" />    <Skeleton className="h-16 w-full bg-emerald-400/5" />
         </div>
-      ) : transactions.length === 0 ? (
-        <div className="text-emerald-400/50 text-sm">No transactions found</div>
-      ) : (
-        <div className="space-y-3">
-          {transactions.map((tx, index) => (
-            <div key={index} className="p-3 bg-sapphire-800/30 rounded border border-emerald-400/10">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-sapphire-800/80 rounded-full">
+      ) : transactions.length === 0 ? (    <div className="text-emerald-400/50 text-sm">No transactions found</div>
+      ) : (    <div className="space-y-3">
+          {transactions.map((tx, index) => (    <div key={index} className="p-3 bg-sapphire-800/30 rounded border border-emerald-400/10">    <div className="flex items-center gap-3">    <div className="p-2 bg-sapphire-800/80 rounded-full">
                   {getTransactionIcon(tx.type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <span className="text-emerald-400 capitalize">{tx.type}</span>
+                </div>    <div className="flex-1">    <div className="flex justify-between">    <span className="text-emerald-400 capitalize">{tx.type}</span>
                     {getStatusBadge(tx.status)}
-                  </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-xs text-gray-400">
+                  </div>    <div className="flex justify-between mt-1">    <span className="text-xs text-gray-400">
                       {formatTimestamp(tx.timestamp)}
-                    </span>
-                    <a 
+                    </span>    <a 
                       href={`https://solscan.io/tx/${tx.id}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
@@ -174,8 +151,7 @@ export function WalletTransactions({
             </div>
           ))}
           
-          {transactions.length > 0 && (
-            <a 
+          {transactions.length > 0 && (    <a 
               href={`https://solscan.io/account/${walletAddress}`}
               target="_blank"
               rel="noopener noreferrer"

@@ -9,9 +9,7 @@ function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <UserProvider>
-      <WalletContextProvider>
+  return (<UserProvider>    <WalletContextProvider>
         {children}
       </WalletContextProvider>
     </UserProvider>

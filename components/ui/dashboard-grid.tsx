@@ -112,12 +112,10 @@ export function DashboardGrid({
     }
   };
 
-  return (
-    <div className={`grid grid-cols-12 gap-4 md:gap-6 ${className}`}>
+  return (<div className={`grid grid-cols-12 gap-4 md:gap-6 ${className}`}>
       {cards
         .filter(card => card.visible)
-        .map(card => (
-          <div 
+        .map(card => (    <div 
             key={card.id} 
             className={`${getCardSizeClass(card.size)}`}
             ref={el => {
@@ -129,23 +127,15 @@ export function DashboardGrid({
             onDragOver={handleDragOver}
             onDrop={e => handleDrop(e, card.id)}
             onDragEnd={handleDragEnd}
-          >
-            <Card className="h-full relative overflow-hidden backdrop-blur-sm bg-card/70 hover:bg-card/80 transition-all duration-300">
-              <div className="absolute left-2 top-2 h-8 w-8 cursor-move opacity-30 hover:opacity-70 flex items-center justify-center rounded-md">
-                <GripVertical size={16} />
-              </div>
-              <Button
+          >    <Card className="h-full relative overflow-hidden backdrop-blur-sm bg-card/70 hover:bg-card/80 transition-all duration-300">    <div className="absolute left-2 top-2 h-8 w-8 cursor-move opacity-30 hover:opacity-70 flex items-center justify-center rounded-md">    <GripVertical size={16} />
+              </div>    <Button
                 variant="ghost"
                 size="icon"
                 className="absolute right-2 top-2 h-8 w-8 opacity-60 hover:opacity-100"
                 onClick={() => onToggleVisibility(card.id)}
-              >
-                <EyeOff size={16} />
-              </Button>
-              <CardHeader className="pt-8">
-                <CardTitle>{card.title}</CardTitle>
-              </CardHeader>
-              <CardContent>{renderCardContent(card)}</CardContent>
+              >    <EyeOff size={16} />
+              </Button>    <CardHeader className="pt-8">    <CardTitle>{card.title}</CardTitle>
+              </CardHeader>    <CardContent>{renderCardContent(card)}</CardContent>
             </Card>
           </div>
         ))}

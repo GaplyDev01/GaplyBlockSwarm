@@ -251,11 +251,7 @@ export function WalletContextProvider({ children }: { children: ReactNode }) {
   ], []);
 
   // Return provider with Solana wallet adapters
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <InnerWalletContextProvider wallets={wallets}>
+  return (<ConnectionProvider endpoint={endpoint}>    <WalletProvider wallets={wallets} autoConnect>    <WalletModalProvider>    <InnerWalletContextProvider wallets={wallets}>
             {children}
           </InnerWalletContextProvider>
         </WalletModalProvider>

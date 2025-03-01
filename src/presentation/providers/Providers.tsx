@@ -10,11 +10,7 @@ import { AIProvider } from '../context/ai-context';
  * Global providers wrapper
  */
 export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <ClerkProvider>
-      <ThemeProvider>
-        <WalletProvider>
-          <AIProvider>
+  return (<ClerkProvider>    <ThemeProvider>    <WalletProvider>    <AIProvider>
             {children}
           </AIProvider>
         </WalletProvider>

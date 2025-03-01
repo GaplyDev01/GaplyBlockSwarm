@@ -1,6 +1,5 @@
 export default function HomePage() {
-  return (
-    <div style={{ 
+  return (<div style={{ 
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
@@ -9,15 +8,11 @@ export default function HomePage() {
       padding: '2rem',
       fontFamily: 'system-ui, sans-serif',
       textAlign: 'center'
-    }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '2rem' }}>
+    }}>    <h1 style={{ fontSize: '2rem', marginBottom: '2rem' }}>
         BlockSwarms - AI Powered Solana Trading
-      </h1>
-      <p style={{ maxWidth: '600px', marginBottom: '2rem' }}>
+      </h1>    <p style={{ maxWidth: '600px', marginBottom: '2rem' }}>
         The ultimate platform for Solana token analysis, trading signals, and portfolio management.
-      </p>
-      <div>
-        <a href="/api/health" style={{ 
+      </p>    <div>    <a href="/api/health" style={{ 
           display: 'inline-block',
           padding: '0.75rem 1.5rem',
           backgroundColor: '#0070f3',

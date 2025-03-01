@@ -20,15 +20,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="stylesheet" href="/tailwind-fix.css" />
-        <link rel="stylesheet" href="/custom.css" />
-      </head>
-      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>
-        <ClerkProvider>
-          <Providers>
+  return (<html lang="en" suppressHydrationWarning>    <head>    <link rel="stylesheet" href="/tailwind-fix.css" />    <link rel="stylesheet" href="/custom.css" />
+      </head>    <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>    <ClerkProvider>    <Providers>
             {children}
           </Providers>
         </ClerkProvider>

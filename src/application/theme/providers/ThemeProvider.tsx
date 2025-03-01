@@ -81,8 +81,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setHighContrast: setHighContrastMode,
   };
 
-  return (
-    <ThemeContext.Provider value={contextValue}>
+  return (<ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

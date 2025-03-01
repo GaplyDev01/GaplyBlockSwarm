@@ -89,25 +89,20 @@ export function LiveWalletBalance({
     return 'text-red-400';
   };
   
-  return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <div className={cn('font-mono', getBalanceColor())}>
+  return (<div className={cn('flex items-center gap-2', className)}>    <div className={cn('font-mono', getBalanceColor())}>
         {getDisplayBalance()}
       </div>
       
-      {showRefresh && isConnected && (
-        <button 
+      {showRefresh && isConnected && (    <button 
           onClick={handleRefresh}
           disabled={isRefreshing}
           className="text-emerald-400/70 hover:text-emerald-400 transition-colors"
           title="Refresh balance"
-        >
-          <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+        >    <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
         </button>
       )}
       
-      {showLiveIndicator && isConnected && isSubscribed && (
-        <div 
+      {showLiveIndicator && isConnected && isSubscribed && (    <div 
           className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" 
           title="Live updates active" 
         />

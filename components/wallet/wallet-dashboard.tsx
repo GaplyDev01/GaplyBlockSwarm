@@ -77,34 +77,16 @@ export function WalletDashboard({ className }: WalletDashboardProps) {
   };
 
   if (!isConnected) {
-    return (
-      <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>
-        <h2 className="text-lg font-cyber text-emerald-400 mb-4">Wallet Dashboard</h2>
-        <p className="text-emerald-400/70">Connect your wallet to view your balances and tokens</p>
+    return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <h2 className="text-lg font-cyber text-emerald-400 mb-4">Wallet Dashboard</h2>    <p className="text-emerald-400/70">Connect your wallet to view your balances and tokens</p>
       </div>
     );
   }
 
-  return (
-    <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>
-      <h2 className="text-lg font-cyber text-emerald-400 mb-4">Wallet Dashboard</h2>
-      
-      <div className="mb-4">
-        <div className="text-emerald-400/70 mb-1">Connected Address</div>
-        <div className="text-emerald-400 font-mono text-sm break-all">
+  return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <h2 className="text-lg font-cyber text-emerald-400 mb-4">Wallet Dashboard</h2>    <div className="mb-4">    <div className="text-emerald-400/70 mb-1">Connected Address</div>    <div className="text-emerald-400 font-mono text-sm break-all">
           {walletAddress}
         </div>
-      </div>
-      
-      <div className="mb-4">
-        <div className="text-emerald-400/70 mb-1">SOL Balance (Live)</div>
-        <LiveWalletBalance />
-      </div>
-      
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <div className="text-emerald-400/70">Token Balances</div>
-          <button 
+      </div>    <div className="mb-4">    <div className="text-emerald-400/70 mb-1">SOL Balance (Live)</div>    <LiveWalletBalance />
+      </div>    <div>    <div className="flex justify-between items-center mb-2">    <div className="text-emerald-400/70">Token Balances</div>    <button 
             onClick={fetchTokenAccounts}
             disabled={isLoading}
             className="text-xs bg-emerald-400/10 hover:bg-emerald-400/20 text-emerald-400 px-2 py-1 rounded"
@@ -113,24 +95,14 @@ export function WalletDashboard({ className }: WalletDashboardProps) {
           </button>
         </div>
         
-        {error && (
-          <div className="text-red-400 text-sm mb-2">{error}</div>
+        {error && (    <div className="text-red-400 text-sm mb-2">{error}</div>
         )}
         
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-full bg-emerald-400/5" />
-            <Skeleton className="h-8 w-full bg-emerald-400/5" />
-            <Skeleton className="h-8 w-full bg-emerald-400/5" />
+        {isLoading ? (    <div className="space-y-2">    <Skeleton className="h-8 w-full bg-emerald-400/5" />    <Skeleton className="h-8 w-full bg-emerald-400/5" />    <Skeleton className="h-8 w-full bg-emerald-400/5" />
           </div>
-        ) : tokenAccounts.length === 0 ? (
-          <div className="text-emerald-400/50 text-sm">No tokens found</div>
-        ) : (
-          <div className="space-y-2">
-            {tokenAccounts.map((token, index) => (
-              <div key={index} className="flex justify-between py-1 border-b border-emerald-400/10">
-                <span className="text-emerald-400/70">{token.displayMint}</span>
-                <span className="text-emerald-400">{token.amount}</span>
+        ) : tokenAccounts.length === 0 ? (    <div className="text-emerald-400/50 text-sm">No tokens found</div>
+        ) : (    <div className="space-y-2">
+            {tokenAccounts.map((token, index) => (    <div key={index} className="flex justify-between py-1 border-b border-emerald-400/10">    <span className="text-emerald-400/70">{token.displayMint}</span>    <span className="text-emerald-400">{token.amount}</span>
               </div>
             ))}
           </div>
