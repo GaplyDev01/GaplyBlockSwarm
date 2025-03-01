@@ -7,6 +7,18 @@ export interface Message {
 }
 
 /**
+ * AI Tool interface for AI providers that support tools/function calling
+ */
+export interface AITool {
+  type: string;
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+/**
  * AI message interface with timestamps
  */
 export interface AIMessage {
@@ -46,4 +58,21 @@ export interface IAIProvider {
     onChunk: (chunk: any) => void,
     options?: any
   ): Promise<void>;
+  
+  /**
+   * Checks if the provider supports tools/function calling
+   */
+  supportsTools?(): boolean;
+  
+  /**
+   * Sets the tools for the provider
+   * @param tools Array of AI tools
+   */
+  setTools?(tools: AITool[]): void;
+  
+  /**
+   * Get context window size for a model
+   * @param model Optional model name
+   */
+  getContextWindowSize?(model?: string): number;
 }

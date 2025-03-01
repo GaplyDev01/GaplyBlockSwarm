@@ -53,6 +53,18 @@ export interface ISolanaRpcService {
   getTransaction(signature: string, options: unknown): Promise<unknown>;
   
   /**
+   * Get signatures for address
+   * @param address The address to get signatures for
+   * @param options Options for fetching signatures
+   * @returns Promise with signatures information
+   */
+  getSignaturesForAddress(
+    address: string,
+    options?: { limit?: number; before?: string; until?: string },
+    commitment?: string
+  ): Promise<unknown>;
+  
+  /**
    * Subscribe to account changes
    * @param publicKey The account public key
    * @param callback Callback to be invoked on account changes

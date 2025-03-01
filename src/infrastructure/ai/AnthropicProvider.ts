@@ -77,7 +77,7 @@ export class AnthropicProvider extends BaseAIProvider {
       const requestBody: any = {
         model: modelToUse,
         messages: this.convertToAnthropicMessages(messages),
-        max_tokens: maxTokens || 4000,
+        max_tokens: maxTokens !== undefined ? maxTokens : 4000,
       };
       
       if (temperature !== undefined) {
@@ -152,7 +152,7 @@ export class AnthropicProvider extends BaseAIProvider {
       const requestBody: any = {
         model: modelToUse,
         messages: this.convertToAnthropicMessages(messages),
-        max_tokens: maxTokens || 4000,
+        max_tokens: maxTokens !== undefined ? maxTokens : 4000,
         stream: true
       };
       
@@ -312,7 +312,7 @@ export class AnthropicProvider extends BaseAIProvider {
    */
   getContextWindowSize(model?: string): number {
     const modelToCheck = model || this.defaultModel;
-    return CONTEXT_WINDOW_SIZES[modelToCheck] || CONTEXT_WINDOW_SIZES.default;
+    return CONTEXT_WINDOW_SIZES[modelToCheck] || CONTEXT_WINDOW_SIZES.default || 100000;
   }
   
   /**

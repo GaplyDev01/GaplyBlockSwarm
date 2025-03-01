@@ -50,7 +50,7 @@ test.describe('AI Token Chat Integration (Real Data)', () => {
     // Test with symbol (simulating AI tool usage)
     const tokenBySymbol = await toolHandler.getTokenInfo({ symbol: 'SOL' });
     expect(tokenBySymbol).toBeDefined();
-    expect(tokenBySymbol?.mint).toBe(solMint);
+    expect(tokenBySymbol?.mintAddress).toBe(solMint);
   });
   
   test('should get real market data for token analytics', async () => {

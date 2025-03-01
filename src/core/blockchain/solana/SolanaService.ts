@@ -15,7 +15,9 @@ import { generateId } from '../../../shared/utils/helpers';
 
 // Known DEX program IDs for identifying swap transactions
 const DEX_PROGRAM_IDS = {
-  JUPITER: 'JUP',
+  JUPITER: {
+    id: 'JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB'
+  },
   ORCA: 'whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc',
   RAYDIUM: 'RVKd61ztZW9GUwhRbbLoYVRE5Xf1B2tVscKqwZqXgEr'
 };
@@ -736,7 +738,8 @@ export class SolanaService implements ISolanaService {
       // Get recent transactions for the wallet
       const signatures = await this.rpcService.getSignaturesForAddress(
         this.walletPublicKey.toString(),
-        { limit: 20 }
+        { limit: 20 },
+        'confirmed'
       ) as ConfirmedSignatureInfo[];
       
       if (!signatures || signatures.length === 0) {
@@ -784,7 +787,8 @@ export class SolanaService implements ISolanaService {
     try {
       // Get the full transaction data
       const txData = await this.rpcService.getTransaction(
-        signature.signature
+        signature.signature,
+        { maxSupportedTransactionVersion: 0 }
       ) as ParsedTransactionWithMeta | null;
       
       if (!txData || !txData.meta) {
@@ -848,7 +852,7 @@ export class SolanaService implements ISolanaService {
     );
     
     // Check if this is a token swap transaction
-    if (programIds.includes(DEX_PROGRAM_IDS.JUPITER) || 
+    if (programIds.includes(DEX_PROGRAM_IDS.JUPITER.id) || 
         programIds.includes(DEX_PROGRAM_IDS.ORCA) ||
         programIds.includes(DEX_PROGRAM_IDS.RAYDIUM)) {
       return 'swap';
@@ -856,21 +860,27 @@ export class SolanaService implements ISolanaService {
     
     // Check for token program transfers
     const hasTokenTransfer = txData.meta?.innerInstructions?.some(inner => 
-      inner.instructions.some((ix: any) => 
-        ix.programId === TOKEN_PROGRAM_ID.toString() && 
-        ix.parsed?.type === 'transfer'
-      )
+      inner.instructions.some((ix: any) => {
+        if ('parsed' in ix) {
+          return ix.programId === TOKEN_PROGRAM_ID.toString() && 
+            ix.parsed?.type === 'transfer';
+        }
+        return false;
+      })
     );
     
     if (hasTokenTransfer) {
       // Determine if this is a send or receive based on wallet address
       // This is a simplified approach and would need to be more thorough in production
       const isReceive = txData.meta?.innerInstructions?.some(inner => 
-        inner.instructions.some((ix: any) => 
-          ix.programId === TOKEN_PROGRAM_ID.toString() && 
-          ix.parsed?.type === 'transfer' &&
-          ix.parsed.info.destination === this.walletAddress
-        )
+        inner.instructions.some((ix: any) => {
+          if ('parsed' in ix) {
+            return ix.programId === TOKEN_PROGRAM_ID.toString() && 
+              ix.parsed?.type === 'transfer' &&
+              ix.parsed.info.destination === this.walletAddress;
+          }
+          return false;
+        })
       );
       
       return isReceive ? 'receive' : 'send';
@@ -956,19 +966,25 @@ export class SolanaService implements ISolanaService {
   } {
     // For token transfers, find the token program instruction
     const transferIx = txData.meta?.innerInstructions?.find(inner => 
-      inner.instructions.some((ix: any) => 
-        ix.programId === TOKEN_PROGRAM_ID.toString() && 
-        ix.parsed?.type === 'transfer'
-      )
+      inner.instructions.some((ix: any) => {
+        if ('parsed' in ix) {
+          return ix.programId === TOKEN_PROGRAM_ID.toString() && 
+            ix.parsed?.type === 'transfer';
+        }
+        return false;
+      })
     );
     
     if (transferIx) {
-      const transferDetails = transferIx.instructions.find((ix: any) => 
-        ix.programId === TOKEN_PROGRAM_ID.toString() && 
-        ix.parsed?.type === 'transfer'
-      );
+      const transferDetails = transferIx.instructions.find((ix: any) => {
+        if ('parsed' in ix) {
+          return ix.programId === TOKEN_PROGRAM_ID.toString() && 
+            ix.parsed?.type === 'transfer';
+        }
+        return false;
+      });
       
-      if (transferDetails && transferDetails.parsed?.info) {
+      if (transferDetails && 'parsed' in transferDetails && transferDetails.parsed?.info) {
         const info = transferDetails.parsed.info;
         return {
           token: info.mint || 'unknown',
@@ -980,19 +996,25 @@ export class SolanaService implements ISolanaService {
     
     // Check if this is a SOL transfer
     const solTransfer = txData.meta?.innerInstructions?.find(inner => 
-      inner.instructions.some((ix: any) => 
-        ix.programId === 'System' && 
-        ix.parsed?.type === 'transfer'
-      )
+      inner.instructions.some((ix: any) => {
+        if ('parsed' in ix) {
+          return ix.programId === 'System' && 
+            ix.parsed?.type === 'transfer';
+        }
+        return false;
+      })
     );
     
     if (solTransfer) {
-      const transferDetails = solTransfer.instructions.find((ix: any) => 
-        ix.programId === 'System' && 
-        ix.parsed?.type === 'transfer'
-      );
+      const transferDetails = solTransfer.instructions.find((ix: any) => {
+        if ('parsed' in ix) {
+          return ix.programId === 'System' && 
+            ix.parsed?.type === 'transfer';
+        }
+        return false;
+      });
       
-      if (transferDetails && transferDetails.parsed?.info) {
+      if (transferDetails && 'parsed' in transferDetails && transferDetails.parsed?.info) {
         const info = transferDetails.parsed.info;
         return {
           token: 'SOL',

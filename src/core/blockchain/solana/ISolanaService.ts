@@ -34,14 +34,16 @@ export interface ISolanaService {
    * @param type Trade type (buy/sell)
    * @param amount Amount to trade
    * @param price Price to trade at
+   * @param simulationMode If true, just simulate the trade without execution
    * @returns Promise with trade execution details
    */
   executeTrade(
     token: string,
     type: 'buy' | 'sell',
     amount: number,
-    price: number
-  ): Promise<{ success: boolean; trade: TradeInfo }>;
+    price: number,
+    simulationMode?: boolean
+  ): Promise<{ success: boolean; trade: TradeInfo; transactionId?: string }>;
 
   /**
    * Get transaction history for the connected wallet
@@ -116,6 +118,7 @@ export interface TradeInfo {
   timestamp: number;
   status: 'open' | 'closed' | 'canceled';
   simulation?: boolean;
+  error?: string;
 }
 
 /**

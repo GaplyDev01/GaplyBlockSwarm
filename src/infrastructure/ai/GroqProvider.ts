@@ -322,7 +322,7 @@ export class GroqProvider extends BaseAIProvider {
    */
   getContextWindowSize(model?: string): number {
     const modelToCheck = model || this.defaultModel;
-    return CONTEXT_WINDOW_SIZES[modelToCheck] || CONTEXT_WINDOW_SIZES.default;
+    return CONTEXT_WINDOW_SIZES[modelToCheck] || CONTEXT_WINDOW_SIZES.default || 100000;
   }
   
   /**

@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Commitment } from '@solana/web3.js';
+import { Connection, PublicKey, Commitment, ConfirmedSignatureInfo } from '@solana/web3.js';
 import { ISolanaRpcService } from '../../../core/blockchain/solana/ISolanaRpcService';
 import { ILogger } from '../../../shared/utils/logger';
 
@@ -139,6 +139,27 @@ export class SolanaRpcService implements ISolanaRpcService {
   }
   
   /**
+   * Get signatures for an address
+   * @param address The address to get signatures for
+   * @param options Options for fetching signatures
+   * @returns Promise with signatures information
+   */
+  async getSignaturesForAddress(
+    address: string,
+    options?: { limit?: number; before?: string; until?: string },
+    commitment?: string
+  ): Promise<unknown> {
+    try {
+      const pubkey = new PublicKey(address);
+      const configOptions = commitment ? { ...options, commitment: commitment as Commitment } : options;
+      return await this.connection.getSignaturesForAddress(pubkey, configOptions) as ConfirmedSignatureInfo[];
+    } catch (error) {
+      this.logger.error(`Error getting signatures for address ${address}`, error);
+      throw error;
+    }
+  }
+  
+  /**
    * Subscribe to account changes
    * @param publicKey The account public key
    * @param callback Callback to be invoked on account changes
@@ -175,7 +196,7 @@ export class SolanaRpcService implements ISolanaRpcService {
    */
   async unsubscribe(subscriptionId: number): Promise<boolean> {
     try {
-      const success = await this.connection.removeAccountChangeListener(subscriptionId);
+      const success = this.connection.removeAccountChangeListener(subscriptionId);
       this.logger.info(`Unsubscribed from subscription ${subscriptionId}: ${success}`);
       return success;
     } catch (error) {
