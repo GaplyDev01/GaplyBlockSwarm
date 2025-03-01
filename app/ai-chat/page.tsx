@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import { useAuth, SignInButton } from '@clerk/nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';

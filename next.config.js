@@ -8,6 +8,16 @@ const nextConfig = {
       allowedOrigins: ['localhost:3000', '*.vercel.app']
     },
   },
+  images: {
+    unoptimized: true,
+  },
+  // Critical: Skip the static generation phase for authenticated routes
+  // This should prevent "UserContext not found" errors 
+  output: 'standalone',
+  
+  // Ensure that pages with client components are not pre-rendered statically
+  // This helps prevent the "UserContext not found" errors during build
+  staticPageGenerationTimeout: 1000,
   transpilePackages: [
     '@solana/wallet-adapter-base',
     '@solana/wallet-adapter-react',
@@ -24,8 +34,7 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  // Add output: 'standalone' for better optimization in Vercel
-  output: 'standalone',
+  // Already defined above
   // Explicitly define webpack configuration for path resolution
   webpack: (config) => {
     config.resolve.alias = {

@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page
+export const dynamic = 'force-dynamic';
+
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';

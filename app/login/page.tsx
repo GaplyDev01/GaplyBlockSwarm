@@ -1,10 +1,13 @@
 'use client';
 
+// Force dynamic rendering - never statically generate this page  
+export const dynamic = 'force-dynamic';
+
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginPage() {
   return (
     <div className="min-h-screen bg-sapphire-900 overflow-hidden bg-tech-pattern">
       {/* Background effect */}
@@ -74,3 +77,7 @@ export default function LoginPage() {
     </div>
   );
 }
+
+// Export as default with dynamic import to skip SSR
+import dynamic from 'next/dynamic';
+export default dynamic(() => Promise.resolve(LoginPage), { ssr: false });
