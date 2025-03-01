@@ -487,20 +487,32 @@ function DashboardPage() {
     }
   }
 
-  return (<div className="min-h-screen bg-sapphire-900 text-white">
-        {/* Header */}    <header className="bg-sapphire-900/80 backdrop-blur-sm border-b border-emerald-400/20 p-4 fixed top-0 left-0 right-0 z-10">    <div className="container mx-auto flex justify-between items-center">    <Link href="/" className="font-cyber text-2xl text-emerald-400">BlockSwarms</Link>    <div className="flex items-center space-x-4">    <Button
+  return (
+    <div className="min-h-screen bg-sapphire-900 text-white">
+        {/* Header */}
+        <header className="bg-sapphire-900/80 backdrop-blur-sm border-b border-emerald-400/20 p-4 fixed top-0 left-0 right-0 z-10">
+          <div className="container mx-auto flex justify-between items-center">
+            <Link href="/" className="font-cyber text-2xl text-emerald-400">BlockSwarms</Link>
+            <div className="flex items-center space-x-4">
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowCustomizeModal(true)}
                 className="text-emerald-400 border-emerald-400/30"
-              >    <Layout size={16} className="mr-2" />
+              >
+                <Layout size={16} className="mr-2" />
                 Customize
-              </Button>    <ConnectWalletButton />    <UserButton />
+              </Button>
+              <ConnectWalletButton />
+              <UserButton />
             </div>
           </div>
         </header>
 
-        {/* Sidebar */}    <div className="fixed left-0 top-0 h-full w-16 bg-sapphire-900/80 backdrop-blur-sm border-r border-emerald-400/20 pt-20 hidden md:flex flex-col items-center">    <Link href="/dashboard" className="w-10 h-10 mb-4 rounded-md bg-emerald-400/10 flex items-center justify-center text-emerald-400">    <Home size={20} />
+        {/* Sidebar */}
+        <div className="fixed left-0 top-0 h-full w-16 bg-sapphire-900/80 backdrop-blur-sm border-r border-emerald-400/20 pt-20 hidden md:flex flex-col items-center">
+          <Link href="/dashboard" className="w-10 h-10 mb-4 rounded-md bg-emerald-400/10 flex items-center justify-center text-emerald-400">
+            <Home size={20} />
           </Link>    <Link href="#wallet" className="w-10 h-10 mb-4 rounded-md hover:bg-emerald-400/10 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400">    <BarChart2 size={20} />
           </Link>    <Link 
             href="/ai-chat" 
