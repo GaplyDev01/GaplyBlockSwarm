@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', '*.vercel.app']
+    },
   },
   transpilePackages: [
     '@solana/wallet-adapter-base',
@@ -21,6 +22,8 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // Add output: 'standalone' for better optimization in Vercel
+  output: 'standalone',
 }
 
 module.exports = nextConfig
