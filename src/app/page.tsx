@@ -1,7 +1,13 @@
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { JoinModal } from './JoinModal';
 
 export default function HomePage() {
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-12">
@@ -43,12 +49,12 @@ export default function HomePage() {
                 >
                   ENTER PLATFORM <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link
-                  href="/signup"
+                <button
+                  onClick={() => setIsJoinModalOpen(true)}
                   className="button-outline font-cyber"
                 >
                   JOIN THE SWARM
-                </Link>
+                </button>
                 <Link
                   href="/ai-chat"
                   className="button-outline flex items-center justify-center gap-2 font-cyber"
@@ -121,6 +127,9 @@ export default function HomePage() {
           </div>
         </footer>
       </div>
+      
+      {/* Join Modal */}
+      {isJoinModalOpen && <JoinModal isOpen={isJoinModalOpen} onClose={() => setIsJoinModalOpen(false)} />}
     </div>
   );
 }

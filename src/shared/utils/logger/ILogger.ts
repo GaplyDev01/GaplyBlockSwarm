@@ -1,41 +1,34 @@
 /**
- * Interface for Logger services
- * Defines the contract for logging across the application
+ * Logger interface for application
  */
 export interface ILogger {
   /**
-   * Log an informational message
-   * @param message The message to log
-   * @param context Optional context object
+   * Log information message
    */
-  info(message: string, context?: unknown): void;
+  info(message: string, ...args: any[]): void;
   
   /**
-   * Log a warning message
-   * @param message The message to log
-   * @param context Optional context object
+   * Log debug message
    */
-  warn(message: string, context?: unknown): void;
+  debug(message: string, ...args: any[]): void;
   
   /**
-   * Log an error message
-   * @param message The message to log
-   * @param error Optional error object
-   * @param context Optional context object
+   * Log warning message
    */
-  error(message: string, error?: unknown, context?: unknown): void;
+  warn(message: string, ...args: any[]): void;
   
   /**
-   * Log a debug message (only in development)
-   * @param message The message to log
-   * @param context Optional context object
+   * Log error message
    */
-  debug(message: string, context?: unknown): void;
+  error(message: string, ...args: any[]): void;
   
+  /**
+   * Log fatal error message
+   */
+  fatal?(message: string, ...args: any[]): void;
+
   /**
    * Create a child logger with additional context
-   * @param options Options for the child logger
-   * @returns A new logger instance with the parent's context
    */
-  child(options: { module: string; [key: string]: unknown }): ILogger;
+  child(bindings: object): ILogger;
 }

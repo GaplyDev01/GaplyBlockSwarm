@@ -20,6 +20,11 @@ export interface EnhancedTokenInfo {
   volume?: number;
   priceChange?: number;
   marketCap?: number;
+  allTimeHigh?: number;
+  allTimeLow?: number;
+  circulatingSupply?: number;
+  maxSupply?: number;
+  fullyDilutedValuation?: number;
 }
 
 // Interface for token price and analytics data

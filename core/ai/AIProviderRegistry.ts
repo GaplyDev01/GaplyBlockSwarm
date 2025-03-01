@@ -41,7 +41,7 @@ export class AIProviderRegistry {
    * Get the default provider (first one)
    */
   static getDefaultProvider(): IAIProvider | null {
-    return this.providers.length > 0 ? this.providers[0] : null;
+    return this.providers.length > 0 ? this.providers[0] || null : null;
   }
   
   /**

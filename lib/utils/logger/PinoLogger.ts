@@ -1,4 +1,4 @@
-import { ILogger } from './ILogger';
+import { ILogger } from '@/src/shared/utils/logger/ILogger';
 import pino from 'pino';
 
 /**

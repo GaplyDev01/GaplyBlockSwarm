@@ -1,4 +1,4 @@
-import { ILogger } from './ILogger';
+import { ILogger } from '@/src/shared/utils/logger/ILogger';
 import { PinoLogger } from './PinoLogger';
 
 // Create a singleton logger instance
@@ -19,5 +19,5 @@ export function getLogger(): ILogger {
 export const logger = getLogger();
 
 // Export types
-export { ILogger } from './ILogger';
+export type { ILogger } from '@/src/shared/utils/logger/ILogger';
 export { PinoLogger } from './PinoLogger';

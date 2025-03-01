@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { LRUCache } from 'lru-cache';
 
 interface RateLimitOptions {
   interval: number;
@@ -9,10 +8,24 @@ interface RateLimitOptions {
 export default function rateLimit(options: RateLimitOptions) {
   const { interval, uniqueTokenPerInterval } = options;
   
-  const cache = new LRUCache<string, number[]>({
-    max: uniqueTokenPerInterval * 2, // Double the max for safety
-    ttl: interval // Automatically cleanup stale entries
-  });
+  // Simple in-memory cache implementation
+  const cache = new Map<string, number[]>();
+  
+  // Cleanup function to remove old entries
+  const cleanup = () => {
+    const now = Date.now();
+    for (const [token, timestamps] of cache.entries()) {
+      const validTimestamps = timestamps.filter(ts => now - ts < interval);
+      if (validTimestamps.length === 0) {
+        cache.delete(token);
+      } else {
+        cache.set(token, validTimestamps);
+      }
+    }
+  };
+  
+  // Set up periodic cleanup
+  setInterval(cleanup, interval);
   
   return {
     /**
@@ -30,7 +43,7 @@ export default function rateLimit(options: RateLimitOptions) {
       
       // Filter out timestamps that are outside the current interval
       const validTimestamps = tokenTimestamps.filter(
-        timestamp => now - timestamp < interval
+        (timestamp: number) => now - timestamp < interval
       );
       
       // Add current request timestamp

@@ -72,6 +72,25 @@ export interface Token {
   // Additional fields for our app
   tags?: string[];
   address?: string;
+  // Enhanced fields
+  allTimeHigh?: number;
+  allTimeLow?: number;
+}
+
+// Enhanced token info with additional fields
+export interface EnhancedTokenInfo {
+  name: string;
+  symbol: string;
+  address: string;
+  image: string;
+  price: number;
+  priceChange: number;
+  marketCap: number;
+  volume: number;
+  totalSupply: number;
+  circulatingSupply: number;
+  allTimeHigh?: number;
+  allTimeLow?: number;
 }
 
 // TokenInfo interface for the wallet dashboard

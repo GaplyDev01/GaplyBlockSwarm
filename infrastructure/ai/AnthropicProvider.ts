@@ -106,8 +106,9 @@ export class AnthropicProvider extends BaseAIProvider {
     let toolResult;
     try {
       toolResult = await this.executeTool(toolName, toolInput);
-    } catch (error) {
-      toolResult = { error: `Error executing tool ${toolName}: ${error.message}` };
+    } catch (error: any) {
+      const errorMessage = error?.message || String(error);
+      toolResult = { error: `Error executing tool ${toolName}: ${errorMessage}` };
     }
     
     // Add the tool result to the messages and continue the conversation

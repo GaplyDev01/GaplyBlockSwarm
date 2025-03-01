@@ -1,0 +1,14 @@
+# Ignore test files
+*.test.*
+*.spec.*
+
+# Ignore temporary directories
+tmp-backup/
+tmp-fixes/
+
+# Ignore development configurations
+jest.config.js
+tsconfig.jest.json
+
+# Ignore the second app directory (we're using src/app)
+app/
