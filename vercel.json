@@ -28,6 +28,5 @@
   ],
   "env": {
     "NEXT_PUBLIC_ENVIRONMENT": "production"
-    /* Add other environment variables in the Vercel dashboard */
   }
 }
