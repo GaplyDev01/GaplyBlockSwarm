@@ -13,6 +13,12 @@ interface Token {
   image: string;
   current_price: number;
   price_change_percentage_24h: number;
+  market_cap?: number;
+  total_volume?: number;
+  circulating_supply?: number;
+  total_supply?: number;
+  is_jupiter_token?: boolean;
+  searchNote?: string;
 }
 
 interface TokenSearchProps {
