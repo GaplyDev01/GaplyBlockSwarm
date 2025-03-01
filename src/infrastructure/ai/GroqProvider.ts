@@ -25,6 +25,7 @@ const CONTEXT_WINDOW_SIZES: Record<string, number> = {
  */
 export class GroqProvider extends BaseAIProvider {
   private static GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+  private tools?: AITool[];
   
   /**
    * Create a new GroqProvider
@@ -329,6 +330,22 @@ export class GroqProvider extends BaseAIProvider {
    */
   supportsTools(): boolean {
     return true;
+  }
+  
+  /**
+   * Set tools for this provider
+   * @param tools Array of tools to use
+   */
+  setTools(tools: AITool[]): void {
+    this.logger.info(`Setting ${tools.length} tools for Groq provider`);
+    this.tools = tools;
+  }
+  
+  /**
+   * Get the current tools
+   */
+  getTools(): AITool[] {
+    return this.tools || [];
   }
   
   /**

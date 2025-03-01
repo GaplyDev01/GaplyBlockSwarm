@@ -1,7 +1,9 @@
 import { AIProviderRegistry } from '../../core/ai/AIProviderRegistry';
 import { ILogger } from '../../shared/utils/logger/ILogger';
+import { PinoLogger } from '../../shared/utils/logger';
 import { AnthropicProvider } from './AnthropicProvider';
 import { GroqProvider } from './GroqProvider';
+import { IAIProvider } from '../../core/ai/interfaces/IAIProvider';
 
 /**
  * Factory for creating and initializing AI providers
@@ -89,6 +91,36 @@ export class AIProviderFactory {
     } catch (error) {
       logger.error('Failed to initialize Groq provider', error);
     }
+  }
+
+  /**
+   * Create an Anthropic provider
+   * @returns Anthropic provider instance
+   */
+  static createAnthropicProvider(): IAIProvider {
+    const apiKey = process.env.ANTHROPIC_API_KEY || '';
+    const model = process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-sonnet-20240229';
+    
+    return new AnthropicProvider(
+      new PinoLogger().child({ module: 'anthropic', provider: 'anthropic' }),
+      apiKey,
+      model
+    );
+  }
+
+  /**
+   * Create a Groq provider
+   * @returns Groq provider instance
+   */
+  static createGroqProvider(): IAIProvider {
+    const apiKey = process.env.GROQ_API_KEY || '';
+    const model = process.env.GROQ_DEFAULT_MODEL || 'llama3-70b-8192';
+    
+    return new GroqProvider(
+      new PinoLogger().child({ module: 'groq', provider: 'groq' }),
+      apiKey,
+      model
+    );
   }
 }
 

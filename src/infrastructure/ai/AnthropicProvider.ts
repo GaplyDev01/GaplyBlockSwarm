@@ -27,6 +27,7 @@ const CONTEXT_WINDOW_SIZES: Record<string, number> = {
  */
 export class AnthropicProvider extends BaseAIProvider {
   private static ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+  private tools?: AITool[];
   
   /**
    * Create a new AnthropicProvider
@@ -319,6 +320,22 @@ export class AnthropicProvider extends BaseAIProvider {
    */
   supportsTools(): boolean {
     return true;
+  }
+  
+  /**
+   * Set tools for this provider
+   * @param tools Array of tools to use
+   */
+  setTools(tools: AITool[]): void {
+    this.logger.info(`Setting ${tools.length} tools for Anthropic provider`);
+    this.tools = tools;
+  }
+  
+  /**
+   * Get the current tools
+   */
+  getTools(): AITool[] {
+    return this.tools || [];
   }
   
   /**

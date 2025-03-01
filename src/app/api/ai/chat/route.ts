@@ -6,51 +6,67 @@ import { PinoLogger } from '../../../../shared/utils/logger';
 import { AIProviderRegistry } from '../../../../core/ai/AIProviderRegistry';
 import { AnthropicProvider } from '../../../../infrastructure/ai/AnthropicProvider';
 import { GroqProvider } from '../../../../infrastructure/ai/GroqProvider';
+import { AIMessage, AITool } from '../../../../core/ai/interfaces/IAIProvider';
 // The solanaToolSchema import will be defined directly since it's causing issues
-const solanaToolSchema = [
+const solanaToolSchema: AITool[] = [
   {
-    name: "get_token_price",
-    description: "Get the current price and basic information for any Solana token on the blockchain.",
-    parameters: {
-      type: "object",
-      properties: {
-        token: {
-          type: "string",
-          description: "The token symbol (e.g., 'SOL', 'BONK') or mint address"
-        }
-      },
-      required: ["token"]
+    type: "function",
+    function: {
+      name: "get_token_price",
+      description: "Get the current price and basic information for any Solana token on the blockchain.",
+      parameters: {
+        type: "object",
+        properties: {
+          token: {
+            type: "string",
+            description: "The token symbol (e.g., 'SOL', 'BONK') or mint address"
+          }
+        },
+        required: ["token"]
+      }
     }
   },
   {
-    name: "get_token_analytics",
-    description: "Get detailed market analytics for a Solana token.",
-    parameters: {
-      type: "object",
-      properties: {
-        token: {
-          type: "string",
-          description: "The token symbol or mint address"
-        }
-      },
-      required: ["token"]
+    type: "function",
+    function: {
+      name: "get_token_analytics",
+      description: "Get detailed market analytics for a Solana token.",
+      parameters: {
+        type: "object",
+        properties: {
+          token: {
+            type: "string",
+            description: "The token symbol or mint address"
+          }
+        },
+        required: ["token"]
+      }
     }
   },
   {
-    name: "get_trading_signal",
-    description: "Generate trading recommendations for a token.",
-    parameters: {
-      type: "object",
-      properties: {
-        token: {
-          type: "string",
-          description: "The token symbol or mint address"
-        }
-      },
-      required: ["token"]
+    type: "function",
+    function: {
+      name: "get_trading_signal",
+      description: "Generate trading recommendations for a token.",
+      parameters: {
+        type: "object",
+        properties: {
+          token: {
+            type: "string",
+            description: "The token symbol or mint address"
+          }
+        },
+        required: ["token"]
+      }
     }
   }
 ];
+
+// Define AIMessage type from schema
+type ValidatedAIMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
 
 // Schema for request validation
 const chatRequestSchema = z.object({
@@ -71,40 +87,36 @@ const initializeServices = () => {
   const logger = new PinoLogger();
   
   // Register Anthropic and Groq providers
-  const anthropicProvider = new AnthropicProvider({
-    model: 'claude-3-7-sonnet-20240229',
-    tools: solanaToolSchema,
-    apiKey: process.env.ANTHROPIC_API_KEY || ''
-  });
+  const anthropicLogger = new PinoLogger({ module: 'anthropic' });
+  const anthropicProvider = new AnthropicProvider(
+    anthropicLogger,
+    process.env.ANTHROPIC_API_KEY || '',
+    'claude-3-7-sonnet-20240229'
+  );
   
-  const groqProvider = new GroqProvider({
-    model: 'llama3-70b-8192',
-    apiKey: process.env.GROQ_API_KEY || ''
-  });
+  // Set tools after initialization if the provider supports it
+  if (anthropicProvider.supportsTools()) {
+    anthropicProvider.setTools(solanaToolSchema);
+  }
+  
+  const groqLogger = new PinoLogger({ module: 'groq' });
+  const groqProvider = new GroqProvider(
+    groqLogger,
+    process.env.GROQ_API_KEY || '',
+    'llama3-70b-8192'
+  );
+  
+  // Set tools after initialization if the provider supports it
+  if (groqProvider.supportsTools()) {
+    groqProvider.setTools(solanaToolSchema);
+  }
   
   // Create new registry instance
-  const registry = {
-    providers: [anthropicProvider, groqProvider],
-    logger: logger,
-    
-    getProvider(name: string) {
-      return this.providers.find(p => p.getName() === name) || this.providers[0];
-    },
-    
-    getProviders() {
-      return [...this.providers];
-    },
-    
-    getDefaultProvider() {
-      return this.providers.length > 0 ? this.providers[0] : null;
-    },
-    
-    registerProvider(provider: any) {
-      if (!this.providers.some(p => p.getName() === provider.getName())) {
-        this.providers.push(provider);
-      }
-    }
-  };
+  const registry = new AIProviderRegistry(logger);
+  
+  // Register providers
+  registry.registerProvider(anthropicProvider, true); // Anthropic as default
+  registry.registerProvider(groqProvider);
   
   // Create chat service with the registry and logger
   return new AIChatService(registry, logger);
@@ -199,9 +211,15 @@ export async function POST(request: NextRequest) {
           };
           
           try {
+            // Convert validated messages to AIMessage type
+            const aiMessages = messages.map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })) as AIMessage[];
+            
             await chatService.getStreamingCompletion(
               {
-                messages,
+                messages: aiMessages,
                 chatId: activeChatId,
                 provider,
                 model,
@@ -235,8 +253,14 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // For non-streaming, return regular JSON response
+      // Convert validated messages to AIMessage type
+      const aiMessages = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })) as AIMessage[];
+      
       const completion = await chatService.getCompletion({
-        messages,
+        messages: aiMessages,
         chatId: activeChatId,
         provider,
         model,

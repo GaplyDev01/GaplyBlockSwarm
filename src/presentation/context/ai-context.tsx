@@ -68,7 +68,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
         const logger = new PinoLogger();
         
         // Create provider registry
-        const registry = new AIProviderRegistry();
+        const registry = new AIProviderRegistry(logger);
         
         // Create and register providers using factory
         const anthropicProvider = AIProviderFactory.createAnthropicProvider();

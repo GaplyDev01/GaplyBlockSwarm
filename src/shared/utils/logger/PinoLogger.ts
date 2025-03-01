@@ -78,7 +78,10 @@ export class PinoLogger implements ILogger {
    */
   error(message: string, error?: unknown, context?: unknown): void {
     // Combine error with context if both are provided
-    let combinedContext = context || {};
+    let combinedContext: Record<string, unknown> = context ? 
+      (typeof context === 'object' ? { ...context as Record<string, unknown> } : { context }) 
+      : {};
+    
     if (error) {
       if (error instanceof Error) {
         combinedContext = {
@@ -137,7 +140,10 @@ class ChildPinoLogger implements ILogger {
   }
 
   error(message: string, error?: unknown, context?: unknown): void {
-    let combinedContext = context || {};
+    let combinedContext: Record<string, unknown> = context ? 
+      (typeof context === 'object' ? { ...context as Record<string, unknown> } : { context }) 
+      : {};
+    
     if (error) {
       if (error instanceof Error) {
         combinedContext = {
