@@ -1,14 +1,16 @@
 'use client';
 
-// Force dynamic rendering - never statically generate this page
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
+// Import React and Next.js dependencies
 import React, { useEffect, useState } from 'react';
 import { useAuth, SignInButton } from '@clerk/nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+// Force dynamic rendering - never statically generate this page
+export const dynamicPage = 'force-dynamic';
+export const runtime = 'edge';
 
 // Import components
 import { ChatContainer } from '@/src/presentation/components/ai/chat-container';
@@ -121,5 +123,4 @@ function AIChatPage() {
 }
 
 // Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
 export default dynamic(() => Promise.resolve(AIChatPage), { ssr: false });
