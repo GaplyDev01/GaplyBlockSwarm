@@ -16,6 +16,24 @@ interface TokenData {
   total_supply?: number;
 }
 
+// Jupiter token interface
+interface JupiterToken {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  market_cap?: number;
+  total_volume?: number;
+  circulating_supply?: number;
+  total_supply?: number;
+  tags?: string[];
+  extensions?: Record<string, any>;
+  is_jupiter_token?: boolean;
+  searchNote?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Set CORS headers to ensure the API is accessible
@@ -132,7 +150,7 @@ export async function GET(request: NextRequest) {
         
         // Get specific tokens from the Jupiter API
         const filteredJupiterTokens = jupiterTokens
-          .filter((token: any) => {
+          .filter((token: any): boolean => {
             const nameMatch = token.name && token.name.toLowerCase().includes(query);
             const symbolMatch = token.symbol && token.symbol.toLowerCase().includes(query);
             const addressMatch = token.address && token.address.toLowerCase().includes(query);
@@ -141,7 +159,7 @@ export async function GET(request: NextRequest) {
             
             return nameMatch || symbolMatch || addressMatch || tagMatch;
           })
-          .map((token: any) => {
+          .map((token: any): JupiterToken => {
             // Try to find a logo URL, defaulting to a placeholder if not found
             let logoUrl = token.logoURI;
             if (!logoUrl || logoUrl.includes('unknown')) {
@@ -176,7 +194,7 @@ export async function GET(request: NextRequest) {
             console.log('Found specialized token search for known tokens');
             
             // Add a note to indicate these are tokens without price data
-            filteredJupiterTokens.forEach(token => {
+            filteredJupiterTokens.forEach((token: JupiterToken) => {
               if (token.symbol.toLowerCase().includes(query)) {
                 token.searchNote = 'This token is not listed on CoinGecko, so price data is unavailable';
               }
