@@ -200,14 +200,21 @@ export async function POST(request: NextRequest) {
       const encoder = new TextEncoder();
       const customReadable = new ReadableStream({
         async start(controller) {
+          if (!controller || typeof controller.enqueue !== 'function') {
+            console.error('Stream controller is invalid');
+            throw new Error('Invalid stream controller');
+          }
+          
           // Function to send events to the stream
           const sendEvent = (event: any) => {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-            );
-            
-            if (event.isComplete) {
-              controller.close();
+            if (controller && typeof controller.enqueue === 'function') {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
+              );
+              
+              if (event.isComplete && typeof controller.close === 'function') {
+                controller.close();
+              }
             }
           };
           
@@ -231,16 +238,20 @@ export async function POST(request: NextRequest) {
             console.error('Streaming error:', error);
             
             // Send error event
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  error: true,
-                  message: 'An error occurred during streaming',
-                })}\n\n`
-              )
-            );
-            
-            controller.close();
+            if (controller && typeof controller.enqueue === 'function') {
+              controller.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({
+                    error: true,
+                    message: 'An error occurred during streaming',
+                  })}\n\n`
+                )
+              );
+              
+              if (typeof controller.close === 'function') {
+                controller.close();
+              }
+            }
           }
         },
       });
