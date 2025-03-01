@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "headers": [
@@ -16,12 +16,18 @@
       ]
     }
   ],
+  "routes": [
+    {
+      "src": "/login",
+      "continue": true
+    },
+    {
+      "src": "/signup",
+      "continue": true
+    }
+  ],
   "env": {
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "",
-    "CLERK_SECRET_KEY": "",
-    "COINGECKO_API_KEY": "",
-    "NEXT_PUBLIC_SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
-    "ANTHROPIC_API_KEY": "",
     "NEXT_PUBLIC_ENVIRONMENT": "production"
+    /* Add other environment variables in the Vercel dashboard */
   }
 }

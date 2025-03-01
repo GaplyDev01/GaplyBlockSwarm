@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { logger } from '@/lib/logger';
-import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '@/lib/types/tokens';
+import { logger } from '../../../../lib/logger';
+import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '../../../../lib/types/tokens';
 
-// Interfaces are now imported from '@/lib/types/tokens'
+// Interfaces are now imported using relative paths instead of aliases
 
 export async function GET(request: NextRequest) {
   try {
