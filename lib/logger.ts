@@ -7,6 +7,12 @@ const isDev = process.env.NODE_ENV !== 'production';
  * - In development, pretty-print logs with more details
  * - In production, use a more compact format
  */
+
+// Create a type that explicitly includes the log method
+type LoggerWithLogMethod = pino.Logger & {
+  log: pino.LogFn
+};
+
 // Create the base logger
 const pinoLogger = pino({
   level: isDev ? 'debug' : 'info',
@@ -23,10 +29,10 @@ const pinoLogger = pino({
 });
 
 // Add the log method as an alias for info
-pinoLogger.log = pinoLogger.info;
+(pinoLogger as LoggerWithLogMethod).log = pinoLogger.info;
 
-// Export as a named export
-export const logger = pinoLogger;
+// Export as a named export with the correct type
+export const logger = pinoLogger as LoggerWithLogMethod;
 
 if (typeof window !== 'undefined') {
   // Custom browser-side logger that maps to console methods

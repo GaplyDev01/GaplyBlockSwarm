@@ -175,10 +175,17 @@ const InnerWalletContextProvider = ({
       );
       
       const walletToSelect = phantomWallet || availableWallets[0];
-      logger.info('WalletContext: Selecting wallet:', walletToSelect.name);
+      
+      // Only proceed if we found a wallet
+      if (walletToSelect) {
+        logger.info('WalletContext: Selecting wallet:', walletToSelect.name);
 
-      // Select the wallet
-      select(walletToSelect.name);
+        // Select the wallet
+        select(walletToSelect.name);
+      } else {
+        logger.warn('WalletContext: No wallets available to select');
+        return;
+      }
 
       // Allow time for selection to register
       await new Promise(resolve => setTimeout(resolve, 300));
