@@ -7,7 +7,6 @@ export const runtime = 'edge';
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '@/lib/context/user-context';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
-import { UserButton } from '@clerk/nextjs';
 import { Layout, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -43,7 +42,6 @@ function DashboardPage() {
               Customize
             </Button>
             <ConnectWalletButton />
-            <UserButton />
           </div>
         </div>
       </header>
@@ -75,6 +73,5 @@ function DashboardPage() {
   );
 }
 
-// Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
-export default dynamic(() => Promise.resolve(DashboardPage), { ssr: false });
+// Export as default
+export default DashboardPage;
