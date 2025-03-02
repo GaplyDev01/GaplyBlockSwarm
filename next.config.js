@@ -29,12 +29,18 @@ const nextConfig = {
   // Optimize bundle size with compression
   compress: true,
   
-  // Set to true to catch all fallback routes
+  // Set to false for Vercel deployment
   trailingSlash: false,
   
-  // Ensure routes manifest is generated and Next.js outputs proper build artifacts
+  // Use a simpler build ID for more predictable builds
   generateBuildId: async () => {
-    return 'custom-build-id-' + Date.now();
+    return 'blockswarms-build';
+  },
+  
+  // Add additional configuration for Vercel environment
+  env: {
+    NEXT_RUNTIME: 'nodejs',
+    VERCEL_DEPLOYMENT: 'true',
   },
   
   // Transpile specific packages that need it
@@ -51,7 +57,33 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // Simplified webpack configuration for path resolution
+  // Simplified build output for easier deployment
+  swcMinify: true,
+  
+  // Add specific headers for better security and caching
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
+  
+  // Optimized webpack configuration for Vercel deployment
   webpack: (config, { isServer }) => {
     // Configure essential path aliases
     config.resolve.alias = {
@@ -60,30 +92,39 @@ const nextConfig = {
       '@/src': path.resolve(__dirname, './src'),
     };
     
-    // Minimal polyfills for browser compatibility
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      os: false,
-      path: false,
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer/'),
-    };
-    
-    // Add only essential plugins
-    config.plugins.push(
-      new webpack.ProvidePlugin({
-        process: 'process/browser',
-        Buffer: ['buffer', 'Buffer'],
-      })
-    );
+    // Only apply certain polyfills on client-side
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        os: false,
+        path: false,
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        buffer: require.resolve('buffer/'),
+      };
+      
+      // Add only essential plugins
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+          Buffer: ['buffer', 'Buffer'],
+        })
+      );
+    }
 
     // Disable size warnings
     config.performance = {
       ...config.performance,
       hints: false,
     };
+    
+    // Add environment variable for detecting Vercel build
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.VERCEL_DEPLOYMENT': JSON.stringify(true),
+      })
+    );
     
     return config;
   },

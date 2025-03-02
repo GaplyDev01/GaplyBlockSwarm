@@ -9,6 +9,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["iad1"],
+  
   "routes": [
     { "src": "/api/health", "dest": "/api/health" },
     { "handle": "filesystem" },
@@ -19,8 +20,28 @@
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/" }
   ],
+  
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    }
+  ],
+  
   "env": {
     "NODE_ENV": "production",
-    "NEXT_PUBLIC_VERCEL_ENV": "production"
+    "NEXT_PUBLIC_VERCEL_ENV": "production",
+    "NEXT_RUNTIME": "nodejs",
+    "NEXT_SHARP_PATH": "/tmp/node_modules/sharp"
+  },
+  
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_VERCEL_DEPLOYMENT": "true"
+    }
   }
 }

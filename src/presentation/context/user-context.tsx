@@ -25,33 +25,52 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   
-  // Get wallet information
-  let walletContext;
-  try {
-    walletContext = useWalletContext();
-  } catch (error) {
-    logger.error('Error accessing wallet context in UserProvider:', error);
-    walletContext = {
-      isConnected: false,
-      walletAddress: null
-    };
+  // Get wallet information with SSR safety
+  const isServerSide = typeof window === 'undefined';
+  
+  // Use a default context for server-side rendering
+  let walletContext = {
+    isConnected: false,
+    walletAddress: null
+  };
+  
+  // Only try to access wallet context on client side
+  if (!isServerSide) {
+    try {
+      walletContext = useWalletContext();
+    } catch (error) {
+      logger.error('Error accessing wallet context in UserProvider:', error);
+      // Keep using the default values initialized above
+    }
   }
   
   const { isConnected = false, walletAddress = null } = walletContext || {};
   
-  // Check for demo mode
+  // Check for demo mode - with better error handling and SSR support
   useEffect(() => {
+    // Skip this effect on server-side
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
+    // Mark as loaded even if we encounter errors
+    const markLoaded = () => {
+      if (!isLoaded) setIsLoaded(true);
+    };
+    
     try {
-      if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search);
-        setIsDemo(urlParams.get('demo') === 'true');
-        setIsLoaded(true);
-      }
+      const urlParams = new URLSearchParams(window.location.search);
+      setIsDemo(urlParams.get('demo') === 'true');
+      markLoaded();
     } catch (e) {
       logger.error("Failed to check for demo mode", e);
-      setIsLoaded(true);
+      markLoaded();
     }
-  }, []);
+    
+    // Add a small delay to ensure everything is properly initialized
+    const timer = setTimeout(markLoaded, 500);
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
   
   return (    <UserContext.Provider value={{ 
       isLoaded, 

@@ -186,8 +186,13 @@ const InnerWalletContextProvider = ({
       }
 
       // Check if we're running in an environment without wallet support
-      // @ts-ignore - Solana and Phantom types are not included in Window interface
-      const noWalletEnvironment = !window.solana && !window.phantom;
+      // Check for wallet environment in a more SSR-friendly way
+      const noWalletEnvironment = typeof window === 'undefined' || 
+        (typeof window !== 'undefined' && 
+         // @ts-ignore - Solana and Phantom types are not included in Window interface
+         !window.solana && 
+         // @ts-ignore - Solana and Phantom types are not included in Window interface
+         !window.phantom);
       
       // For development environments without wallet support, use a fallback
       if (noWalletEnvironment) {
@@ -356,7 +361,31 @@ export function WalletContextProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Handle component error fallback
+  // Handle component error fallback - SSR-friendly approach
+  const isServerSide = typeof window === 'undefined';
+  
+  // If we're on the server or in an environment without wallet support
+  if (isServerSide) {
+    // Return a minimal context for SSR
+    return (
+      <WalletContext.Provider value={{
+        isConnected: false,
+        isConnecting: false,
+        walletAddress: null,
+        balance: 0,
+        connect: async () => {
+          logger.warn('Wallet connection not available during SSR');
+        },
+        disconnect: async () => {
+          logger.warn('Wallet disconnection not available during SSR');
+        },
+      }}>
+        {children}
+      </WalletContext.Provider>
+    );
+  }
+  
+  // For client-side execution, check for wallet adapters
   if (typeof window !== 'undefined') {
     // Check if we're in an environment where wallet adapters can't load
     // @ts-ignore - Solana and Phantom types are not included in Window interface

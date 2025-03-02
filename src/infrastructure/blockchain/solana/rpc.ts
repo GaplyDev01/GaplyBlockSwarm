@@ -12,11 +12,26 @@ export class SolanaRpc implements SolanaRpcInterface {
     endpoint: string = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
     commitment: Commitment = 'confirmed'
   ) {
-    this.connection = new Connection(endpoint, {
-      commitment,
-      wsEndpoint: process.env.NEXT_PUBLIC_SOLANA_WSS_URL,
-    });
-    logger.info(`SolanaRpc initialized with endpoint: ${endpoint}`);
+    try {
+      // Check if we're in a browser environment
+      const isServer = typeof window === 'undefined';
+      
+      // Initialize connection with appropriate error handling
+      this.connection = new Connection(endpoint, {
+        commitment,
+        wsEndpoint: !isServer ? process.env.NEXT_PUBLIC_SOLANA_WSS_URL : undefined,
+      });
+      
+      logger.info(`SolanaRpc initialized with endpoint: ${endpoint} (${isServer ? 'server' : 'client'})`);
+    } catch (error) {
+      // Provide a fallback Connection in case of initialization errors
+      logger.error('Error initializing Solana connection, using fallback:', error);
+      
+      // Use a minimal endpoint with no WebSocket
+      this.connection = new Connection('https://api.mainnet-beta.solana.com', {
+        commitment: 'confirmed',
+      });
+    }
   }
 
   /**
@@ -229,8 +244,23 @@ export class SolanaRpc implements SolanaRpcInterface {
   }
 }
 
-// Create and export default instance
-export const solanaRpc = new SolanaRpc();
+// Create and export default instance with lazy initialization
+let solanaRpcInstance: SolanaRpc | null = null;
+
+export const solanaRpc = typeof window === 'undefined'
+  ? new SolanaRpc() // Server-side instance
+  : (() => {
+      // Lazy initialize on client-side to avoid multiple instances
+      if (!solanaRpcInstance) {
+        try {
+          solanaRpcInstance = new SolanaRpc();
+        } catch (error) {
+          logger.error('Failed to initialize solanaRpc, using fallback:', error);
+          solanaRpcInstance = new SolanaRpc('https://api.mainnet-beta.solana.com');
+        }
+      }
+      return solanaRpcInstance;
+    })();
 
 /**
  * Create a new SolanaRpc instance with a custom endpoint

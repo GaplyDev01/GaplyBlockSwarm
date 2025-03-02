@@ -1,13 +1,46 @@
-// Simple prebuild script for Vercel deployments
-console.log('Running prebuild script...');
+// Enhanced prebuild script for Vercel deployments
+console.log('╔════════════════════════════════════════╗');
+console.log('║  BlockSwarms - Vercel Prebuild Script   ║');
+console.log('╚════════════════════════════════════════╝');
 
-// Check environment
+// Check and log environment details for debugging deployment issues
 console.log('Node environment:', process.env.NODE_ENV);
-console.log('Vercel environment:', process.env.VERCEL_ENV);
+console.log('Vercel environment:', process.env.VERCEL_ENV || 'local');
+console.log('Deployment URL:', process.env.VERCEL_URL || 'local');
+console.log('Branch:', process.env.VERCEL_GIT_COMMIT_REF || 'local');
 
-// Create a minimal src/app/page.tsx file if we're on Vercel and having build issues
+// Check for required environment variables
+const requiredEnvVars = ['NODE_ENV'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.warn('⚠️ Missing environment variables:', missingEnvVars.join(', '));
+}
+
+// Log Solana RPC endpoint if available
+if (process.env.NEXT_PUBLIC_SOLANA_RPC_URL) {
+  console.log('Using Solana RPC URL:', process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
+} else {
+  console.log('No custom Solana RPC URL set, will use default endpoint');
+}
+
+// Import required modules
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// Create a unique build ID for caching purposes
+const buildId = crypto.randomBytes(6).toString('hex');
+console.log('Generated build ID:', buildId);
+
+// Check for Next.js installation
+const nextPackageJson = path.join(process.cwd(), 'node_modules/next/package.json');
+if (fs.existsSync(nextPackageJson)) {
+  const nextVersion = require(nextPackageJson).version;
+  console.log('Using Next.js version:', nextVersion);
+} else {
+  console.warn('⚠️ Could not find Next.js package.json');
+}
 
 // Ensure .vercel directory exists for Vercel deployments
 if (process.env.VERCEL) {
@@ -106,4 +139,28 @@ if (!fs.existsSync(indexPath)) {
   console.log('Created index.html file in public directory');
 }
 
-console.log('Prebuild completed successfully');
+// Create .nojekyll file to prevent GitHub Pages issues (if deployed there)
+fs.writeFileSync(path.join(process.cwd(), 'public', '.nojekyll'), '');
+
+// Create a build-info.json file for debugging
+const buildInfo = {
+  timestamp: new Date().toISOString(),
+  buildId,
+  nodeEnv: process.env.NODE_ENV,
+  vercelEnv: process.env.VERCEL_ENV || 'local',
+  nextVersion: require(path.join(process.cwd(), 'node_modules/next/package.json')).version,
+};
+
+fs.writeFileSync(
+  path.join(process.cwd(), 'public', 'build-info.json'),
+  JSON.stringify(buildInfo, null, 2)
+);
+
+// Create an empty mock file for SSR specific imports
+fs.writeFileSync(
+  path.join(process.cwd(), 'src', 'env-constants.js'),
+  'export const IS_VERCEL = true;\nexport const BUILD_ID = "' + buildId + '";'
+);
+
+console.log('✅ Prebuild completed successfully');
+console.log('═══════════════════════════════════════');
