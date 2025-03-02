@@ -32,6 +32,11 @@ const nextConfig = {
   // Set to true to catch all fallback routes
   trailingSlash: false,
   
+  // Ensure routes manifest is generated and Next.js outputs proper build artifacts
+  generateBuildId: async () => {
+    return 'custom-build-id-' + Date.now();
+  },
+  
   // Transpile specific packages that need it
   transpilePackages: [
     '@solana/wallet-adapter-base',

@@ -33,9 +33,15 @@ export default function middleware(req: NextRequest) {
   });
 }
 
+// Simplified matcher configuration for troubleshooting
 export const config = {
   matcher: [
-    // Apply to all routes to ensure proper handling
-    "/((?!_next/static|_next/image|favicon.ico).*)"
+    // Apply only to these routes initially for testing
+    "/",
+    "/api/:path*",
+    "/dashboard",
+    "/login",
+    "/signup",
+    "/ai-chat"
   ],
 };
