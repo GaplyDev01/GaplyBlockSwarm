@@ -6,8 +6,9 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', '*.vercel.app']
+      allowedOrigins: ['localhost:3000', '*.vercel.app', 'mature-python-7.accounts.dev']
     },
+    esmExternals: 'loose', // This helps with compatibility issues
   },
   images: {
     unoptimized: true,

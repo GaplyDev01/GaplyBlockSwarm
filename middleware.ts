@@ -40,7 +40,7 @@ export default authMiddleware({
     if (process.env.NODE_ENV === 'production') {
       securityHeaders.set(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz https://*.clerk.accounts.dev https://mature-python-7.accounts.dev https://*.vercel.app https://*.clerk.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://mature-python-7.accounts.dev https://api.clerk.dev https://*.clerk.com https://*.solana.com wss://*.solana.com https://solana-mainnet.g.alchemy.com https://*.vercel.app; frame-src https://mature-python-7.accounts.dev https://*.clerk.accounts.dev;"
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz https://*.clerk.accounts.dev https://mature-python-7.accounts.dev https://*.vercel.app https://*.clerk.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://mature-python-7.accounts.dev https://api.clerk.dev https://*.clerk.com https://*.solana.com wss://*.solana.com https://solana-mainnet.g.alchemy.com https://*.vercel.app; frame-src https://mature-python-7.accounts.dev https://*.clerk.accounts.dev; worker-src 'self' blob:;"
       );
     }
 
