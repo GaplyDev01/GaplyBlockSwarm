@@ -33,15 +33,10 @@ export default function middleware(req: NextRequest) {
   });
 }
 
-// Simplified matcher configuration for troubleshooting
+// Apply middleware only to the homepage and API routes
 export const config = {
   matcher: [
-    // Apply only to these routes initially for testing
     "/",
-    "/api/:path*",
-    "/dashboard",
-    "/login",
-    "/signup",
-    "/ai-chat"
+    "/api/:path*"
   ],
 };
