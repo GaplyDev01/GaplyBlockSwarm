@@ -52,17 +52,26 @@ const InnerWalletContextProvider = ({
   children: ReactNode;
   wallets: WalletAdapter[];
 }) => {
-  // Get wallet adapter from Solana
+  // Get wallet adapter from Solana with better error handling
+  const wallet = useWallet();
+  
+  // Safely destructure wallet properties with fallbacks
   const {
-    select,
-    connect: connectWallet,
-    disconnect: disconnectWallet,
-    connected,
-    publicKey,
-    connecting,
-  } = useWallet();
+    select = () => {},
+    connect: connectWallet = async () => {},
+    disconnect: disconnectWallet = async () => {},
+    connected = false,
+    publicKey = null,
+    connecting = false,
+  } = wallet || {};
+  
   const [balance, setBalance] = useState<number>(0);
-  const { setWalletState } = useAppStore();
+  
+  // Get store function with fallback
+  const setWalletState = useAppStore.getState()?.setWalletState || 
+    ((connected: boolean, address: string | null, balance: number) => {
+      logger.error('Failed to access app store, wallet state update failed');
+    });
 
   // Fetch wallet balance using SolanaRpc service
   useEffect(() => {
@@ -274,27 +283,80 @@ const InnerWalletContextProvider = ({
 
 // Export the wallet provider with dynamic import to avoid SSR issues
 export function WalletContextProvider({ children }: { children: ReactNode }) {
-  // Get RPC endpoint from environment
+  // Get RPC endpoint from environment with fallback
   const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 
     (process.env.NODE_ENV === 'production' 
       ? 'https://api.mainnet-beta.solana.com' 
       : 'https://api.devnet.solana.com');
 
-  // Define supported wallets
-  const wallets = React.useMemo(() => [
-    new PhantomWalletAdapter(), 
-    new SolflareWalletAdapter()
-  ], []);
+  // Define supported wallets - wrapped in try/catch to prevent initialization errors
+  const wallets = React.useMemo(() => {
+    try {
+      return [
+        new PhantomWalletAdapter(), 
+        new SolflareWalletAdapter()
+      ];
+    } catch (error) {
+      logger.error('Failed to initialize wallet adapters:', error);
+      return [];
+    }
+  }, []);
+
+  // Handle component error fallback
+  if (typeof window !== 'undefined') {
+    // Check if we're in an environment where wallet adapters can't load
+    const hasWalletSupport = window.solana || window.phantom;
+    
+    if (!hasWalletSupport) {
+      // Provide a minimal context with mock values
+      return (    <WalletContext.Provider value={{
+          isConnected: false,
+          isConnecting: false,
+          walletAddress: null,
+          balance: 0,
+          connect: async () => {
+            logger.warn('Wallet connection not available in this environment');
+          },
+          disconnect: async () => {
+            logger.warn('Wallet disconnection not available in this environment');
+          },
+        }}>
+          {children}
+        </WalletContext.Provider>
+      );
+    }
+  }
 
   // Return provider with Solana wallet adapters
-  return (    <ConnectionProvider endpoint={endpoint}>    
-        <WalletProvider wallets={wallets} autoConnect>    
+  try {
+    return (    <ConnectionProvider endpoint={endpoint}>    
+        <WalletProvider wallets={wallets} autoConnect={false}>    
         <WalletModalProvider>    
         <InnerWalletContextProvider wallets={wallets}>
-            {children}
-          </InnerWalletContextProvider>
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
+              {children}
+            </InnerWalletContextProvider>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    );
+  } catch (error) {
+    logger.error('Error rendering wallet context provider:', error);
+    
+    // Fallback provider with basic functionality
+    return (    <WalletContext.Provider value={{
+        isConnected: false,
+        isConnecting: false,
+        walletAddress: null,
+        balance: 0,
+        connect: async () => {
+          logger.warn('Wallet connection not available due to an error');
+        },
+        disconnect: async () => {
+          logger.warn('Wallet disconnection not available due to an error');
+        },
+      }}>
+        {children}
+      </WalletContext.Provider>
+    );
+  }
 }
