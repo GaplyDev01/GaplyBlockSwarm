@@ -1,8 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
-import { Providers } from '@/src/presentation/providers/Providers';
-import { AIProvider } from '@/src/presentation/context/ai-context';
 
 // Load Orbitron font
 const orbitron = Orbitron({ 
@@ -11,8 +9,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: 'BlockSwarms - AI Powered Solana Trading',
-  description: 'The ultimate platform for Solana token analysis, trading signals, and portfolio management.',
+  title: 'BlockSwarms - Deployment Test',
+  description: 'Deployment troubleshooting for BlockSwarms platform.',
 };
 
 export default function RootLayout({
@@ -26,12 +24,8 @@ export default function RootLayout({
         <link rel="stylesheet" href="/tailwind-fix.css" />
         <link rel="stylesheet" href="/custom.css" />
       </head>
-      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>
-        <Providers>
-          <AIProvider>
-            {children}
-          </AIProvider>
-        </Providers>
+      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400`}>
+        {children}
       </body>
     </html>
   );
