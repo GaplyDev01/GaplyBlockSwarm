@@ -7,7 +7,7 @@ BlockSwarms is a blockchain dashboard platform built on Next.js with Solana inte
 - **Token Search**: Search any Solana token with real-time data from CoinGecko and Jupiter APIs
 - **Dashboard**: Customizable dashboard with drag-and-drop widgets
 - **Wallet Integration**: Connect your Solana wallet and view your balances and transactions
-- **Clerk Authentication**: Secure user authentication with Clerk
+- **Wallet-based Authentication**: Secure user authentication using Solana wallets
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ BlockSwarms is a blockchain dashboard platform built on Next.js with Solana inte
 - TypeScript
 - Tailwind CSS
 - Solana Web3.js
-- Clerk Auth
+- Solana Wallet Adapter
 - Vercel Deployment
 
 ## Deployment to Vercel
@@ -39,10 +39,10 @@ BlockSwarms is a blockchain dashboard platform built on Next.js with Solana inte
 
 4. **Configure Environment Variables**:
    - Add the necessary environment variables in the Vercel dashboard:
-     - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Your Clerk publishable key
-     - `CLERK_SECRET_KEY`: Your Clerk secret key
      - `COINGECKO_API_KEY`: Optional CoinGecko API key for higher rate limits
      - `NEXT_PUBLIC_SOLANA_RPC_URL`: Solana RPC URL (default is provided)
+     - `ANTHROPIC_API_KEY`: For AI chat functionality
+     - `OPENAI_API_KEY`: Alternative AI provider for chat functionality
 
 5. **Deploy**:
    - Click "Deploy" in the Vercel dashboard or run:

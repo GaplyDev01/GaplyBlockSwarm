@@ -8,11 +8,13 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', '*.vercel.app']
     }
-    // Removed esmExternals setting as it was causing warnings
   },
   images: {
     unoptimized: true,
   },
+  // Set the app directory to src/app for Next.js
+  distDir: '.next',
+  
   // Critical: Skip the static generation phase for authenticated routes
   // This should prevent "UserContext not found" errors 
   output: 'standalone',
@@ -36,12 +38,20 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  // Already defined above
-  // Explicitly define webpack configuration for path resolution
+  
+  // Webpack configuration for path resolution
   webpack: (config) => {
+    // Configure path aliases
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, './'),
+      '@/src': path.resolve(__dirname, './src'),
+      '@/src/core': path.resolve(__dirname, './src/core'),
+      '@/src/application': path.resolve(__dirname, './src/application'),
+      '@/src/infrastructure': path.resolve(__dirname, './src/infrastructure'),
+      '@/src/presentation': path.resolve(__dirname, './src/presentation'),
+      '@/src/shared': path.resolve(__dirname, './src/shared'),
+      '@/src/app': path.resolve(__dirname, './src/app'),
     };
     
     // Polyfill Node.js native modules for browser compatibility

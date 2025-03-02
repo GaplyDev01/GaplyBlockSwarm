@@ -68,6 +68,21 @@ export default function middleware(req: NextRequest) {
   const hasWalletConnection = req.cookies.has('wallet_connected') || req.cookies.has('blockswarms-storage');
   const urlHasWalletParam = url.searchParams.has('wallet');
   
+  // Create a mock wallet cookie for development environments
+  if (process.env.NODE_ENV !== 'production' && !hasWalletConnection) {
+    // In development, add a 'wallet_connected' cookie for testing
+    const response = NextResponse.next({
+      headers: securityHeaders,
+    });
+    
+    response.cookies.set('wallet_connected', '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs', {
+      path: '/',
+      maxAge: 86400 // 24 hours
+    });
+    
+    return response;
+  }
+  
   if (hasWalletConnection || urlHasWalletParam) {
     // Wallet is connected, allow access
     return NextResponse.next({

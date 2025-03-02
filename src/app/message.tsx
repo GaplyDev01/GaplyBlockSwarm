@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AIMessage } from '@/core/ai/interfaces/IAIProvider';
-import { Avatar } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { AIMessage } from '@/src/core/ai/interfaces/IAIProvider';
+import { Avatar } from '@/src/presentation/components/ui/skeleton';
+import { cn } from '@/src/shared/utils/utils';
 
 interface MessageProps {
   message: AIMessage;

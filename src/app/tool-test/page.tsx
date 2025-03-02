@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getSolanaTools, TokenAnalytics, TradingSignal, SwapResult } from '@/lib/solana/tools';
+import { getSolanaTools, TokenAnalytics, TradingSignal, SwapResult } from '@/src/infrastructure/blockchain/solana/tools';
 
 export default function ToolTestPage() {
   const [tokenSymbol, setTokenSymbol] = useState('SOL');

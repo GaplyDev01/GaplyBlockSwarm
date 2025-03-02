@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { logger } from '@/lib/logger';
-import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '@/lib/types/tokens';
+import { logger } from '@/src/shared/utils/logger';
+import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '@/src/shared/types/tokens';
 
-// Interfaces are now imported from '@/lib/types/tokens'
+// Interfaces are now imported from '@/src/shared/types/tokens'
 
 export async function GET(request: NextRequest) {
   try {

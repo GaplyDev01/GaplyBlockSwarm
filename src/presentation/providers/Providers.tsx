@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { ThemeProvider } from '../../application/theme';
 import { WalletProvider } from '../../application/wallet';
 import { AIProvider } from '../context/ai-context';
-import { UserProvider } from '@/lib/context/user-context';
+import { UserProvider } from '@/src/presentation/context/user-context';
 
 /**
  * Global providers wrapper

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useUserContext } from '@/lib/context/user-context';
+import { useUserContext } from '@/src/presentation/context/user-context';
 import { AIChatService } from '../../application/ai/AIChatService';
 import type { ChatHistory } from '../../application/ai/AIChatService';
 // Define the AIProviderOption locally since we can't import it

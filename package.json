@@ -12,7 +12,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "format": "prettier --write .",
-    "vercel-build": "npm run prebuild && next build || true"
+    "vercel-build": "npm run prebuild && next build || true",
+    "clean": "rm -rf .next",
+    "find-duplicate-files": "node scripts/find-duplicate-files.js",
+    "update-imports": "./update-imports.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.11",

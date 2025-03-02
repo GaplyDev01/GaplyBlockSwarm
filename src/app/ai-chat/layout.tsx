@@ -1,6 +1,6 @@
 'use client';
 
-import { UserProvider } from '@/lib/context/user-context';
+import { UserProvider } from '@/src/presentation/context/user-context';
 import dynamic from 'next/dynamic';
 
 function AIChatLayout({

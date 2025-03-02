@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { solanaServiceV2 } from '@/lib/solana/v2';
+import { solanaServiceV2 } from '@/src/infrastructure/blockchain/solana/v2';
 
 /**
  * GET /api/health

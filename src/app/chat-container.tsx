@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AIMessage } from '@/core/ai/interfaces/IAIProvider';
-import { Message } from '@/app/message';
-import { MessageInput } from '@/app/message-input';
-import { ProviderSelector, AIProviderOption } from '@/app/provider-selector';
-import { useAIChat } from '@/presentation/hooks/useAIChat';
+import { AIMessage } from '@/src/core/ai/interfaces/IAIProvider';
+import { Message } from '@/src/app/message';
+import { MessageInput } from '@/src/app/message-input';
+import { ProviderSelector, AIProviderOption } from '@/src/app/provider-selector';
+import { useAIChat } from '@/src/presentation/hooks/useAIChat';
 
 interface ChatContainerProps {
   chatId?: string;
