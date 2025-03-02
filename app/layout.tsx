@@ -1,7 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
-import { ClerkProvider } from '@clerk/nextjs';
 import { Providers } from './provider';
  
 // Load Orbitron font
@@ -43,12 +42,11 @@ export default function RootLayout({
             });
           `
         }} />
-      </head>    <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>    
-        <ClerkProvider>    
+      </head>
+      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>
         <Providers>
-            {children}
-          </Providers>
-        </ClerkProvider>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -175,12 +175,24 @@ const InnerWalletContextProvider = ({
 
       // Check if we're running in an environment without wallet support
       const noWalletEnvironment = !window.solana && !window.phantom;
-      if (noWalletEnvironment || process.env.NEXT_PUBLIC_USE_MOCK_WALLET === 'true') {
-        logger.info('Using mock wallet connection for environment without wallet support');
-        // Create a mock wallet connection for testing
-        const mockAddress = '11111111111111111111111111111111';
-        useAppStore.getState().setWalletState(true, mockAddress, 10.0);
-        setWalletState(true, mockAddress, 10.0);
+      
+      // Check for demo mode in URL
+      const isDemoMode = typeof window !== 'undefined' && 
+        window.location.search.includes('demo=true');
+        
+      if (noWalletEnvironment || isDemoMode || process.env.NEXT_PUBLIC_USE_MOCK_WALLET === 'true') {
+        logger.info('Using mock wallet connection for demo mode or environment without wallet support');
+        // Create a mock wallet connection for testing/demo
+        const mockAddress = '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs'; // Demo address
+        
+        // Set a cookie to maintain the wallet connection
+        if (typeof document !== 'undefined') {
+          document.cookie = `wallet_connected=${mockAddress}; path=/; max-age=86400`; // 24 hours
+        }
+        
+        // Update the state
+        useAppStore.getState().setWalletState(true, mockAddress, 5.23);
+        setWalletState(true, mockAddress, 5.23);
         return;
       }
 
@@ -194,9 +206,12 @@ const InnerWalletContextProvider = ({
       if (availableWallets.length === 0) {
         logger.warn('No wallet adapters available, using fallback');
         // Fallback for environments without wallet extensions
-        const mockAddress = '11111111111111111111111111111111';
-        useAppStore.getState().setWalletState(true, mockAddress, 5.0);
-        setWalletState(true, mockAddress, 5.0);
+        const mockAddress = '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs';
+        if (typeof document !== 'undefined') {
+          document.cookie = `wallet_connected=${mockAddress}; path=/; max-age=86400`; // 24 hours
+        }
+        useAppStore.getState().setWalletState(true, mockAddress, 5.23);
+        setWalletState(true, mockAddress, 5.23);
         return;
       }
 
@@ -221,24 +236,38 @@ const InnerWalletContextProvider = ({
           // Connect the wallet
           await connectWallet();
           logger.info('WalletContext: Wallet connected successfully');
+          
+          // Set a cookie to track wallet connection for middleware
+          if (publicKey && typeof document !== 'undefined') {
+            document.cookie = `wallet_connected=${publicKey.toString()}; path=/; max-age=86400`; // 24 hours
+          }
         } catch (walletError) {
           logger.error('Error during wallet connection:', walletError);
           // Fallback in case of wallet connection errors
-          const mockAddress = '11111111111111111111111111111111';
+          const mockAddress = '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs';
+          if (typeof document !== 'undefined') {
+            document.cookie = `wallet_connected=${mockAddress}; path=/; max-age=86400`; // 24 hours
+          }
           useAppStore.getState().setWalletState(true, mockAddress, 3.0);
           setWalletState(true, mockAddress, 3.0);
         }
       } else {
         logger.warn('WalletContext: No wallets available to select');
         // Fallback for when no wallet is selected
-        const mockAddress = '11111111111111111111111111111111';
+        const mockAddress = '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs';
+        if (typeof document !== 'undefined') {
+          document.cookie = `wallet_connected=${mockAddress}; path=/; max-age=86400`; // 24 hours
+        }
         useAppStore.getState().setWalletState(true, mockAddress, 2.0);
         setWalletState(true, mockAddress, 2.0);
       }
     } catch (error) {
       logger.error('Failed to connect wallet:', error);
       // Don't throw, provide fallback instead
-      const mockAddress = '11111111111111111111111111111111';
+      const mockAddress = '3XtdRgHqGKnD91souCKp4Ys6CwDvPpvQc2kzwMPMAcrs';
+      if (typeof document !== 'undefined') {
+        document.cookie = `wallet_connected=${mockAddress}; path=/; max-age=86400`; // 24 hours
+      }
       useAppStore.getState().setWalletState(true, mockAddress, 1.0);
       setWalletState(true, mockAddress, 1.0);
     }
@@ -255,6 +284,11 @@ const InnerWalletContextProvider = ({
         logger.error('Error disconnecting from Solana service:', error);
       }
       
+      // Remove the wallet connection cookie
+      if (typeof document !== 'undefined') {
+        document.cookie = 'wallet_connected=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      }
+      
       // Then disconnect wallet adapter
       await disconnectWallet();
       logger.info('WalletContext: Wallet disconnected');
@@ -262,9 +296,19 @@ const InnerWalletContextProvider = ({
       // Update state
       setBalance(0);
       setWalletState(false, null, 0);
+      
+      // Redirect to login page if on a protected route
+      if (typeof window !== 'undefined' && 
+         !window.location.pathname.startsWith('/login') &&
+         !window.location.pathname.startsWith('/signup') &&
+         window.location.pathname !== '/') {
+        window.location.href = '/login';
+      }
     } catch (error) {
       logger.error('WalletContext: Failed to disconnect wallet:', error);
-      throw error;
+      // Don't throw error, just log it
+      setBalance(0);
+      setWalletState(false, null, 0);
     }
   };
 

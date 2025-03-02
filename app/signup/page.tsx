@@ -4,11 +4,23 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
-import { SignUp } from '@clerk/nextjs';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-export default function SignupPage() {
+export default function SignupRedirectPage() {
+  const router = useRouter();
+
+  // Redirect to login page after a brief delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
     <div className="min-h-screen bg-sapphire-900 overflow-hidden bg-tech-pattern">
       {/* Background effect */}
@@ -37,42 +49,42 @@ export default function SignupPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-cyber font-bold text-emerald-400">Join BlockSwarms</h1>
             <p className="text-emerald-400/70 mt-2">
-              Create your account to access AI-powered Solana trading tools
+              Using wallet connection for authentication
             </p>
           </div>
           
-          <div className="bg-sapphire-800/50 backdrop-blur-sm border border-emerald-400/20 rounded-lg p-4 shadow-xl">
-            <div className="flex justify-between mb-4">
-              <Link href="/dashboard?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
-                Try Demo Mode
+          <div className="bg-sapphire-800/50 backdrop-blur-sm border border-emerald-400/20 rounded-lg p-8 shadow-xl">
+            <div className="text-center py-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              
+              <h3 className="text-xl font-bold text-emerald-400 mb-4">
+                Wallet-Based Authentication
+              </h3>
+              
+              <p className="text-emerald-400/70 mb-6">
+                We've simplified authentication to use your Solana wallet directly.
+                No need to create a separate account or password.
+              </p>
+              
+              <div className="text-sm text-emerald-400/50 mb-6 animate-pulse">
+                Redirecting to wallet login...
+              </div>
+              
+              <Link
+                href="/login"
+                className="block w-full bg-emerald-400 text-sapphire-900 font-bold font-cyber px-4 py-3 rounded-md hover:bg-emerald-500 transition-colors"
+              >
+                CONNECT WALLET NOW
               </Link>
+              
+              <div className="mt-6">
+                <Link href="/dashboard?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
+                  Try Demo Mode Instead
+                </Link>
+              </div>
             </div>
-            
-            <SignUp 
-              redirectUrl="/dashboard" 
-              path="/signup"
-              routing="path"
-              signInUrl="/login"
-              appearance={{
-                elements: {
-                  card: "bg-transparent shadow-none",
-                  headerTitle: "text-emerald-400 font-cyber text-xl",
-                  headerSubtitle: "text-emerald-400/70",
-                  socialButtonsBlockButton: "bg-sapphire-700 hover:bg-sapphire-600 text-emerald-400 border border-emerald-400/30",
-                  socialButtonsBlockButtonText: "text-emerald-400 font-medium",
-                  dividerLine: "bg-emerald-400/20",
-                  dividerText: "text-emerald-400/50",
-                  formFieldLabel: "text-emerald-400",
-                  formFieldInput: "bg-sapphire-700/50 border-emerald-400/30 text-white focus:border-emerald-400 focus:ring focus:ring-emerald-400/30",
-                  formButtonPrimary: "bg-emerald-400 hover:bg-emerald-500 text-sapphire-900 font-cyber",
-                  footerActionLink: "text-emerald-400 hover:text-emerald-300",
-                  identityPreview: "bg-sapphire-700 border-emerald-400/30",
-                  identityPreviewText: "text-emerald-400",
-                  identityPreviewEditButton: "text-emerald-400/80 hover:text-emerald-400",
-                  formResendCodeLink: "text-emerald-400 hover:text-emerald-300",
-                }
-              }}
-            />
           </div>
         </div>
       </div>
