@@ -79,7 +79,6 @@
   "env": {
     "NODE_ENV": "production",
     "NEXT_PUBLIC_VERCEL_ENV": "production",
-    "NEXT_RUNTIME": "nodejs",
     "NEXT_SHARP_PATH": "/tmp/node_modules/sharp"
   },
   
