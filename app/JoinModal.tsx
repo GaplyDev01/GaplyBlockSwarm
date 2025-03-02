@@ -23,18 +23,25 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
     setSubmitted(true);
   };
 
-  return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-sapphire-900/80 backdrop-blur-sm">    <div className="relative bg-sapphire-800 border border-emerald-400/30 rounded-lg shadow-xl max-w-md w-full p-6 mx-4">    <button
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sapphire-900/80 backdrop-blur-sm">    
+      <div className="relative bg-sapphire-800 border border-emerald-400/30 rounded-lg shadow-xl max-w-md w-full p-6 mx-4">    
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-emerald-400/70 hover:text-emerald-400"
-        >    <X className="w-5 h-5" />
+        >    
+        <X className="w-5 h-5" />
         </button>
 
-        {submitted ? (    <div className="text-center py-8">    <div className="w-16 h-16 bg-emerald-400/20 rounded-full flex items-center justify-center mx-auto mb-4">    <svg
+        {submitted ? (    <div className="text-center py-8">    
+        <div className="w-16 h-16 bg-emerald-400/20 rounded-full flex items-center justify-center mx-auto mb-4">    
+        <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8 text-emerald-400"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-              >    <path
+              >    
+        <path
                   fillRule="evenodd"
                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                   clipRule="evenodd"
@@ -42,7 +49,8 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
               </svg>
             </div>    <h3 className="text-2xl font-cyber text-emerald-400 mb-2">Welcome to the Swarm!</h3>    <p className="text-emerald-400/70 mb-6">
               Thank you for joining. We'll be in touch soon with more information.
-            </p>    <div className="space-y-3">    <Link
+            </p>    <div className="space-y-3">    
+        <Link
                 href="/signup"
                 className="block w-full bg-emerald-400 text-sapphire-900 font-bold font-cyber px-6 py-3 rounded-md hover:bg-emerald-500 transition-colors text-center"
               >
@@ -58,7 +66,9 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
         ) : (
           <>    <h3 className="text-2xl font-cyber text-emerald-400 mb-2">Join the Swarm</h3>    <p className="text-emerald-400/70 mb-6">
               Sign up to receive updates, early access to new features, and exclusive trading signals.
-            </p>    <form onSubmit={handleSubmit}>    <div className="mb-4">    <label htmlFor="name" className="block text-emerald-400 mb-1">
+            </p>    <form onSubmit={handleSubmit}>    
+        <div className="mb-4">    
+        <label htmlFor="name" className="block text-emerald-400 mb-1">
                   Name
                 </label>    <input
                   type="text"
@@ -69,7 +79,8 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
                   placeholder="Your name"
                   required
                 />
-              </div>    <div className="mb-6">    <label htmlFor="email" className="block text-emerald-400 mb-1">
+              </div>    <div className="mb-6">    
+        <label htmlFor="email" className="block text-emerald-400 mb-1">
                   Email
                 </label>    <input
                   type="email"
@@ -85,7 +96,8 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
                 className="w-full bg-emerald-400 text-sapphire-900 font-bold font-cyber px-4 py-3 rounded-md hover:bg-emerald-500 transition-colors"
               >
                 JOIN NOW
-              </button>    <div className="mt-4 flex justify-center">    <Link 
+              </button>    <div className="mt-4 flex justify-center">    
+        <Link 
                   href="/signup"
                   className="text-emerald-400 hover:text-emerald-300 text-sm underline"
                 >
