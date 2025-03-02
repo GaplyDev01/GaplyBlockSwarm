@@ -56,7 +56,7 @@ export function MessageInput({
     }
   }, [message]);
   
-  return (<div className={cn("w-full", className)}>
+  return (    <div className={cn("w-full", className)}>
       {suggestions.length > 0 && (    <div className="mb-3 flex flex-wrap gap-2">
           {suggestions.map((suggestion, index) => (    <button
               key={index}
@@ -71,7 +71,8 @@ export function MessageInput({
             </button>
           ))}
         </div>
-      )}    <div className="relative flex items-end w-full">    <textarea
+      )}    <div className="relative flex items-end w-full">    
+        <textarea
           ref={inputRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -93,7 +94,8 @@ export function MessageInput({
             variant="outline"
             className="rounded-l-none rounded-r-md h-full border border-l-0 border-destructive/50 hover:bg-destructive/10"
             disabled={isDisabled || !onStop}
-          >    <svg
+          >    
+        <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
@@ -102,7 +104,8 @@ export function MessageInput({
               strokeLinecap="round"
               strokeLinejoin="round"
               className="w-4 h-4"
-            >    <rect x="6" y="6" width="12" height="12" rx="2" />
+            >    
+        <rect x="6" y="6" width="12" height="12" rx="2" />
             </svg>    <span className="ml-2">Stop</span>
           </Button>
         ) : (    <Button
@@ -110,7 +113,8 @@ export function MessageInput({
             variant="primary"
             className="rounded-l-none rounded-r-md h-full"
             disabled={isDisabled || !message.trim()}
-          >    <svg
+          >    
+        <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
@@ -119,7 +123,9 @@ export function MessageInput({
               strokeLinecap="round"
               strokeLinejoin="round"
               className="w-4 h-4"
-            >    <path d="m3 3 3 9-3 9 19-9Z" />    <path d="M6 12h16" />
+            >    
+        <path d="m3 3 3 9-3 9 19-9Z" />    
+        <path d="M6 12h16" />
             </svg>
           </Button>
         )}

@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 /**
@@ -39,10 +39,12 @@ const chatRequestSchema = z.object({
 
 // GET handler - retrieve chat history (mock response)
 export async function GET(request: NextRequest) {
-  const { userId } = auth();
+  // Check for wallet authentication from request cookie
+  const walletCookie = request.cookies.get('wallet_connected');
+  const userId = walletCookie?.value;
   
   if (!userId) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized - Wallet not connected' }, { status: 401 });
   }
   
   try {
@@ -71,10 +73,12 @@ export async function GET(request: NextRequest) {
 
 // POST handler - send a message (mock response)
 export async function POST(request: NextRequest) {
-  const { userId } = auth();
+  // Check for wallet authentication from request cookie
+  const walletCookie = request.cookies.get('wallet_connected');
+  const userId = walletCookie?.value;
   
   if (!userId) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized - Wallet not connected' }, { status: 401 });
   }
   
   try {
@@ -114,10 +118,12 @@ export async function POST(request: NextRequest) {
 
 // DELETE handler - delete a chat
 export async function DELETE(request: NextRequest) {
-  const { userId } = auth();
+  // Check for wallet authentication from request cookie
+  const walletCookie = request.cookies.get('wallet_connected');
+  const userId = walletCookie?.value;
   
   if (!userId) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'Unauthorized - Wallet not connected' }, { status: 401 });
   }
   
   try {

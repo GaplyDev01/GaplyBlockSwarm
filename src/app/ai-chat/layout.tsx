@@ -8,7 +8,7 @@ function AIChatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (<UserProvider>
+  return (    <UserProvider>
       {children}
     </UserProvider>
   );

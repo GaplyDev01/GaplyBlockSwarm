@@ -8,7 +8,7 @@ function SignupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (<UserProvider>
+  return (    <UserProvider>
       {children}
     </UserProvider>
   );

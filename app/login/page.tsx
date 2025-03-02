@@ -117,6 +117,9 @@ export default function WalletLoginPage() {
               <Link href="/dashboard?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
                 Try Demo Mode
               </Link>
+              <Link href="/" className="text-xs bg-blue-500/30 hover:bg-blue-500/40 text-blue-100 px-3 py-1 rounded-md">
+                Back to Home
+              </Link>
             </div>
             
             {loginStatus === 'success' ? (

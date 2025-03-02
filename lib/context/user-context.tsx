@@ -1,29 +1,64 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useUser } from '@clerk/nextjs';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useWalletContext } from './wallet-context';
+import { logger } from '@/lib/logger';
 
 // Create a type for the context
 interface UserContextType {
   isLoaded: boolean;
   isSignedIn: boolean;
-  user: any;
+  userId: string | null;
+  isDemo: boolean;
 }
 
 // Create the context
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType>({
+  isLoaded: false,
+  isSignedIn: false,
+  userId: null,
+  isDemo: false
+});
 
 // Create a provider component
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
   
-  // Ensure isSignedIn is always a boolean value
-  const safeIsSignedIn: boolean = isSignedIn || false;
+  // Get wallet information
+  let walletContext;
+  try {
+    walletContext = useWalletContext();
+  } catch (error) {
+    logger.error('Error accessing wallet context in UserProvider:', error);
+    walletContext = {
+      isConnected: false,
+      walletAddress: null
+    };
+  }
   
-  return (<UserContext.Provider value={{ 
+  const { isConnected = false, walletAddress = null } = walletContext || {};
+  
+  // Check for demo mode
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        setIsDemo(urlParams.get('demo') === 'true');
+        setIsLoaded(true);
+      }
+    } catch (e) {
+      logger.error("Failed to check for demo mode", e);
+      setIsLoaded(true);
+    }
+  }, []);
+  
+  return (
+    <UserContext.Provider value={{ 
       isLoaded, 
-      isSignedIn: safeIsSignedIn, 
-      user 
+      isSignedIn: isConnected || isDemo, 
+      userId: walletAddress,
+      isDemo
     }}>
       {children}
     </UserContext.Provider>
@@ -34,15 +69,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 export function useUserContext() {
   const context = useContext(UserContext);
   
-  // Return a fallback during prerendering instead of throwing an error
   if (context === undefined) {
     // This happens when the context is used outside of UserProvider
     // Instead of throwing an error, return a fallback value for SSR/static generation
-    console.warn('useUserContext was used outside of UserProvider, returning fallback values');
+    logger.warn('useUserContext was used outside of UserProvider, returning fallback values');
     return {
       isLoaded: false,
       isSignedIn: false,
-      user: null
+      userId: null,
+      isDemo: false
     };
   }
   

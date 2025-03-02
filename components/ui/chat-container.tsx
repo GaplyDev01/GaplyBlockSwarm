@@ -49,11 +49,14 @@ export function ChatContainer({
     setAutoScroll(atBottom)
   }
   
-  return (<Card 
+  return (    <Card 
       variant="glass" 
       className={cn("flex flex-col h-full overflow-hidden", className)}
-    >    <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-border">    <CardTitle className="text-lg font-cyber text-glow">{title}</CardTitle>
-        {isGenerating && (    <div className="flex items-center space-x-1 text-xs text-emerald-400 animate-pulse">    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>    <span>Generating...</span>
+    >    
+        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-border">    
+        <CardTitle className="text-lg font-cyber text-glow">{title}</CardTitle>
+        {isGenerating && (    <div className="flex items-center space-x-1 text-xs text-emerald-400 animate-pulse">    
+        <span className="h-2 w-2 rounded-full bg-emerald-400"></span>    <span>Generating...</span>
           </div>
         )}
       </CardHeader>    <CardContent 
@@ -69,7 +72,8 @@ export function ChatContainer({
               strokeLinecap="round"
               strokeLinejoin="round"
               className="h-12 w-12 mb-4 text-muted"
-            >    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            >    
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>    <p>No messages yet. Start a conversation!</p>
           </div>
         ) : (    <div className="space-y-4">
@@ -81,7 +85,8 @@ export function ChatContainer({
               />
             ))}    <div ref={messagesEndRef} /></div>
         )}
-      </CardContent>    <CardFooter className="p-4 border-t border-border">    <MessageInput
+      </CardContent>    <CardFooter className="p-4 border-t border-border">    
+        <MessageInput
           onSend={onSend}
           onStop={onStop}
           isGenerating={isGenerating}
@@ -105,7 +110,8 @@ export function ChatContainer({
             strokeLinecap="round"
             strokeLinejoin="round"
             className="h-5 w-5"
-          >    <path d="m6 9 6 6 6-6" />
+          >    
+        <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
       )}

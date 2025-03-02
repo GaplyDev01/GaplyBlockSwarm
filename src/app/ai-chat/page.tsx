@@ -81,14 +81,19 @@ function AIChatPage() {
   
   // Loading state
   if (!isLoaded || isAILoading || isInitializing) {
-    return (<div className="flex flex-col items-center justify-center min-h-screen p-4 bg-sapphire-900">    <Loader className="animate-spin text-emerald-400 h-12 w-12 mb-4" />    <p className="text-emerald-400">Initializing AI chat...</p>
+    return (    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-sapphire-900">    
+        <Loader className="animate-spin text-emerald-400 h-12 w-12 mb-4" />    
+        <p className="text-emerald-400">Initializing AI chat...</p>
       </div>
     );
   }
   
   // Authentication required
   if (!isSignedIn) {
-    return (<div className="flex flex-col items-center justify-center min-h-screen p-4 bg-sapphire-900">    <div className="text-center max-w-lg">    <h1 className="text-2xl font-cyber text-emerald-400 mb-4">BlockSwarms AI Chat</h1>    <p className="mb-6 text-emerald-400/70">Sign in to access AI-powered token insights</p>    <SignInButton mode="modal">    <button className="bg-emerald-500 hover:bg-emerald-600 text-sapphire-900 font-medium py-2 px-4 rounded">
+    return (    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-sapphire-900">    
+        <div className="text-center max-w-lg">    
+        <h1 className="text-2xl font-cyber text-emerald-400 mb-4">BlockSwarms AI Chat</h1>    <p className="mb-6 text-emerald-400/70">Sign in to access AI-powered token insights</p>    <SignInButton mode="modal">    
+        <button className="bg-emerald-500 hover:bg-emerald-600 text-sapphire-900 font-medium py-2 px-4 rounded">
               Sign In
             </button>
           </SignInButton>
@@ -97,8 +102,9 @@ function AIChatPage() {
     );
   }
   
-  return (<div className="flex flex-col h-screen bg-sapphire-900">
-      {/* Header */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    <ArrowLeft size={20} />
+  return (    <div className="flex flex-col h-screen bg-sapphire-900">
+        {/*                     Header                     */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    
+        <ArrowLeft size={20} />
         </Link>    <h1 className="text-xl font-cyber text-emerald-400">
           {hasTokenContext 
             ? `AI Chat about ${tokenSymbol}`
@@ -109,8 +115,8 @@ function AIChatPage() {
           </div>
         )}
       </div>
-      
-      {/* Chat container */}    <div className="flex-1 overflow-hidden p-4">    <ChatContainer
+        {/*                     Chat container                     */}    <div className="flex-1 overflow-hidden p-4">    
+        <ChatContainer
           chatId={selectedChatId || undefined}
           providers={availableProviders as AIProviderOption[]}
           initialProvider="anthropic"

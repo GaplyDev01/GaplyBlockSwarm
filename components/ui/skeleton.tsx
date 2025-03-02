@@ -5,7 +5,7 @@ function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (<div
+  return (    <div
       className={cn("animate-pulse rounded-md bg-muted", className)}
       {...props}
     />
@@ -22,18 +22,15 @@ function Avatar({
   src?: string;
   alt?: string;
 }) {
-  return (
-    <div 
+  return (    <div 
       className={cn(
         "w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-muted",
         className
       )}
       {...props}
     >
-      {src ? (
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
-      ) : (
-        <span className="text-xs">{alt.charAt(0).toUpperCase()}</span>
+      {src ? (    <img src={src} alt={alt} className="w-full h-full object-cover" />
+      ) : (    <span className="text-xs">{alt.charAt(0).toUpperCase()}</span>
       )}
     </div>
   )

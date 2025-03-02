@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useUserContext } from '@/lib/context/user-context';
 import { AIChatService } from '../../application/ai/AIChatService';
 import type { ChatHistory } from '../../application/ai/AIChatService';
 // Define the AIProviderOption locally since we can't import it
@@ -82,7 +82,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [availableProviders, setAvailableProviders] = useState<AIProviderOption[]>([]);
   
-  const { isLoaded, isSignedIn, userId } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useUserContext();
   const isAuthenticated = isLoaded && isSignedIn;
   
   // Initialize chat service
@@ -311,7 +311,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     createNewChat,
   };
   
-  return (<AIContext.Provider value={value}>
+  return (    <AIContext.Provider value={value}>
       {children}
     </AIContext.Provider>
   );

@@ -184,7 +184,8 @@ export function WalletTransactionsV2({
   };
 
   if (!isConnected) {
-    return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <h2 className="text-lg font-cyber text-emerald-400 mb-4">Enhanced Transaction History</h2>    <p className="text-emerald-400/70">Connect your wallet to view your transaction history</p>
+    return (    <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    
+        <h2 className="text-lg font-cyber text-emerald-400 mb-4">Enhanced Transaction History</h2>    <p className="text-emerald-400/70">Connect your wallet to view your transaction history</p>
       </div>
     );
   }
@@ -205,7 +206,11 @@ export function WalletTransactionsV2({
     }
   };
 
-  return (<div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    <div className="flex justify-between items-center mb-4">    <h2 className="text-lg font-cyber text-emerald-400">Enhanced Transaction History</h2>    <div className="flex items-center gap-2">    <div className="flex items-center">    <label htmlFor="auto-refresh" className="text-xs text-emerald-400/70 mr-2">
+  return (    <div className={cn("p-4 border border-emerald-400/20 rounded bg-sapphire-900/50 backdrop-blur", className)}>    
+        <div className="flex justify-between items-center mb-4">    
+        <h2 className="text-lg font-cyber text-emerald-400">Enhanced Transaction History</h2>    <div className="flex items-center gap-2">    
+        <div className="flex items-center">    
+        <label htmlFor="auto-refresh" className="text-xs text-emerald-400/70 mr-2">
               Auto
             </label>    <div 
               className={cn(
@@ -237,7 +242,8 @@ export function WalletTransactionsV2({
         </div>
       </div>
       
-      {lastRefreshed && (    <div className="flex justify-end">    <span className="text-xs text-emerald-400/50 mb-2">
+      {lastRefreshed && (    <div className="flex justify-end">    
+        <span className="text-xs text-emerald-400/50 mb-2">
             Last updated: {getLastRefreshedText()}
           </span>
         </div>
@@ -252,7 +258,10 @@ export function WalletTransactionsV2({
         </div>
       )}
       
-      {isLoading && transactions.length === 0 ? (    <div className="space-y-2">    <Skeleton className="h-16 w-full bg-emerald-400/5" />    <Skeleton className="h-16 w-full bg-emerald-400/5" />    <Skeleton className="h-16 w-full bg-emerald-400/5" />
+      {isLoading && transactions.length === 0 ? (    <div className="space-y-2">    
+        <Skeleton className="h-16 w-full bg-emerald-400/5" />    
+        <Skeleton className="h-16 w-full bg-emerald-400/5" />    
+        <Skeleton className="h-16 w-full bg-emerald-400/5" />
         </div>
       ) : transactions.length === 0 ? (    <div className="text-emerald-400/50 text-sm p-4 text-center border border-dashed border-emerald-400/20 rounded-md">
           No transactions found for this wallet address
@@ -265,16 +274,21 @@ export function WalletTransactionsV2({
           {transactions.map((tx, index) => {
             const txDetails = getTransactionDetails(tx);
             
-            return (<div key={index} className="p-3 bg-sapphire-800/30 rounded border border-emerald-400/10 hover:border-emerald-400/30 transition-colors">    <div className="flex items-center gap-3">    <div className="p-2 bg-sapphire-800/80 rounded-full">
+            return (    <div key={index} className="p-3 bg-sapphire-800/30 rounded border border-emerald-400/10 hover:border-emerald-400/30 transition-colors">    
+        <div className="flex items-center gap-3">    
+        <div className="p-2 bg-sapphire-800/80 rounded-full">
                     {getTransactionIcon(tx.type)}
-                  </div>    <div className="flex-1">    <div className="flex justify-between">    <span className="text-emerald-400 capitalize">{tx.type}</span>
+                  </div>    <div className="flex-1">    
+        <div className="flex justify-between">    
+        <span className="text-emerald-400 capitalize">{tx.type}</span>
                       {getStatusBadge(tx.status)}
                     </div>
                     
                     {txDetails && (    <div className="text-xs text-emerald-400/70 mt-1">
                         {txDetails}
                       </div>
-                    )}    <div className="flex justify-between mt-1">    <span className="text-xs text-gray-400">
+                    )}    <div className="flex justify-between mt-1">    
+        <span className="text-xs text-gray-400">
                         {formatTimestamp(tx.timestamp)}
                       </span>    <a 
                         href={`https://solscan.io/tx/${tx.id}`} 
@@ -291,7 +305,9 @@ export function WalletTransactionsV2({
             );
           })}
           
-          {transactions.length > 0 && (    <div className="mt-4 pt-2 border-t border-emerald-400/10">    <div className="flex justify-between items-center">    <span className="text-xs text-emerald-400/50">
+          {transactions.length > 0 && (    <div className="mt-4 pt-2 border-t border-emerald-400/10">    
+        <div className="flex justify-between items-center">    
+        <span className="text-xs text-emerald-400/50">
                   Showing {transactions.length} of {maxItems} most recent transactions
                 </span>    <a 
                   href={`https://solscan.io/account/${walletAddress}`}

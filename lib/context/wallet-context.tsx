@@ -174,6 +174,7 @@ const InnerWalletContextProvider = ({
       }
 
       // Check if we're running in an environment without wallet support
+      // @ts-ignore - Solana and Phantom types are not included in Window interface
       const noWalletEnvironment = !window.solana && !window.phantom;
       
       // Check for demo mode in URL
@@ -349,6 +350,7 @@ export function WalletContextProvider({ children }: { children: ReactNode }) {
   // Handle component error fallback
   if (typeof window !== 'undefined') {
     // Check if we're in an environment where wallet adapters can't load
+    // @ts-ignore - Solana and Phantom types are not included in Window interface
     const hasWalletSupport = window.solana || window.phantom;
     
     if (!hasWalletSupport) {

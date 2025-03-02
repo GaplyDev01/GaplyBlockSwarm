@@ -132,9 +132,11 @@ export function DashboardGrid({
       const targetIndex = newCards.findIndex(c => c.id === targetId);
       
       if (draggedIndex !== -1 && targetIndex !== -1) {
-        const [removed] = newCards.splice(draggedIndex, 1);
-        newCards.splice(targetIndex, 0, removed);
-        onCardsReorder(newCards);
+        const removed = newCards.splice(draggedIndex, 1)[0];
+        if (removed) {
+          newCards.splice(targetIndex, 0, removed);
+          onCardsReorder(newCards);
+        }
       }
     } catch (error) {
       console.error('Error in drop handling:', error);

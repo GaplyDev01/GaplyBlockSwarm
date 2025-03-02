@@ -26,7 +26,7 @@ export function Message({
   const isError = role === "error"
   const isLoadingRole = role === "loading"
   
-  return (<div
+  return (    <div
       className={cn(
         "flex w-full mb-4 animate-in fade-in slide-in-from-bottom-5 duration-300",
         isUser ? "justify-end" : "justify-start",
@@ -52,7 +52,8 @@ export function Message({
       )}    <div className={cn(
         "flex flex-col max-w-[80%] min-w-[40%]",
         isUser && "items-end"
-      )}>    <div className={cn(
+      )}>    
+        <div className={cn(
           "rounded-lg px-4 py-2 mb-1",
           isUser && "bg-secondary border border-emerald-400/20 text-secondary-foreground",
           isAssistant && "bg-card/80 border border-border text-card-foreground backdrop-blur-sm",
@@ -61,7 +62,8 @@ export function Message({
         )}>
           {isLoading || isLoadingRole ? (    <div className="flex items-center space-x-2">    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></div>    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:200ms]"></div>    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:400ms]"></div>
             </div>
-          ) : (    <div className="prose prose-invert max-w-none">    <ReactMarkdown>{content}</ReactMarkdown>
+          ) : (    <div className="prose prose-invert max-w-none">    
+        <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           )}
         </div>
@@ -72,7 +74,8 @@ export function Message({
         )}
       </div>
       
-      {isUser && (    <div className="flex-shrink-0 ml-3">    <div className="bg-primary/20 text-primary w-9 h-9 rounded-full flex items-center justify-center border border-primary/30">
+      {isUser && (    <div className="flex-shrink-0 ml-3">    
+        <div className="bg-primary/20 text-primary w-9 h-9 rounded-full flex items-center justify-center border border-primary/30">
             {avatar ? (    <img src={avatar} alt="User" className="w-full h-full rounded-full" />
             ) : (    <span className="text-lg">U</span>
             )}

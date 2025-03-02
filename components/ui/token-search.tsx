@@ -193,7 +193,10 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
     inputRef.current?.focus();
   }
 
-  return (<div className={`relative w-full ${className}`}>    <div className="relative">    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">    <Search className="h-5 w-5 text-muted-foreground" />
+  return (    <div className={`relative w-full ${className}`}>    
+        <div className="relative">    
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">    
+        <Search className="h-5 w-5 text-muted-foreground" />
         </div>    <input
           ref={inputRef}
           type="text"
@@ -207,7 +210,8 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
         {query && (    <button
             onClick={clearSearch}
             className="absolute inset-y-0 right-0 flex items-center pr-3"
-          >    <X className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+          >    
+        <X className="h-5 w-5 text-muted-foreground hover:text-foreground" />
           </button>
         )}
       </div>
@@ -216,7 +220,8 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
           ref={resultsRef}
           className="absolute z-50 mt-1 w-full max-h-96 overflow-auto bg-card border border-border rounded-lg shadow-xl"
         >
-          {loading && (    <div className="py-4 px-3 text-center">    <div className="flex justify-center items-center space-x-2">    <div
+          {loading && (    <div className="py-4 px-3 text-center">    <div className="flex justify-center items-center space-x-2">    
+        <div
                   className="h-2 w-2 bg-primary rounded-full animate-bounce"
                   style={{ animationDelay: '0ms' }}
                 ></div>    <div
@@ -240,10 +245,15 @@ export function TokenSearch({ onSelectToken, onSelect, className = '' }: TokenSe
                 key={token.id}
                 className="px-4 py-2 hover:bg-muted cursor-pointer border-b border-border last:border-b-0"
                 onClick={() => handleSelectToken(token)}
-              >    <div className="flex items-center">    <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full mr-3" />    <div className="flex-1">    <div className="flex justify-between">    <div className="font-bold text-foreground">{token.name}</div>    <div className="font-mono text-foreground">
+              >    <div className="flex items-center">    
+        <img src={token.image} alt={token.name} className="w-8 h-8 rounded-full mr-3" />    
+        <div className="flex-1">    
+        <div className="flex justify-between">    
+        <div className="font-bold text-foreground">{token.name}</div>    <div className="font-mono text-foreground">
                         {token.current_price ? `$${token.current_price.toLocaleString()}` : "No price data"}
                       </div>
-                    </div>    <div className="flex justify-between text-sm">    <div className="text-muted-foreground">{token.symbol.toUpperCase()}</div>
+                    </div>    <div className="flex justify-between text-sm">    
+        <div className="text-muted-foreground">{token.symbol.toUpperCase()}</div>
                       {token.price_change_percentage_24h !== undefined && token.price_change_percentage_24h !== null ? (    <div className={getPriceChangeColor(token.price_change_percentage_24h)}>
                           {token.price_change_percentage_24h > 0 ? '+' : ''}
                           {token.price_change_percentage_24h.toFixed(2)}%

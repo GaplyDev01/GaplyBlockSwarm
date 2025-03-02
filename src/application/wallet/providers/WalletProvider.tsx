@@ -428,7 +428,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   ], []);
 
   // Return provider with Solana wallet adapters
-  return (<ConnectionProvider endpoint={endpoint}>    <SolanaWalletProvider wallets={wallets} autoConnect>    <WalletModalProvider>    <InnerWalletProvider wallets={wallets}>
+  return (    <ConnectionProvider endpoint={endpoint}>    
+        <SolanaWalletProvider wallets={wallets} autoConnect>    
+        <WalletModalProvider>    
+        <InnerWalletProvider wallets={wallets}>
             {children}
           </InnerWalletProvider>
         </WalletModalProvider>

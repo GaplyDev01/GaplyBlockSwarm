@@ -7,7 +7,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "base", ...props }, ref) => {
-    return (<div
+    return (    <div
         ref={ref}
         className={cn(
           "rounded-lg border border-border bg-card p-4 shadow-sm",

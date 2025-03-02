@@ -3,18 +3,22 @@
 import React, { ReactNode } from 'react';
 import { ThemeProvider } from '../../application/theme';
 import { WalletProvider } from '../../application/wallet';
-import { ClerkProvider } from '@clerk/nextjs';
 import { AIProvider } from '../context/ai-context';
+import { UserProvider } from '@/lib/context/user-context';
 
 /**
  * Global providers wrapper
  */
 export function Providers({ children }: { children: ReactNode }) {
-  return (<ClerkProvider>    <ThemeProvider>    <WalletProvider>    <AIProvider>
+  return (
+    <ThemeProvider>    
+      <WalletProvider>
+        <UserProvider>
+          <AIProvider>
             {children}
           </AIProvider>
-        </WalletProvider>
-      </ThemeProvider>
-    </ClerkProvider>
+        </UserProvider>
+      </WalletProvider>
+    </ThemeProvider>
   );
 }

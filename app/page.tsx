@@ -39,11 +39,11 @@ export default function HomePage() {
       )}    <div className="container mx-auto px-4 py-12">    
         <header className="flex justify-between items-center mb-16">    
         <div className="text-primary font-cyber text-2xl">BlockSwarms</div>    <nav className="space-x-6 hidden md:block">    
-        <Link href="/" className="text-foreground hover:text-primary">Home</Link>    <Link href={isDemoMode ? "/dashboard?demo=true" : "/dashboard"} className="text-foreground hover:text-primary">Dashboard</Link>    <Link href="/login" className="text-foreground hover:text-primary">Login</Link>    <Link 
-              href="/signup" 
+        <Link href="/" className="text-foreground hover:text-primary">Home</Link>    <Link href={isDemoMode ? "/dashboard?demo=true" : "/dashboard"} className="text-foreground hover:text-primary">Dashboard</Link>    <Link 
+              href="/login" 
               className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:brightness-110"
             >
-              Sign Up
+              Connect Wallet
             </Link>    <Link 
               href={isDemoMode ? "/ai-chat?demo=true" : "/ai-chat"} 
               className="text-foreground hover:text-primary"
@@ -61,10 +61,10 @@ export default function HomePage() {
                 and optimize your trading strategies.
               </p>    <div className="flex flex-col sm:flex-row justify-center gap-4">    
         <Link
-                  href="/dashboard"
+                  href="/login"
                   className="button-primary flex items-center justify-center gap-2 font-cyber"
                 >
-                  ENTER PLATFORM <ArrowRight className="w-4 h-4" />
+                  CONNECT WALLET <ArrowRight className="w-4 h-4" />
                 </Link>    <button
                   onClick={() => setIsJoinModalOpen(true)}
                   className="button-outline font-cyber"

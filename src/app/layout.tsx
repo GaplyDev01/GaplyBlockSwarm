@@ -2,7 +2,6 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
 import { Providers } from '@/src/presentation/providers/Providers';
-import { ClerkProvider } from '@clerk/nextjs';
 import { AIProvider } from '@/src/presentation/context/ai-context';
 
 // Load Orbitron font
@@ -21,13 +20,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (<ClerkProvider>    <html lang="en" className="dark" suppressHydrationWarning>    <head>    <link rel="stylesheet" href="/tailwind-fix.css" />    <link rel="stylesheet" href="/custom.css" />
-        </head>    <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>    <Providers>    <AIProvider>
-              {children}
-            </AIProvider>
-          </Providers>
-        </body>
-      </html>
-    </ClerkProvider>
+  return (
+    <html lang="en" className="dark" suppressHydrationWarning>    
+      <head>    
+        <link rel="stylesheet" href="/tailwind-fix.css" />    
+        <link rel="stylesheet" href="/custom.css" />
+      </head>
+      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>    
+        <Providers>    
+          <AIProvider>
+            {children}
+          </AIProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }

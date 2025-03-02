@@ -84,7 +84,8 @@ export function ConnectWalletButton({
     }
   };
 
-  return isConnected ? (    <div className="flex items-center space-x-2">    <div className="rounded-md px-3 py-1.5 text-xs font-mono bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
+  return isConnected ? (    <div className="flex items-center space-x-2">    
+        <div className="rounded-md px-3 py-1.5 text-xs font-mono bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
         {walletAddress ? formatAddress(walletAddress) : '...'}
       </div>    <button
         onClick={handleDisconnect}
