@@ -16,10 +16,15 @@ export default authMiddleware({
     "/api/public(.*)",
     "/api/health",
     "/api/status",
-    "/api/token/search", // Add token search API endpoint as public
-    "/dashboard", // Making dashboard public for demo purposes
+    "/api/token/search", 
+    "/api/ai/chat",  // Make AI chat endpoint publicly accessible
+    "/dashboard",    // Making dashboard public for demo purposes
+    "/ai-chat",      // Making AI chat page public for demo purposes
     "/login/(.*)",
     "/signup/(.*)",
+    "/_next/(.*)",   // Allow Next.js assets
+    "/favicon.ico",
+    "/images/(.*)"
   ],
   
   // Optional custom handler for authentication logic
@@ -35,7 +40,7 @@ export default authMiddleware({
     if (process.env.NODE_ENV === 'production') {
       securityHeaders.set(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz https://*.vercel.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://api.clerk.dev https://*.solana.com wss://*.solana.com https://solana-mainnet.g.alchemy.com https://*.vercel.app;"
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz https://*.clerk.accounts.dev https://*.vercel.app https://*.clerk.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://api.clerk.dev https://*.clerk.com https://*.solana.com wss://*.solana.com https://solana-mainnet.g.alchemy.com https://*.vercel.app;"
       );
     }
 
@@ -49,6 +54,19 @@ export default authMiddleware({
 
     // For protected routes where the user is not authenticated
     if (!auth.userId && !auth.isPublicRoute) {
+      // Check if we're in demo mode (using query parameter demo=true)
+      const url = new URL(req.url);
+      const demoMode = url.searchParams.get('demo') === 'true';
+      
+      if (demoMode) {
+        // In demo mode, allow access to protected routes without authentication
+        console.log('Demo mode enabled, allowing access to protected route:', req.nextUrl.pathname);
+        return NextResponse.next({
+          headers: securityHeaders,
+        });
+      }
+      
+      // Normal authentication flow for non-demo mode
       const redirectUrl = new URL('/login', req.url);
       // Keep the original URL to redirect back after login
       redirectUrl.searchParams.set('redirect_url', req.url);
@@ -62,8 +80,12 @@ export default authMiddleware({
         !req.nextUrl.pathname.startsWith('/api/public') && 
         !req.nextUrl.pathname.startsWith('/api/webhook') &&
         !req.nextUrl.pathname.startsWith('/api/token/search')) {
-      // Check if session is valid for sensitive API routes
-      if (!auth.sessionId) {
+      // Check for demo mode
+      const url = new URL(req.url);
+      const demoMode = url.searchParams.get('demo') === 'true';
+      
+      // Check if session is valid for sensitive API routes (unless in demo mode)
+      if (!auth.sessionId && !demoMode) {
         return new NextResponse(
           JSON.stringify({ error: "Unauthorized: Invalid session" }),
           { 

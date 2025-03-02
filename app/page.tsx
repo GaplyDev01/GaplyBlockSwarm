@@ -64,6 +64,12 @@ export default function HomePage() {
                   </svg>
                   AI CHAT
                 </Link>
+                <Link
+                  href="/dashboard?demo=true"
+                  className="button-outline flex items-center justify-center gap-2 font-cyber bg-amber-500/20 hover:bg-amber-500/30 text-amber-300"
+                >
+                  DEMO MODE
+                </Link>
               </div>
             </div>
           </section>
