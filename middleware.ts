@@ -35,7 +35,7 @@ export default authMiddleware({
     if (process.env.NODE_ENV === 'production') {
       securityHeaders.set(
         'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://api.clerk.dev https://*.solana.com;"
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.blockswarms.xyz https://*.vercel.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.blockswarms.xyz https://*.clerk.accounts.dev https://api.clerk.dev https://*.solana.com wss://*.solana.com https://solana-mainnet.g.alchemy.com https://*.vercel.app;"
       );
     }
 
