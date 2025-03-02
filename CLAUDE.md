@@ -11,12 +11,14 @@
 - `npm run test -- -t "test name"` - Run a specific test by name
 - `npm run test -- tests/path/to/specific.test.js` - Run a specific test file
 - `npm run format` - Format code with Prettier
+- `npm run clean` - Remove .next directory
+- `npm run vercel-build` - Build for Vercel deployment
 
 ## Code Style Guidelines
 - **Architecture**: Clean architecture with domain-driven design (core → application → infrastructure → presentation)
 - **Component Names**: PascalCase for components (e.g., `ConnectWalletButton.tsx`), camelCase for utilities
 - **File Organization**: Feature-first organization within clean architecture layers
-- **Typing**: Strong TypeScript typing with explicit interfaces, generics, and JSDoc comments
+- **Typing**: Strong TypeScript typing with interfaces, generics, JSDoc comments; strictly typed with noImplicitAny and strictNullChecks
 - **Imports**: Group external libraries first, then internal imports using module aliases (@/core/*, @/infrastructure/*, etc.)
 - **Error Handling**: Use try/catch with specific error types, logger.error for reporting, provide fallback UI
 - **Testing**: Jest with React Testing Library, descriptive test names, comprehensive mocking
@@ -30,14 +32,6 @@
 - **src/infrastructure**: External services implementations, adapters, tools
 - **src/presentation**: React components, hooks, contexts for UI
 - **src/shared**: Cross-cutting concerns like logging, utilities, and types
-- **tests**: Integration and unit tests with the .test.{ts,tsx,js,jsx} extension
-
-## Cursor Rules
-Detailed development guidelines are available in the `.cursor/rules/` directory:
-- `blockswarms-rules.md` - General coding standards
-- `testing-rules.md` - Testing patterns and practices
-- `solana-integration.md` - Blockchain integration guidelines
-- `ai-integration.md` - AI provider integration standards
-- `consolidation-guidelines.md` - Codebase consolidation and organization
+- **tests**: Integration and unit tests (tests/*.test.js and tests/integration/*.test.{ts,tsx,js,jsx})
 
 This Next.js App Router project follows clean architecture principles with strict TypeScript checking. All imports should use the path aliases defined in tsconfig.json. Follow existing patterns when adding new code.

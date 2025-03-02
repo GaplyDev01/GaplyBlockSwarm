@@ -3,7 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false, // Disable React strict mode to reduce hydration issues in production
   experimental: {
     // Simplify experimental features for initial deployment
     serverActions: {
@@ -13,8 +13,6 @@ const nextConfig = {
     optimizePackageImports: [
       'lucide-react'
     ]
-    // Temporarily disable instrumentation hook for debugging
-    // instrumentationHook: true
   },
   images: {
     unoptimized: true, // Disable image optimization for now to avoid build issues
@@ -22,9 +20,6 @@ const nextConfig = {
   
   // Configure source directory and output directory
   distDir: '.next',
-  
-  // Standard output for troubleshooting (remove standalone)
-  // output: 'standalone',
   
   // Optimize bundle size with compression
   compress: true,
@@ -46,6 +41,9 @@ const nextConfig = {
   transpilePackages: [
     '@solana/wallet-adapter-base',
     '@solana/wallet-adapter-react',
+    '@solana/wallet-adapter-react-ui',
+    '@solana/wallet-adapter-wallets',
+    '@solana/web3.js',
   ],
   
   // Allow production builds to complete even with errors
@@ -58,29 +56,6 @@ const nextConfig = {
   
   // Simplified build output for easier deployment
   swcMinify: true,
-  
-  // Add specific headers for better security and caching
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-    ];
-  },
   
   // Optimized webpack configuration for Vercel deployment
   webpack: (config, { isServer }) => {
@@ -101,6 +76,9 @@ const nextConfig = {
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),
         buffer: require.resolve('buffer/'),
+        http: require.resolve('stream-http'),
+        https: require.resolve('https-browserify'),
+        zlib: require.resolve('browserify-zlib'),
       };
       
       // Add only essential plugins

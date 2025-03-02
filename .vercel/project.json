@@ -1,7 +1,1 @@
-{
-  "buildCommand": "npm run vercel-build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "outputDirectory": ".next"
-}
+{"projectId":"prj_gq7hn1u6IINgCGguQW2fGcw5yrKC","orgId":"team_emX0xuNceImT6oGeJrGpj0Sq"}

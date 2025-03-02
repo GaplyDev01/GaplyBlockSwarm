@@ -10,69 +10,32 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   
-  "routes": [
-    { 
-      "src": "/api/health", 
-      "dest": "/api/health" 
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
     },
-    { 
-      "handle": "filesystem" 
-    },
-    { 
-      "src": "/_next/static/(.*)", 
-      "dest": "/_next/static/$1", 
-      "headers": { 
-        "cache-control": "public, max-age=31536000, immutable",
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      } 
-    },
-    { 
-      "src": "/_next/data/(.*)", 
-      "dest": "/_next/data/$1", 
-      "headers": { 
-        "cache-control": "public, max-age=0, must-revalidate",
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      } 
-    },
-    { 
-      "src": "/_next/(.*)bucket(.*)", 
-      "dest": "/_next/$1bucket$2",
-      "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      }
-    },
-    { 
-      "src": "/public/(.*)", 
-      "dest": "/$1",
-      "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      }
-    },
-    { 
-      "src": "/api/(.*)", 
-      "dest": "/api/$1",
-      "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      }
-    },
-    { 
-      "src": "/(.*)", 
-      "dest": "/",
-      "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block"
-      }
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ],
   

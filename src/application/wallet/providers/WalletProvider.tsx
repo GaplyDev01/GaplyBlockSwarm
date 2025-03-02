@@ -421,17 +421,30 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       ? 'https://api.mainnet-beta.solana.com' 
       : 'https://api.devnet.solana.com');
 
-  // Define supported wallets
-  const wallets = React.useMemo(() => [
-    new PhantomWalletAdapter(), 
-    new SolflareWalletAdapter()
-  ], []);
+  // Define supported wallets - use dynamic import to prevent SSR issues
+  const wallets = React.useMemo(() => {
+    // Check if we're in a browser environment to avoid SSR issues
+    if (typeof window === 'undefined') {
+      return [];
+    }
+    return [
+      new PhantomWalletAdapter(), 
+      new SolflareWalletAdapter()
+    ];
+  }, []);
 
   // Return provider with Solana wallet adapters
-  return (    <ConnectionProvider endpoint={endpoint}>    
-        <SolanaWalletProvider wallets={wallets} autoConnect>    
-        <WalletModalProvider>    
-        <InnerWalletProvider wallets={wallets}>
+  if (typeof window === 'undefined') {
+    // For SSR, provide a simplified version without wallet features
+    return <>{children}</>;
+  }
+
+  // Full version for client-side
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <SolanaWalletProvider wallets={wallets} autoConnect={false}>
+        <WalletModalProvider>
+          <InnerWalletProvider wallets={wallets}>
             {children}
           </InnerWalletProvider>
         </WalletModalProvider>

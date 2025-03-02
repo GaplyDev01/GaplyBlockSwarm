@@ -13,19 +13,13 @@ export default function middleware(req: NextRequest) {
   securityHeaders.set('X-XSS-Protection', '1; mode=block');
   securityHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Set CSP headers for production with relaxed settings for troubleshooting
+  // Use a more specific CSP for production
   if (process.env.NODE_ENV === 'production') {
     securityHeaders.set(
       'Content-Security-Policy',
-      "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';"
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.solana.com https://*.vercel.app; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;"
     );
   }
-  
-  // Check if the request is for a non-existent route
-  const url = req.nextUrl.clone();
-  
-  // Diagnostic logging for troubleshooting
-  console.log(`Middleware processing: ${url.pathname}`);
 
   // Allow all requests to proceed with security headers
   return NextResponse.next({
