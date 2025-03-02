@@ -36,29 +36,19 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
-// Mock Clerk authentication
-jest.mock('@clerk/nextjs', () => ({
-  useAuth: () => ({
+// Mock wallet authentication
+jest.mock('@/lib/context/user-context', () => ({
+  useUserContext: () => ({
     isSignedIn: true,
     isLoaded: true,
-    userId: 'test-user-id',
-  }),
-  useUser: () => ({
-    isSignedIn: true,
-    isLoaded: true,
-    user: {
-      id: 'test-user-id',
-      fullName: 'Test User',
-    },
-  }),
-  SignInButton: ({ children }) => children,
-  ClerkProvider: ({ children }) => children,
+    userId: 'test-wallet-address',
+    isDemo: false
+  })
 }));
 
 // Mock environment variables
-process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = 'test-clerk-key';
 process.env.ANTHROPIC_API_KEY = 'test-anthropic-key';
-process.env.CLERK_SECRET_KEY = 'test-clerk-secret';
+process.env.NEXT_PUBLIC_SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com';
 
 // Reset mocks before each test
 beforeEach(() => {
