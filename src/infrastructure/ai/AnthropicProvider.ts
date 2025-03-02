@@ -3,12 +3,16 @@ import {
   AITool as CoreAITool,
   Message as CoreMessage,
   IAIProvider as CoreIAIProvider
-} from '../../../core/ai/interfaces/IAIProvider';
+} from '../../core/ai/interfaces/IAIProvider';
 
 // Import from the /src version for newer code
 import {
   AIMessage,
-  AITool
+  AITool,
+  IAIProvider,
+  Message,
+  Tool,
+  ToolCallResult
 } from '../../core/ai/interfaces/IAIProvider';
 
 // Define necessary interfaces locally to avoid import issues
@@ -164,9 +168,9 @@ export class AnthropicProvider extends BaseAIProvider implements CoreIAIProvider
    * @param options Provider-specific options
    */
   generateChatCompletion(
-    messages: CoreMessage[] | AIMessage[] | ChatCompletionOptions,
+    messages: CoreMessage[] | AIMessage[] | any,
     options?: any
-  ): Promise<ChatCompletionResponse> {
+  ): Promise<any> {
     // Handle the legacy interface (/core version)
     if (Array.isArray(messages)) {
       // Convert CoreMessage[] to AIMessage[]

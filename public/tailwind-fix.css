@@ -306,6 +306,61 @@ p {
   animation: pulse-glow 2s infinite;
 }
 
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* Background patterns */
+.bg-tech-pattern {
+  background-image: url('/images/tech-pattern.svg');
+}
+
+.bg-circuit-pattern {
+  background-image: url('/images/circuit-pattern.svg');
+}
+
+.bg-grid-lines {
+  background-image: url('/images/grid-lines.svg');
+  background-size: 50px 50px;
+}
+
+/* Blur effects */
+.blur-3xl {
+  filter: blur(40px);
+}
+
+/* Colors */
+.bg-sapphire-900 {
+  background-color: var(--bg-sapphire-900);
+}
+
+.bg-sapphire-800 {
+  background-color: var(--bg-sapphire-800);
+}
+
+.text-sapphire-900 {
+  color: var(--bg-sapphire-900);
+}
+
+.text-emerald-400 {
+  color: var(--text-emerald-400);
+}
+
+.text-emerald-300 {
+  color: var(--text-emerald-300);
+}
+
 @keyframes spinner {
   to {
     transform: rotate(360deg);

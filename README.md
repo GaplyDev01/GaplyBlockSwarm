@@ -78,11 +78,15 @@ BlockSwarms is a blockchain dashboard platform built on Next.js with Solana inte
 
 ## Project Structure
 
-- `app/`: Next.js app router pages
-- `components/`: React components
-- `lib/`: Utility functions and services
+The project follows clean architecture principles with all code now consolidated in the `src/` directory:
+
+- `src/app/`: Next.js app router pages and API routes
+- `src/presentation/`: UI components, hooks, and contexts
+- `src/application/`: Application services and business logic
+- `src/core/`: Domain entities, interfaces, and business rules
+- `src/infrastructure/`: External services, adapters, and technical implementations
+- `src/shared/`: Utilities, types, and cross-cutting concerns
 - `public/`: Static assets
-- `styles/`: Global styles
 - `tests/`: Test files
 
 ## API Information

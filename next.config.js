@@ -12,7 +12,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Set the app directory to src/app for Next.js
+  // Configure source directory and output directory
   distDir: '.next',
   
   // Critical: Skip the static generation phase for authenticated routes

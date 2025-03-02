@@ -5,7 +5,7 @@
 
 import axios from 'axios';
 import { PublicKey, Connection } from '@solana/web3.js';
-import { EnhancedTokenInfo } from './solana/tools';
+import { EnhancedTokenInfo } from '../../infrastructure/blockchain/solana/tools';
 
 // Configuration for various API endpoints
 const API_CONFIG = {

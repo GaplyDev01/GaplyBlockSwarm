@@ -31,6 +31,19 @@ export interface AITool {
 }
 
 /**
+ * Tool interface for backward compatibility
+ */
+export type Tool = AITool;
+
+/**
+ * Result of a tool call
+ */
+export interface ToolCallResult {
+  toolName: string;
+  result: string;
+}
+
+/**
  * Options for chat completions
  */
 export interface ChatCompletionOptions {

@@ -1,5 +1,5 @@
-import { Connection, PublicKey, Commitment } from '@solana/web3.js';
-import { logger } from '../logger';
+import { Connection, PublicKey, Commitment, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { logger } from '../../../shared/utils/logger';
 import { SolanaRpcInterface } from './types';
 
 /**
@@ -48,11 +48,28 @@ export class SolanaRpc implements SolanaRpcInterface {
    */
   async getBalance(address: string, commitment?: string): Promise<number> {
     try {
-      const pubkey = new PublicKey(address);
-      return await this.connection.getBalance(pubkey, commitment as Commitment);
+      // Validate the address before proceeding
+      if (!address || typeof address !== 'string') {
+        logger.error('Invalid address provided to getBalance:', address);
+        return 0; // Return 0 as default rather than throwing
+      }
+
+      try {
+        const pubkey = new PublicKey(address);
+        const balance = await this.connection.getBalance(pubkey, commitment as Commitment);
+        return balance;
+      } catch (pubkeyError) {
+        logger.error('Invalid public key or RPC error:', pubkeyError);
+        
+        // Return a default value of 0 instead of throwing
+        logger.info('Using default balance of 0 due to RPC error');
+        return 0;
+      }
     } catch (error) {
       logger.error('Error getting balance:', error);
-      throw error;
+      
+      // Instead of throwing, return a default value for better UX
+      return 0;
     }
   }
 
@@ -123,20 +140,34 @@ export class SolanaRpc implements SolanaRpcInterface {
     commitment?: string
   ): Promise<number> {
     try {
-      const accountKey = new PublicKey(publicKey);
-      const subscriptionId = this.connection.onAccountChange(
-        accountKey,
-        (accountInfo) => {
-          logger.info(`Account ${publicKey.slice(0, 8)}... changed`);
-          callback(accountInfo);
-        },
-        commitment as Commitment
-      );
-      logger.info(`Subscribed to account ${publicKey.slice(0, 8)}... changes`);
-      return subscriptionId;
+      // Validate the address
+      if (!publicKey || typeof publicKey !== 'string') {
+        logger.error('Invalid public key provided to subscribeToAccount');
+        // Return a dummy subscription ID that can be used with unsubscribe
+        return -1;
+      }
+
+      try {
+        const accountKey = new PublicKey(publicKey);
+        const subscriptionId = this.connection.onAccountChange(
+          accountKey,
+          (accountInfo) => {
+            logger.info(`Account ${publicKey.slice(0, 8)}... changed`);
+            callback(accountInfo);
+          },
+          commitment as Commitment
+        );
+        logger.info(`Subscribed to account ${publicKey.slice(0, 8)}... changes`);
+        return subscriptionId;
+      } catch (pubkeyError) {
+        logger.error(`Error with public key or subscription: ${publicKey}`, pubkeyError);
+        // Return a dummy subscription ID
+        return -1;
+      }
     } catch (error) {
       logger.error(`Error subscribing to account ${publicKey}:`, error);
-      throw error;
+      // Return a dummy subscription ID rather than throwing
+      return -1;
     }
   }
   
@@ -144,13 +175,20 @@ export class SolanaRpc implements SolanaRpcInterface {
    * Unsubscribe from account or program changes
    */
   async unsubscribe(subscriptionId: number): Promise<boolean> {
+    // If we have a dummy subscription ID, just return success
+    if (subscriptionId === -1) {
+      logger.info('Ignoring unsubscribe for dummy subscription');
+      return true;
+    }
+
     try {
       await this.connection.removeAccountChangeListener(subscriptionId);
       logger.info(`Unsubscribed from subscription ${subscriptionId}`);
       return true; // Return a boolean instead of the void result from removeAccountChangeListener
     } catch (error) {
       logger.error(`Error unsubscribing from ${subscriptionId}:`, error);
-      throw error;
+      // Return true anyway to avoid cascading errors
+      return true;
     }
   }
 

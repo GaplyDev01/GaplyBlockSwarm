@@ -5,6 +5,7 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './presentation/**/*.{js,ts,jsx,tsx,mdx}',
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
@@ -160,6 +161,7 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         'pulse-glow': 'pulse-glow 2s infinite',
+        'pulse-slow': 'pulse 3s ease-in-out infinite',
         'text-flicker': 'text-flicker 2s infinite',
         'scanner': 'scanner 2s linear infinite',
         'glitch': 'glitch 0.5s ease-in-out infinite alternate',
@@ -205,6 +207,9 @@ module.exports = {
         },
         '.text-shadow-none': {
           textShadow: 'none',
+        },
+        '.shadow-neon': {
+          boxShadow: '0 0 10px rgba(0, 255, 128, 0.5)',
         },
       }
       addUtilities(newUtilities)

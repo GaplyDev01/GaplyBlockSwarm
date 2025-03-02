@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { AIChatService } from '../../../../application/ai/AIChatService';
-import { PinoLogger } from '../../../../shared/utils/logger';
+import { PinoLogger } from '../../../../shared/utils/logger/PinoLogger';
 import { AIProviderRegistry } from '../../../../core/ai/AIProviderRegistry';
 import { AnthropicProvider } from '../../../../infrastructure/ai/AnthropicProvider';
 import { GroqProvider } from '../../../../infrastructure/ai/GroqProvider';

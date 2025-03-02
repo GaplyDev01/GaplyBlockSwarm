@@ -5,10 +5,10 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
 import React, { useState, useEffect } from 'react';
-import { useUserContext } from '@/lib/context/user-context';
-import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
+import { useUserContext } from '@/src/presentation/context/user-context';
+import { ConnectWalletButton } from '@/src/presentation/components/wallet/ConnectWalletButton';
 import { Layout, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/src/presentation/components/ui/button';
 import Link from 'next/link';
 
 function DashboardPage() {

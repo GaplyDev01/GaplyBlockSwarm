@@ -19,7 +19,8 @@ interface AIProviderOption {
 import { AIProviderRegistry } from '../../core/ai/AIProviderRegistry';
 import { AnthropicProvider } from '../../infrastructure/ai/AnthropicProvider';
 import { GroqProvider } from '../../infrastructure/ai/GroqProvider';
-import { PinoLogger } from '../../shared/utils/logger';
+import { logger } from '../../shared/utils/logger';
+import { PinoLogger } from '../../shared/utils/logger/PinoLogger';
 // Define interfaces locally since we can't import them
 interface IChatRepository {
   save(chat: ChatHistory): Promise<void>;

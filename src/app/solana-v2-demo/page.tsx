@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react';
 const dynamic_rendering = 'force-dynamic';
 const runtime_setting = 'edge';
 import { ConnectWalletButton } from '@/src/presentation/components/wallet/ConnectWalletButton';
-import { LiveWalletBalance } from '@/src/presentation/components/wallet/live-wallet-balance';
-import { WalletDashboard } from '@/src/presentation/components/wallet/wallet-dashboard';
-import { WalletTransactions } from '@/src/presentation/components/wallet/wallet-transactions';
-import { WalletTransactionsV2 } from '@/src/presentation/components/wallet/wallet-transactions-v2';
+import { LiveWalletBalance } from '@/src/presentation/components/wallet/LiveWalletBalance';
+import { WalletDashboard } from '@/src/presentation/components/wallet/WalletDashboard';
+import { WalletTransactions } from '@/src/presentation/components/wallet/WalletTransactions';
+import { WalletTransactionsV2 } from '@/src/presentation/components/wallet/WalletTransactionsV2';
 import { WalletContextProvider } from '@/src/presentation/context/wallet-context';
 import { logger } from '@/src/shared/utils/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/presentation/components/ui/card';
@@ -227,7 +227,7 @@ Is there anything specific about Solana you'd like to learn more about?`;
   // Cyberpunk UI version
   return (    <WalletContextProvider>    
         <div className="min-h-screen bg-sapphire-900 bg-tech-pattern bg-fixed p-6">
-        {/*                               Header                               */}    <div className="max-w-7xl mx-auto mb-6">    <div className="flex justify-between items-center">    
+        {/*                                 Header                                 */}    <div className="max-w-7xl mx-auto mb-6">    <div className="flex justify-between items-center">    
         <div className="flex items-center">    
         <Link href="/dashboard" className="mr-2">    
         <Button
@@ -249,8 +249,8 @@ Is there anything specific about Solana you'd like to learn more about?`;
             </div>    <ConnectWalletButton />
           </div>
         </div>
-        {/*                               Main content                               */}    <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/*                               Left panel - Token info                               */}    <div className="lg:col-span-1">    <Tabs defaultValue="info" className="w-full">    
+        {/*                                 Main content                                 */}    <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/*                                 Left panel - Token info                                 */}    <div className="lg:col-span-1">    <Tabs defaultValue="info" className="w-full">    
         <TabsList className="w-full mb-4 bg-sapphire-800/50 border border-emerald-400/20">    
         <TabsTrigger value="info" className="flex-1 data-[state=active]:text-emerald-400">
                   Token Info
@@ -299,7 +299,7 @@ Is there anything specific about Solana you'd like to learn more about?`;
               </TabsContent>
             </Tabs>
           </div>
-        {/*                               Center panel - Chat                               */}    <div className="lg:col-span-2 h-[calc(100vh-8rem)]">    
+        {/*                                 Center panel - Chat                                 */}    <div className="lg:col-span-2 h-[calc(100vh-8rem)]">    
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">    
         <TabsList className="w-full mb-4 bg-sapphire-800/50 border border-emerald-400/20">    
         <TabsTrigger value="chat" className="flex-1 data-[state=active]:text-emerald-400">    

@@ -9,7 +9,7 @@ import { Skeleton } from '@/src/presentation/components/ui/skeleton';
 import { formatTimestamp } from '@/src/shared/utils/utils';
 import { ArrowLeftRight, ArrowUp, ArrowDown } from 'lucide-react';
 import { TransactionInfo } from '@/src/infrastructure/blockchain/solana/types';
-import { getSolanaService } from '@/src/shared/utils/solana';
+import getSolanaService from '@/src/infrastructure/blockchain/solana';
 
 interface WalletTransactionsProps {
   className?: string;

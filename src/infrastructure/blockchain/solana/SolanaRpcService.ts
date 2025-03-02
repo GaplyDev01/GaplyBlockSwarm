@@ -1,7 +1,7 @@
 import { Connection, PublicKey, Commitment, ConfirmedSignatureInfo } from '@solana/web3.js';
 import { ISolanaRpcService } from '../../../core/blockchain/solana/ISolanaRpcService';
+import { logger } from '../../../shared/utils/logger';
 import { ILogger } from '../../../shared/utils/logger/ILogger';
-// Missing ISolanaRpcService interface - let's create it if needed
 
 /**
  * Implementation of ISolanaRpcService for interacting with Solana blockchain
@@ -12,33 +12,22 @@ export class SolanaRpcService implements ISolanaRpcService {
 
   /**
    * Create a new SolanaRpcService
-   * @param logger Logger instance
    * @param endpoint RPC endpoint URL (defaults to environment variable or mainnet)
    * @param commitment Commitment level
+   * @param logger Logger instance
    */
   constructor(
-    logger: ILogger,
     endpoint: string = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
-    commitment: Commitment = 'confirmed'
+    commitment: Commitment = 'confirmed',
+    customLogger: ILogger = logger
   ) {
-    this.logger = logger;
-    
-    // Only create child logger if the method exists
-    if (logger.child) {
-      try {
-        this.logger = logger.child({ module: 'SolanaRpcService' });
-      } catch (error) {
-        // Fallback to original logger
-        console.warn('Failed to create child logger, using parent logger instead');
-      }
-    }
-    
     this.connection = new Connection(endpoint, {
       commitment,
       wsEndpoint: process.env.NEXT_PUBLIC_SOLANA_WSS_URL,
     });
     
-    this.logger.info(`Initialized with endpoint: ${endpoint}`);
+    this.logger = customLogger;
+    this.logger.info(`SolanaRpcService initialized with endpoint: ${endpoint}`);
   }
 
   /**

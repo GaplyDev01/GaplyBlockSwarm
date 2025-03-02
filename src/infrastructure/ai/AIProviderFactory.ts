@@ -1,9 +1,10 @@
 import { AIProviderRegistry } from '../../core/ai/AIProviderRegistry';
-import { ILogger } from '../../shared/utils/logger/ILogger';
-import { PinoLogger } from '../../shared/utils/logger';
+import { logger } from '../../shared/utils/logger';
 import { AnthropicProvider } from './AnthropicProvider';
 import { GroqProvider } from './GroqProvider';
 import { IAIProvider } from '../../core/ai/interfaces/IAIProvider';
+import { ILogger } from '../../shared/utils/logger/ILogger';
+import { PinoLogger } from '../../shared/utils/logger/PinoLogger';
 
 /**
  * Factory for creating and initializing AI providers
@@ -14,24 +15,24 @@ export class AIProviderFactory {
    * @param logger Logger instance
    * @returns AIProviderRegistry instance
    */
-  static initialize(logger: ILogger): AIProviderRegistry {
-    const registry = new AIProviderRegistry(logger);
-    logger.info('Initializing AI providers');
+  static initialize(customLogger: ILogger = logger): AIProviderRegistry {
+    const registry = new AIProviderRegistry(customLogger);
+    customLogger.info('Initializing AI providers');
     
     // Initialize providers based on available API keys
-    this.initializeAnthropicProvider(registry, logger);
-    this.initializeGroqProvider(registry, logger);
+    this.initializeAnthropicProvider(registry, customLogger);
+    this.initializeGroqProvider(registry, customLogger);
     
     // Log available providers
     const providers = registry.getAvailableProviders();
-    logger.info(`Initialized ${providers.length} AI providers: ${providers.join(', ')}`);
+    customLogger.info(`Initialized ${providers.length} AI providers: ${providers.join(', ')}`);
     
     // Set default provider if available
     if (providers.length > 0) {
       const defaultProviderName = registry.getDefaultProviderName();
-      logger.info(`Default AI provider: ${defaultProviderName}`);
+      customLogger.info(`Default AI provider: ${defaultProviderName}`);
     } else {
-      logger.warn('No AI providers initialized. Check your API keys.');
+      customLogger.warn('No AI providers initialized. Check your API keys.');
     }
     
     return registry;
@@ -134,9 +135,9 @@ let registryInstance: AIProviderRegistry | null = null;
  * @param logger Logger instance
  * @returns AIProviderRegistry instance
  */
-export function getAIProviderRegistry(logger: ILogger): AIProviderRegistry {
+export function getAIProviderRegistry(customLogger?: ILogger): AIProviderRegistry {
   if (!registryInstance) {
-    registryInstance = AIProviderFactory.initialize(logger);
+    registryInstance = AIProviderFactory.initialize(customLogger);
   }
   return registryInstance;
 }

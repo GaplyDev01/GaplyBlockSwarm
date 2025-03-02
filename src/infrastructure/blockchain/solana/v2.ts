@@ -9,9 +9,18 @@ import {
   ConfirmedTransactionMeta
 } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { logger } from '../logger';
-import { generateId } from '../utils';
+import { logger } from '../../../shared/utils/logger';
 import { solanaRpc } from './rpc';
+
+// Simple ID generator function since we can't import from utils
+function generateId(length = 8): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 import { 
   SolanaService, 
   TokenInfo, 

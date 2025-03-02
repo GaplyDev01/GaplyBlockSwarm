@@ -10,8 +10,17 @@ import {
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { ISolanaService, TokenInfo, WalletBalance, TradeInfo, TransactionInfo, TokenAccount } from './ISolanaService';
 import { ISolanaRpcService } from './ISolanaRpcService';
-import { ILogger } from '../../../shared/utils/logger';
-import { generateId } from '../../../shared/utils/helpers';
+import { logger } from '../../../shared/utils/logger';
+
+// Function to generate IDs if helpers module is not available
+function generateId(length = 8): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
 // Known DEX program IDs for identifying swap transactions
 const DEX_PROGRAM_IDS = {
@@ -32,37 +41,27 @@ export class SolanaService implements ISolanaService {
   private tokenMap: Map<string, TokenInfo> = new Map();
   private tokenAccountsCache: Map<string, TokenAccount[]> = new Map();
   private tokenMetadataCache: Map<string, Partial<TokenInfo>> = new Map();
-  private logger: ILogger;
   private rpcService: ISolanaRpcService;
   private mockTokenData: TokenInfo[] | null = null;
 
   /**
    * Create a new SolanaService
-   * @param logger Logger instance
    * @param rpcService RPC service for blockchain interaction
    * @param mockTokenData Optional mock token data for testing
    */
   constructor(
-    logger: ILogger,
     rpcService: ISolanaRpcService,
     mockTokenData?: TokenInfo[]
   ) {
-    // Safely create child logger if method exists
-    this.logger = logger;
-    if (logger && typeof logger.child === 'function') {
-      try {
-        this.logger = logger.child({ module: 'SolanaService' });
-      } catch (error) {
-        // Fall back to original logger
-        console.warn('Failed to create child logger');
-      }
-    }
-    
+    // Initialize services
     this.rpcService = rpcService;
+    this.mockTokenData = mockTokenData || null;
+    
+    logger.info('SolanaService initialized');
     
     if (mockTokenData) {
       this.mockTokenData = mockTokenData;
-      this.logger.info('Mock token data provided');
+      logger.info('Mock token data provided');
     }
   }
 
@@ -74,7 +73,7 @@ export class SolanaService implements ISolanaService {
     // The actual RPC endpoint is managed by the RPC service
     // But we need to clear caches when endpoint changes
     this.clearCaches();
-    this.logger.info(`Changed RPC endpoint to: ${endpoint}`);
+    logger.info(`Changed RPC endpoint to: ${endpoint}`);
   }
   
   /**
@@ -84,7 +83,7 @@ export class SolanaService implements ISolanaService {
     this.tokenMap.clear();
     this.tokenAccountsCache.clear();
     this.tokenMetadataCache.clear();
-    this.logger.info('Cleared token and account caches');
+    logger.info('Cleared token and account caches');
   }
 
   /**
@@ -105,7 +104,7 @@ export class SolanaService implements ISolanaService {
       // Check connection health before proceeding
       const health = await this.rpcService.getHealth();
       if (health !== 'ok') {
-        this.logger.warn(`Solana network health check failed: ${health}`);
+        logger.warn(`Solana network health check failed: ${health}`);
       }
 
       // Get SOL balance
@@ -114,13 +113,13 @@ export class SolanaService implements ISolanaService {
 
       // Preload token list for future use
       this.getTokenList().catch(error => {
-        this.logger.warn('Failed to preload token list', error);
+        logger.warn('Failed to preload token list', error);
       });
 
-      this.logger.info(`Connected wallet with address: ${publicKey} (Balance: ${solBalance} SOL)`);
+      logger.info(`Connected wallet with address: ${publicKey} (Balance: ${solBalance} SOL)`);
       return { success: true, address: this.walletAddress };
     } catch (error) {
-      this.logger.error('Error connecting wallet', error);
+      logger.error('Error connecting wallet', error);
       return { success: false, address: null };
     }
   }
@@ -138,10 +137,10 @@ export class SolanaService implements ISolanaService {
       // Clear token accounts cache for this wallet
       this.tokenAccountsCache.clear();
 
-      this.logger.info('Wallet disconnected');
+      logger.info('Wallet disconnected');
       return true;
     } catch (error) {
-      this.logger.error('Error disconnecting wallet', error);
+      logger.error('Error disconnecting wallet', error);
       return false;
     }
   }
@@ -154,7 +153,7 @@ export class SolanaService implements ISolanaService {
     try {
       return await this.loadTokenList();
     } catch (error) {
-      this.logger.error('Error fetching token list', error);
+      logger.error('Error fetching token list', error);
       return [];
     }
   }
@@ -166,14 +165,14 @@ export class SolanaService implements ISolanaService {
   private async loadTokenList(): Promise<TokenInfo[]> {
     // Check if we already have tokens loaded
     if (this.tokenMap.size > 0) {
-      this.logger.info(`Using cached token list with ${this.tokenMap.size} tokens`);
+      logger.info(`Using cached token list with ${this.tokenMap.size} tokens`);
       return Array.from(this.tokenMap.values());
     }
     
     try {
       // For testing: if mockTokenData is provided, use that
       if (this.mockTokenData) {
-        this.logger.info(`Using ${this.mockTokenData.length} mock tokens for development`);
+        logger.info(`Using ${this.mockTokenData.length} mock tokens for development`);
         
         // Update token map
         this.mockTokenData.forEach(token => {
@@ -186,7 +185,7 @@ export class SolanaService implements ISolanaService {
       
       // First, fetch the Solana token list for basic metadata
       const tokenListUrl = 'https://token-list-api.solana.cloud/v1/mints?limit=1000&page=1&order=marketcap';
-      this.logger.info(`Fetching token list from ${tokenListUrl}`);
+      logger.info(`Fetching token list from ${tokenListUrl}`);
       
       const tokenListResponse = await fetch(tokenListUrl, {
         method: 'GET',
@@ -202,7 +201,7 @@ export class SolanaService implements ISolanaService {
       const tokenListData = await tokenListResponse.json();
       const tokenListItems = tokenListData.data || [];
       
-      this.logger.info(`Retrieved ${tokenListItems.length} tokens from Solana token list`);
+      logger.info(`Retrieved ${tokenListItems.length} tokens from Solana token list`);
       
       // Get top tokens by market cap
       const topTokens = tokenListItems
@@ -235,7 +234,7 @@ export class SolanaService implements ISolanaService {
             marketCap = priceData.marketCap || item.marketCap || 0;
           }
         } catch (priceError) {
-          this.logger.warn(`Failed to fetch price for ${item.symbol}`, priceError);
+          logger.warn(`Failed to fetch price for ${item.symbol}`, priceError);
         }
         
         return {
@@ -289,10 +288,10 @@ export class SolanaService implements ISolanaService {
         this.tokenMap.set(token.mint, token); // Also index by mint address
       });
       
-      this.logger.info(`Retrieved and cached ${finalTokens.length} tokens`);
+      logger.info(`Retrieved and cached ${finalTokens.length} tokens`);
       return finalTokens;
     } catch (error) {
-      this.logger.error('Error loading token list', error);
+      logger.error('Error loading token list', error);
       
       // Fallback to basic tokens if API calls fail
       const fallbackTokens: TokenInfo[] = [
@@ -315,7 +314,7 @@ export class SolanaService implements ISolanaService {
         this.tokenMap.set(token.mint, token);
       });
       
-      this.logger.warn('Using fallback token list due to API error');
+      logger.warn('Using fallback token list due to API error');
       return fallbackTokens;
     }
   }
@@ -399,7 +398,7 @@ export class SolanaService implements ISolanaService {
       
       return mockData[tokenId] || { price: 0, change24h: 0, volume: 0, marketCap: 0 };
     } catch (error) {
-      this.logger.error(`Error fetching price for ${symbol}`, error);
+      logger.error(`Error fetching price for ${symbol}`, error);
       return { price: 0, change24h: 0, volume: 0, marketCap: 0 };
     }
   }
@@ -425,7 +424,7 @@ export class SolanaService implements ISolanaService {
       // Check cache first
       if (this.tokenAccountsCache.has(tokenAccountsKey)) {
         tokenAccounts = this.tokenAccountsCache.get(tokenAccountsKey) || [];
-        this.logger.info(`Using cached token accounts (${tokenAccounts.length})`);
+        logger.info(`Using cached token accounts (${tokenAccounts.length})`);
       } else {
         // If not in cache, fetch from blockchain
         const accounts = await this.fetchTokenAccounts(this.walletPublicKey.toString());
@@ -433,7 +432,7 @@ export class SolanaService implements ISolanaService {
         
         // Update cache
         this.tokenAccountsCache.set(tokenAccountsKey, accounts);
-        this.logger.info(`Retrieved and cached ${accounts.length} token accounts`);
+        logger.info(`Retrieved and cached ${accounts.length} token accounts`);
       }
 
       // Create an array of token balances
@@ -468,15 +467,15 @@ export class SolanaService implements ISolanaService {
               valueUsd: tokenAmount * (tokenInfo.price || 0),
             });
           } catch (error) {
-            this.logger.error(`Error processing token account ${account.mint}`, error);
+            logger.error(`Error processing token account ${account.mint}`, error);
           }
         }
       }
 
-      this.logger.info(`Retrieved ${balances.length} token balances`);
+      logger.info(`Retrieved ${balances.length} token balances`);
       return balances;
     } catch (error) {
-      this.logger.error('Error fetching wallet balances', error);
+      logger.error('Error fetching wallet balances', error);
       
       // Return at least a SOL balance as fallback (using placeholder)
       return [
@@ -518,7 +517,7 @@ export class SolanaService implements ISolanaService {
         };
       });
     } catch (error) {
-      this.logger.error('Error fetching token accounts', error);
+      logger.error('Error fetching token accounts', error);
       return [];
     }
   }
@@ -549,7 +548,7 @@ export class SolanaService implements ISolanaService {
       throw new Error(`Token info not found for ${token}`);
     }
 
-    this.logger.info(`Executing ${simulationMode ? 'simulated ' : ''}${type} trade for ${amount} ${tokenInfo.symbol}`);
+    logger.info(`Executing ${simulationMode ? 'simulated ' : ''}${type} trade for ${amount} ${tokenInfo.symbol}`);
     
     try {
       // For simulation or development mode, just return simulated trade
@@ -626,7 +625,7 @@ export class SolanaService implements ISolanaService {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown trade execution error';
-      this.logger.error(`Failed to execute ${type} trade for ${amount} ${tokenInfo.symbol}`, error);
+      logger.error(`Failed to execute ${type} trade for ${amount} ${tokenInfo.symbol}`, error);
       
       // Create a failed trade record
       const failedTrade: TradeInfo = {
@@ -706,7 +705,7 @@ export class SolanaService implements ISolanaService {
       
       return null;
     } catch (error) {
-      this.logger.error(`Error resolving token info for ${tokenSymbolOrMint}`, error);
+      logger.error(`Error resolving token info for ${tokenSymbolOrMint}`, error);
       return null;
     }
   }
@@ -753,11 +752,11 @@ export class SolanaService implements ISolanaService {
       ) as ConfirmedSignatureInfo[];
       
       if (!signatures || signatures.length === 0) {
-        this.logger.info('No recent transactions found for wallet');
+        logger.info('No recent transactions found for wallet');
         return [];
       }
       
-      this.logger.info(`Found ${signatures.length} recent transaction signatures`);
+      logger.info(`Found ${signatures.length} recent transaction signatures`);
       
       // Process transactions in parallel with a limit to avoid rate limits
       const transactions: TransactionInfo[] = [];
@@ -769,7 +768,7 @@ export class SolanaService implements ISolanaService {
           try {
             return await this.processTransaction(sig);
           } catch (error) {
-            this.logger.error(`Error processing transaction ${sig.signature}`, error);
+            logger.error(`Error processing transaction ${sig.signature}`, error);
             return null;
           }
         });
@@ -778,10 +777,10 @@ export class SolanaService implements ISolanaService {
         transactions.push(...results.filter(tx => tx !== null) as TransactionInfo[]);
       }
       
-      this.logger.info(`Successfully processed ${transactions.length} transactions`);
+      logger.info(`Successfully processed ${transactions.length} transactions`);
       return transactions;
     } catch (error) {
-      this.logger.error('Error fetching transaction history', error);
+      logger.error('Error fetching transaction history', error);
       
       // If there's an error, return empty array instead of failing completely
       return [];
@@ -802,7 +801,7 @@ export class SolanaService implements ISolanaService {
       ) as ParsedTransactionWithMeta | null;
       
       if (!txData || !txData.meta) {
-        this.logger.warn(`No transaction data found for signature ${signature.signature}`);
+        logger.warn(`No transaction data found for signature ${signature.signature}`);
         return null;
       }
       
@@ -828,7 +827,7 @@ export class SolanaService implements ISolanaService {
           if (amountIn !== undefined) tx.amountIn = amountIn;
           if (amountOut !== undefined) tx.amountOut = amountOut;
         } catch (error) {
-          this.logger.warn(`Failed to extract swap details for ${signature.signature}`, error);
+          logger.warn(`Failed to extract swap details for ${signature.signature}`, error);
         }
       } else if (type === 'send' || type === 'receive') {
         try {
@@ -839,13 +838,13 @@ export class SolanaService implements ISolanaService {
           if (amount !== undefined) tx.amount = amount;
           if (destination) tx.to = destination;
         } catch (error) {
-          this.logger.warn(`Failed to extract transfer details for ${signature.signature}`, error);
+          logger.warn(`Failed to extract transfer details for ${signature.signature}`, error);
         }
       }
       
       return tx;
     } catch (error) {
-      this.logger.error(`Error processing transaction ${signature.signature}`, error);
+      logger.error(`Error processing transaction ${signature.signature}`, error);
       return null;
     }
   }
@@ -1099,7 +1098,7 @@ export class SolanaService implements ISolanaService {
       this.tokenMetadataCache.set(mintAddress, metadata);
       return metadata;
     } catch (error) {
-      this.logger.error(`Error getting token metadata for ${mintAddress}`, error);
+      logger.error(`Error getting token metadata for ${mintAddress}`, error);
       
       const fallbackMetadata = {
         name: `Unknown ${mintAddress.slice(0, 6)}`,

@@ -2,8 +2,7 @@ import { ISolanaService } from '../../../core/blockchain/solana/ISolanaService';
 import { ISolanaRpcService } from '../../../core/blockchain/solana/ISolanaRpcService';
 import { SolanaService } from '../../../core/blockchain/solana/SolanaService';
 import { SolanaRpcService } from './SolanaRpcService';
-import { logger } from '../../../shared/utils/logger/PinoLogger';
-import { ILogger } from '../../../shared/utils/logger/ILogger';
+import { logger } from '../../../shared/utils/logger';
 
 /**
  * Factory class for creating and managing Solana service instances
@@ -12,10 +11,8 @@ export class SolanaServiceFactory {
   private static instance: SolanaServiceFactory;
   private solanaService: ISolanaService | null = null;
   private solanaRpcService: ISolanaRpcService | null = null;
-  private logger: ILogger;
-  
   private constructor() {
-    this.logger = logger.child({ module: 'SolanaServiceFactory' });
+    // No need to initialize a separate logger instance
   }
   
   /**
@@ -46,14 +43,13 @@ export class SolanaServiceFactory {
   public getSolanaRpcService(endpoint?: string): ISolanaRpcService {
     if (!this.solanaRpcService) {
       this.solanaRpcService = new SolanaRpcService(
-        this.logger, 
         endpoint || process.env.NEXT_PUBLIC_SOLANA_RPC_URL
       );
-      this.logger.info('Created SolanaRpcService');
+      logger.info('Created SolanaRpcService');
     } else if (endpoint) {
       // If a different endpoint is requested, create a new instance
-      this.solanaRpcService = new SolanaRpcService(this.logger, endpoint);
-      this.logger.info(`Created new SolanaRpcService with endpoint: ${endpoint}`);
+      this.solanaRpcService = new SolanaRpcService(endpoint);
+      logger.info(`Created new SolanaRpcService with endpoint: ${endpoint}`);
     }
     
     return this.solanaRpcService;
@@ -70,8 +66,8 @@ export class SolanaServiceFactory {
       const rpcService = this.getSolanaRpcService();
       
       // Create Solana service
-      this.solanaService = new SolanaService(this.logger, rpcService);
-      this.logger.info(`Created SolanaService (useMock: ${useMock})`);
+      this.solanaService = new SolanaService(rpcService);
+      logger.info(`Created SolanaService (useMock: ${useMock})`);
     }
     
     return this.solanaService;
@@ -83,14 +79,14 @@ export class SolanaServiceFactory {
    */
   public setEndpoint(endpoint: string): void {
     // Create a new RPC service with the new endpoint
-    this.solanaRpcService = new SolanaRpcService(this.logger, endpoint);
+    this.solanaRpcService = new SolanaRpcService(endpoint);
     
     // Update the endpoint on the Solana service if it exists
     if (this.solanaService && typeof this.solanaService === 'object' && 'setEndpoint' in this.solanaService) {
       (this.solanaService as any).setEndpoint(endpoint);
     }
     
-    this.logger.info(`Updated RPC endpoint to: ${endpoint}`);
+    logger.info(`Updated RPC endpoint to: ${endpoint}`);
   }
 }
 

@@ -1,6 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TradeInfo, TokenInfo } from './solana/types';
+import { TokenInfo } from '../types/tokens';
+
+// TradeInfo interface definition
+interface TradeInfo {
+  id: string;
+  tokenSymbol: string;
+  tokenAddress: string;
+  amount: number;
+  price: number;
+  timestamp: number;
+  type: 'buy' | 'sell';
+}
 
 interface GlobalStoreState {
   // Wallet state

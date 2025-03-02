@@ -1,8 +1,9 @@
+// Import from relative paths with complete paths
 import { 
   AIMessage, 
   AITool,
   Message
-} from '../../../core/ai/interfaces/IAIProvider';
+} from '../../core/ai/interfaces/IAIProvider';
 
 // Define local types
 interface ChatCompletionOptions {
@@ -24,8 +25,8 @@ interface ChatCompletionResponse {
 }
 
 type StreamHandler = (event: any) => void;
-import { AIProviderRegistry } from '../../../core/ai/AIProviderRegistry';
-import { ILogger } from '../../../shared/utils/logger/ILogger';
+import { AIProviderRegistry } from '../../core/ai/AIProviderRegistry';
+import { ILogger } from '../../shared/utils/logger/ILogger';
 
 // Alias types to use imported interfaces
 type CompletionOpts = ChatCompletionOptions;

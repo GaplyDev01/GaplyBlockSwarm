@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useWalletContext } from '@/src/presentation/context/wallet-context';
-import { LiveWalletBalance } from './live-wallet-balance';
+import { LiveWalletBalance } from './LiveWalletBalance';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { solanaRpc } from '@/src/infrastructure/blockchain/solana/rpc';
 import { logger } from '@/src/shared/utils/logger';

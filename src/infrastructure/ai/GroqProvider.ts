@@ -3,14 +3,16 @@ import {
   AITool as CoreAITool,
   Message as CoreMessage,
   IAIProvider as CoreIAIProvider
-} from '../../../core/ai/interfaces/IAIProvider';
+} from '../../core/ai/interfaces/IAIProvider';
 
 // Import from the /src version for newer code
 import {
   AIMessage,
   AITool,
-  ChatCompletionOptions,
-  ChatCompletionResponse,
+  IAIProvider,
+  Message,
+  Tool,
+  ToolCallResult,
   StreamHandler
 } from '../../core/ai/interfaces/IAIProvider';
 import { BaseAIProvider } from '../../core/ai/BaseAIProvider';
@@ -135,9 +137,9 @@ export class GroqProvider extends BaseAIProvider implements CoreIAIProvider {
    * @param optionalSettings Optional settings when using message array format
    */
   async generateChatCompletion(
-    options: ChatCompletionOptions | AIMessage[] | CoreMessage[], 
+    options: any | AIMessage[] | CoreMessage[], 
     optionalSettings?: any
-  ): Promise<ChatCompletionResponse> {
+  ): Promise<any> {
     // Handle different parameter formats to support both old and new API
     let messages: AIMessage[];
     let model = this.defaultModel;
@@ -247,7 +249,7 @@ export class GroqProvider extends BaseAIProvider implements CoreIAIProvider {
    * @param options Additional options
    */
   async generateStreamingChatCompletion(
-    messages: CoreMessage[] | AIMessage[] | ChatCompletionOptions,
+    messages: CoreMessage[] | AIMessage[] | any,
     onChunkOrEvent: ((chunk: any) => void) | StreamHandler,
     options?: any
   ): Promise<void> {
@@ -285,7 +287,7 @@ export class GroqProvider extends BaseAIProvider implements CoreIAIProvider {
     
     // New interface (/src version)
     return this.generateStreamingChatCompletionInternal(
-      messages as ChatCompletionOptions, 
+      messages as any, 
       onChunkOrEvent as StreamHandler
     );
   }
@@ -294,7 +296,7 @@ export class GroqProvider extends BaseAIProvider implements CoreIAIProvider {
    * Internal implementation for streaming chat completion
    */
   private async generateStreamingChatCompletionInternal(
-    options: ChatCompletionOptions,
+    options: any,
     onEvent: StreamHandler
   ): Promise<void> {
     const { messages, model, temperature, maxTokens, tools, toolChoice } = options;

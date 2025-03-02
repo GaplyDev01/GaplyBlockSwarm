@@ -17,18 +17,27 @@
 - **Component Names**: PascalCase for components (e.g., `ConnectWalletButton.tsx`), camelCase for utilities
 - **File Organization**: Feature-first organization within clean architecture layers
 - **Typing**: Strong TypeScript typing with explicit interfaces, generics, and JSDoc comments
-- **Imports**: Group external libraries first, then internal imports using @/ aliases (see moduleNameMapper in jest.config.js)
+- **Imports**: Group external libraries first, then internal imports using module aliases (@/core/*, @/infrastructure/*, etc.)
 - **Error Handling**: Use try/catch with specific error types, logger.error for reporting, provide fallback UI
-- **Testing**: Jest with React Testing Library for components, use descriptive test names
+- **Testing**: Jest with React Testing Library, descriptive test names, comprehensive mocking
 - **Components**: React functional components with explicit prop interfaces and return types
 - **State Management**: Zustand for global state, React hooks for local state
-- **Styling**: TailwindCSS utility classes with class-variance-authority for component variants
+- **Styling**: TailwindCSS with class-variance-authority for component variants
 
 ## Project Structure
-- **Core**: Domain models, interfaces, business logic
-- **Application**: Services and use cases that orchestrate domain logic
-- **Infrastructure**: External services implementations, adapters, tools
-- **Presentation**: React components, hooks, contexts for UI
-- **Shared**: Cross-cutting concerns like logging and utilities
+- **src/core**: Domain models, interfaces, business logic
+- **src/application**: Services and use cases that orchestrate domain logic
+- **src/infrastructure**: External services implementations, adapters, tools
+- **src/presentation**: React components, hooks, contexts for UI
+- **src/shared**: Cross-cutting concerns like logging, utilities, and types
+- **tests**: Integration and unit tests with the .test.{ts,tsx,js,jsx} extension
 
-This Next.js App Router project follows clean architecture principles, emphasizing strong typing and separation of concerns. Follow existing patterns when adding new code.
+## Cursor Rules
+Detailed development guidelines are available in the `.cursor/rules/` directory:
+- `blockswarms-rules.md` - General coding standards
+- `testing-rules.md` - Testing patterns and practices
+- `solana-integration.md` - Blockchain integration guidelines
+- `ai-integration.md` - AI provider integration standards
+- `consolidation-guidelines.md` - Codebase consolidation and organization
+
+This Next.js App Router project follows clean architecture principles with strict TypeScript checking. All imports should use the path aliases defined in tsconfig.json. Follow existing patterns when adding new code.

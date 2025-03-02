@@ -26,6 +26,7 @@ export default function middleware(req: NextRequest) {
   const publicPaths = [
     "/",
     "/login",
+    "/signup",
     "/api/webhook",
     "/api/public",
     "/api/health",
@@ -51,17 +52,8 @@ export default function middleware(req: NextRequest) {
     });
   }
 
-  // Check for demo mode which bypasses authentication
+  // Extract URL for later use
   const url = new URL(req.url);
-  const demoMode = url.searchParams.get('demo') === 'true';
-  
-  if (demoMode) {
-    // In demo mode, allow access to all routes
-    console.log('Demo mode enabled, allowing access to:', req.nextUrl.pathname);
-    return NextResponse.next({
-      headers: securityHeaders,
-    });
-  }
 
   // Check for wallet connection by examining cookies
   // This is a simple example - in production, you'd use proper token validation
