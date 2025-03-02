@@ -39,12 +39,12 @@ export default function HomePage() {
       )}    <div className="container mx-auto px-4 py-12">    
         <header className="flex justify-between items-center mb-16">    
         <div className="text-primary font-cyber text-2xl">BlockSwarms</div>    <nav className="space-x-6 hidden md:block">    
-        <Link href="/" className="text-foreground hover:text-primary">Home</Link>    <Link href={isDemoMode ? "/dashboard?demo=true" : "/dashboard"} className="text-foreground hover:text-primary">Dashboard</Link>    <a href="https://mature-python-7.accounts.dev/sign-in" className="text-foreground hover:text-primary">Login</a>    <a 
-              href="https://mature-python-7.accounts.dev/sign-up" 
+        <Link href="/" className="text-foreground hover:text-primary">Home</Link>    <Link href={isDemoMode ? "/dashboard?demo=true" : "/dashboard"} className="text-foreground hover:text-primary">Dashboard</Link>    <Link href="/login" className="text-foreground hover:text-primary">Login</Link>    <Link 
+              href="/signup" 
               className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:brightness-110"
             >
               Sign Up
-            </a>    <Link 
+            </Link>    <Link 
               href={isDemoMode ? "/ai-chat?demo=true" : "/ai-chat"} 
               className="text-foreground hover:text-primary"
             >

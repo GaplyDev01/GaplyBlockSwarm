@@ -47,21 +47,6 @@ export default authMiddleware({
     // Handle authenticated requests
     if (auth.isPublicRoute) {
       // For public routes, allow the request to proceed
-      
-      // Check if we need to redirect to Clerk hosted pages
-      const url = new URL(req.url);
-      if (url.pathname === '/login' || url.pathname === '/signin') {
-        return NextResponse.redirect(
-          new URL('https://mature-python-7.accounts.dev/sign-in', req.url)
-        );
-      }
-      
-      if (url.pathname === '/signup' || url.pathname === '/register') {
-        return NextResponse.redirect(
-          new URL('https://mature-python-7.accounts.dev/sign-up', req.url)
-        );
-      }
-      
       return NextResponse.next({
         headers: securityHeaders,
       });
