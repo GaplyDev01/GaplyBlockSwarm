@@ -23,7 +23,7 @@ export default function RootLayout({
         <head>    
         <link rel="stylesheet" href="/tailwind-fix.css" />    
         <link rel="stylesheet" href="/custom.css" />
-        {/*   Add error handling script   */}    <script dangerouslySetInnerHTML={{
+        {/*         Add error handling script         */}    <script dangerouslySetInnerHTML={{
           __html: `
             window.addEventListener('error', function(event) {
               console.error('Global error caught:', event.error);
@@ -42,8 +42,7 @@ export default function RootLayout({
             });
           `
         }} />
-      </head>
-      <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>
+      </head>    <body className={`${orbitron.variable} antialiased bg-sapphire-900 text-emerald-400 bg-tech-pattern bg-fixed`}>    
         <Providers>
           {children}
         </Providers>

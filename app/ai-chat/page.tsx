@@ -95,9 +95,8 @@ function AIChatPage() {
         <button className="bg-emerald-500 hover:bg-emerald-600 text-sapphire-900 font-medium py-2 px-4 rounded">
               Connect Wallet
             </button>
-          </Link>
-          <div className="mt-4">
-            <Link href="/ai-chat?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
+          </Link>    <div className="mt-4">    
+        <Link href="/ai-chat?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
               Try Demo Mode
             </Link>
           </div>
@@ -107,7 +106,7 @@ function AIChatPage() {
   }
   
   return (    <div className="flex flex-col h-screen bg-sapphire-900">
-        {/*                     Header                     */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    
+        {/*                           Header                           */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    
         <ArrowLeft size={20} />
         </Link>    <h1 className="text-xl font-cyber text-emerald-400">
           {hasTokenContext 
@@ -119,7 +118,7 @@ function AIChatPage() {
           </div>
         )}
       </div>
-        {/*                     Chat container                     */}    <div className="flex-1 overflow-hidden p-4">    
+        {/*                           Chat container                           */}    <div className="flex-1 overflow-hidden p-4">    
         <ChatContainer
           chatId={selectedChatId || undefined}
           providers={availableProviders as AIProviderOption[]}

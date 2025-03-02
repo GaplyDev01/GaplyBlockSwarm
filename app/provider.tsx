@@ -5,9 +5,8 @@ import { WalletContextProvider as WalletContext } from '@/lib/context/wallet-con
 import { UserProvider } from '@/lib/context/user-context';
 
 export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <WalletContext>
-      <UserProvider>
+  return (    <WalletContext>    
+        <UserProvider>
         {children}
       </UserProvider>
     </WalletContext>

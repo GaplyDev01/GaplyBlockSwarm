@@ -10,11 +10,10 @@ import { UserProvider } from '@/lib/context/user-context';
  * Global providers wrapper
  */
 export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <ThemeProvider>    
-      <WalletProvider>
-        <UserProvider>
-          <AIProvider>
+  return (    <ThemeProvider>    
+        <WalletProvider>    
+        <UserProvider>    
+        <AIProvider>
             {children}
           </AIProvider>
         </UserProvider>

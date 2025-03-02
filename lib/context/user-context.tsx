@@ -53,8 +53,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
   
-  return (
-    <UserContext.Provider value={{ 
+  return (    <UserContext.Provider value={{ 
       isLoaded, 
       isSignedIn: isConnected || isDemo, 
       userId: walletAddress,

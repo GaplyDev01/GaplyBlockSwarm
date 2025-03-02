@@ -2,14 +2,13 @@
 
 // Import React and Next.js dependencies
 import React, { useEffect, useState } from 'react';
-import { useAuth, SignInButton } from '@clerk/nextjs';
+import { useUserContext } from '@/lib/context/user-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Loader } from 'lucide-react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 
 // Force dynamic rendering - never statically generate this page
-export const dynamicPage = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
 // Import components
@@ -18,7 +17,7 @@ import { useAIContext } from '../../presentation/context/ai-context';
 import { AIProviderOption } from '../../presentation/components/ai/provider-selector';
 
 function AIChatPage() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useUserContext();
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -92,18 +91,22 @@ function AIChatPage() {
   if (!isSignedIn) {
     return (    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-sapphire-900">    
         <div className="text-center max-w-lg">    
-        <h1 className="text-2xl font-cyber text-emerald-400 mb-4">BlockSwarms AI Chat</h1>    <p className="mb-6 text-emerald-400/70">Sign in to access AI-powered token insights</p>    <SignInButton mode="modal">    
+        <h1 className="text-2xl font-cyber text-emerald-400 mb-4">BlockSwarms AI Chat</h1>    <p className="mb-6 text-emerald-400/70">Connect your wallet to access AI-powered token insights</p>    <Link href="/login">    
         <button className="bg-emerald-500 hover:bg-emerald-600 text-sapphire-900 font-medium py-2 px-4 rounded">
-              Sign In
+              Connect Wallet
             </button>
-          </SignInButton>
+          </Link>    <div className="mt-4">    
+        <Link href="/ai-chat?demo=true" className="text-xs bg-amber-500/30 hover:bg-amber-500/40 text-amber-100 px-3 py-1 rounded-md">
+              Try Demo Mode
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
   
   return (    <div className="flex flex-col h-screen bg-sapphire-900">
-        {/*                     Header                     */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    
+        {/*                           Header                           */}    <div className="flex items-center p-4 border-b border-emerald-400/20 bg-sapphire-800/80 backdrop-blur-sm">    <Link href="/dashboard" className="mr-4 text-emerald-400 hover:text-emerald-300">    
         <ArrowLeft size={20} />
         </Link>    <h1 className="text-xl font-cyber text-emerald-400">
           {hasTokenContext 
@@ -115,7 +118,7 @@ function AIChatPage() {
           </div>
         )}
       </div>
-        {/*                     Chat container                     */}    <div className="flex-1 overflow-hidden p-4">    
+        {/*                           Chat container                           */}    <div className="flex-1 overflow-hidden p-4">    
         <ChatContainer
           chatId={selectedChatId || undefined}
           providers={availableProviders as AIProviderOption[]}
@@ -128,5 +131,5 @@ function AIChatPage() {
   );
 }
 
-// Export as default with dynamic import to skip SSR
-export default dynamic(() => Promise.resolve(AIChatPage), { ssr: false });
+// Export as default
+export default AIChatPage;
