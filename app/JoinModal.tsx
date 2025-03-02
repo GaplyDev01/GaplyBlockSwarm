@@ -23,9 +23,8 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
     setSubmitted(true);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sapphire-900/80 backdrop-blur-sm">    
-      <div className="relative bg-sapphire-800 border border-emerald-400/30 rounded-lg shadow-xl max-w-md w-full p-6 mx-4">    
+  return (    <div className="fixed inset-0 z-50 flex items-center justify-center bg-sapphire-900/80 backdrop-blur-sm">    
+        <div className="relative bg-sapphire-800 border border-emerald-400/30 rounded-lg shadow-xl max-w-md w-full p-6 mx-4">    
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-emerald-400/70 hover:text-emerald-400"
@@ -50,12 +49,12 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
             </div>    <h3 className="text-2xl font-cyber text-emerald-400 mb-2">Welcome to the Swarm!</h3>    <p className="text-emerald-400/70 mb-6">
               Thank you for joining. We'll be in touch soon with more information.
             </p>    <div className="space-y-3">    
-        <Link
-                href="/signup"
+        <a
+                href="https://mature-python-7.accounts.dev/sign-up"
                 className="block w-full bg-emerald-400 text-sapphire-900 font-bold font-cyber px-6 py-3 rounded-md hover:bg-emerald-500 transition-colors text-center"
               >
                 CREATE ACCOUNT
-              </Link>    <Link
+              </a>    <Link
                 href="/dashboard"
                 className="block w-full bg-transparent border-2 border-emerald-400 text-emerald-400 font-bold font-cyber px-6 py-3 rounded-md hover:bg-emerald-400/10 transition-colors text-center"
               >
@@ -97,12 +96,12 @@ export function JoinModal({ isOpen, onClose }: JoinModalProps) {
               >
                 JOIN NOW
               </button>    <div className="mt-4 flex justify-center">    
-        <Link 
-                  href="/signup"
+        <a 
+                  href="https://mature-python-7.accounts.dev/sign-in"
                   className="text-emerald-400 hover:text-emerald-300 text-sm underline"
                 >
                   Already have an account? Sign in
-                </Link>
+                </a>
               </div>    <p className="text-xs text-emerald-400/50 mt-4 text-center">
                 By joining, you agree to our Terms of Service and Privacy Policy.
               </p>
