@@ -1,43 +1,40 @@
 # BlockSwarms Development Guide
 
 ## Build Commands
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Run production build
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Type check with TypeScript
-- `npm run test` - Run all tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test -- -t "test name"` - Run a specific test by name
-- `npm run test -- tests/path/to/specific.test.js` - Run a specific test file
-- `npm run format` - Format code with Prettier
+- `pnpm run dev` - Start development server
+- `pnpm run build` - Build for production 
+- `pnpm run lint` - Run ESLint
+- `pnpm run typecheck` - Type check with TypeScript
+- `pnpm run test` - Run all tests
+- `pnpm run test:watch` - Run tests in watch mode
+- `pnpm run test -- -t "test name"` - Run a specific test by name
+- `pnpm run test -- tests/path/to/specific.test.js` - Run specific test file
+- `pnpm run format` - Format code with Prettier
+- `pnpm run clean` - Remove .next directory
+- `pnpm run update-imports` - Update import paths
 
 ## Code Style Guidelines
 - **Architecture**: Clean architecture with domain-driven design (core → application → infrastructure → presentation)
-- **Component Names**: PascalCase for components (e.g., `ConnectWalletButton.tsx`), camelCase for utilities
-- **File Organization**: Feature-first organization within clean architecture layers
-- **Typing**: Strong TypeScript typing with explicit interfaces, generics, and JSDoc comments
-- **Imports**: Group external libraries first, then internal imports using module aliases (@/core/*, @/infrastructure/*, etc.)
-- **Error Handling**: Use try/catch with specific error types, logger.error for reporting, provide fallback UI
-- **Testing**: Jest with React Testing Library, descriptive test names, comprehensive mocking
-- **Components**: React functional components with explicit prop interfaces and return types
-- **State Management**: Zustand for global state, React hooks for local state
+- **Component Names**: PascalCase for components, camelCase for utilities
+- **Typing**: Strong TypeScript with interfaces, generics, strict null checks and explicit return types
+- **Imports**: External libraries first, then internal imports using path aliases (@/core/*, @/src/*)
+- **Error Handling**: Try/catch with specific error types, logger.error for reporting with fallback UI
+- **Testing**: Jest with React Testing Library, descriptive test names, proper mocking
+- **Components**: React functional components with explicit prop interfaces
+- **State Management**: Zustand for global state, React Context for shared state, local hooks for component state
 - **Styling**: TailwindCSS with class-variance-authority for component variants
 
 ## Project Structure
 - **src/core**: Domain models, interfaces, business logic
-- **src/application**: Services and use cases that orchestrate domain logic
+- **src/application**: Services and use cases orchestrating domain logic
 - **src/infrastructure**: External services implementations, adapters, tools
 - **src/presentation**: React components, hooks, contexts for UI
-- **src/shared**: Cross-cutting concerns like logging, utilities, and types
-- **tests**: Integration and unit tests with the .test.{ts,tsx,js,jsx} extension
+- **src/shared**: Cross-cutting concerns (logging, utilities, types)
+- **tests**: Integration and unit tests with .test.{ts,tsx,js,jsx} extension
 
-## Cursor Rules
-Detailed development guidelines are available in the `.cursor/rules/` directory:
-- `blockswarms-rules.md` - General coding standards
-- `testing-rules.md` - Testing patterns and practices
-- `solana-integration.md` - Blockchain integration guidelines
-- `ai-integration.md` - AI provider integration standards
-- `consolidation-guidelines.md` - Codebase consolidation and organization
+## Path Aliases
+Use path aliases defined in tsconfig.json:
+- `@/src/*` - Root source directory (preferred)
+- `@/core/*`, `@/application/*`, `@/infrastructure/*`, `@/presentation/*`, `@/shared/*`
 
-This Next.js App Router project follows clean architecture principles with strict TypeScript checking. All imports should use the path aliases defined in tsconfig.json. Follow existing patterns when adding new code.
+This Next.js App Router project follows clean architecture principles with strict TypeScript checking.

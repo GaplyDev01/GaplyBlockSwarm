@@ -4,15 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node prebuild.js && node reformat-jsx.js",
-    "build": "npm run prebuild && next build || true",
+    "build": "next build || true",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "format": "prettier --write .",
-    "vercel-build": "npm run prebuild && next build || true",
+    "vercel-build": "next build || true",
     "clean": "rm -rf .next",
     "find-duplicate-files": "node scripts/find-duplicate-files.js",
     "update-imports": "./update-imports.sh"

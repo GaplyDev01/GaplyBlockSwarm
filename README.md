@@ -1,23 +1,25 @@
-# BlockSwarms
+# BlockSwarms Trade XBT
 
-BlockSwarms is a blockchain dashboard platform built on Next.js with Solana integration. It features a token search functionality, wallet integration, and market data visualization.
+BlockSwarms Trade XBT is a next-generation trading platform built on Next.js with Solana integration and AI-powered trading insights. It features token search, wallet integration, AI chat, and advanced market data visualization.
 
 ## Features
 
-- **Token Search**: Search any Solana token with real-time data from CoinGecko and Jupiter APIs
-- **Dashboard**: Customizable dashboard with drag-and-drop widgets
-- **Wallet Integration**: Connect your Solana wallet and view your balances and transactions
-- **Wallet-based Authentication**: Secure user authentication using Solana wallets
+- **Token Search**: Search any Solana token with real-time data from top-tier APIs
+- **AI Trading Assistant**: AI-powered chat for trading insights and wallet analysis
+- **Dashboard**: Real-time dashboard with advanced market data visualization
+- **Wallet Integration**: Seamless Solana wallet connection with transaction history
+- **Mobile-Responsive Design**: Optimized experience across all devices
 
 ## Tech Stack
 
-- Next.js 15
-- React 18
-- TypeScript
-- Tailwind CSS
-- Solana Web3.js
-- Solana Wallet Adapter
-- Vercel Deployment
+- Next.js 15 with App Router
+- React 18 with Server Components
+- TypeScript with strict type checking
+- Tailwind CSS + Radix UI
+- Solana Web3.js + Wallet Adapter
+- AI Integration (Anthropic, Groq)
+- MongoDB Atlas for data persistence
+- Vercel Edge Runtime deployment
 
 ## Deployment to Vercel
 

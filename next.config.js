@@ -7,40 +7,47 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000', '*.vercel.app']
-    }
+    },
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-tabs',
+      'framer-motion',
+      'recharts',
+      '@solana/web3.js',
+      '@solana/wallet-adapter-react-ui'
+    ]
   },
   images: {
-    unoptimized: true,
+    unoptimized: true, // Disable image optimization for now to avoid build issues
   },
+  
   // Configure source directory and output directory
   distDir: '.next',
   
-  // Critical: Skip the static generation phase for authenticated routes
-  // This should prevent "UserContext not found" errors 
+  // Output standalone build for better Vercel deployment
   output: 'standalone',
   
-  // Ensure that pages with client components are not pre-rendered statically
-  // This helps prevent the "UserContext not found" errors during build
-  staticPageGenerationTimeout: 1000,
+  // Optimize bundle size with compression
+  compress: true,
+  
+  // Transpile specific packages that need it
   transpilePackages: [
     '@solana/wallet-adapter-base',
     '@solana/wallet-adapter-react',
   ],
+  
+  // Allow production builds to complete even with errors
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   
-  // Webpack configuration for path resolution
-  webpack: (config) => {
+  // Webpack configuration for path resolution and optimization
+  webpack: (config, { isServer }) => {
     // Configure path aliases
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -52,6 +59,20 @@ const nextConfig = {
       '@/src/presentation': path.resolve(__dirname, './src/presentation'),
       '@/src/shared': path.resolve(__dirname, './src/shared'),
       '@/src/app': path.resolve(__dirname, './src/app'),
+      
+      // Legacy path aliases for backward compatibility
+      '@/components': path.resolve(__dirname, './src/presentation/components'),
+      '@/lib': path.resolve(__dirname, './src/shared'),
+      '@/lib/context': path.resolve(__dirname, './src/presentation/context'),
+      '@/lib/solana': path.resolve(__dirname, './src/infrastructure/blockchain/solana'),
+      '@/lib/utils': path.resolve(__dirname, './src/shared/utils'),
+      '@/lib/types': path.resolve(__dirname, './src/shared/types'),
+      '@/app': path.resolve(__dirname, './src/app'),
+      '@/core': path.resolve(__dirname, './src/core'),
+      '@/infrastructure': path.resolve(__dirname, './src/infrastructure'),
+      '@/application': path.resolve(__dirname, './src/application'),
+      '@/presentation': path.resolve(__dirname, './src/presentation'),
+      '@/shared': path.resolve(__dirname, './src/shared'),
     };
     
     // Polyfill Node.js native modules for browser compatibility
@@ -69,7 +90,9 @@ const nextConfig = {
       buffer: require.resolve('buffer/'),
       process: require.resolve('process/browser'),
       constants: require.resolve('constants-browserify'),
-      vm: false
+      vm: false,
+      worker_threads: false,
+      'lib/worker': false,
     };
     
     // Add plugins for proper polyfilling
@@ -87,11 +110,17 @@ const nextConfig = {
       })
     );
 
+    // Fix for "self is not defined" error
+    if (!isServer) {
+      config.resolve.fallback.fs = false;
+      config.resolve.fallback.net = false;
+      config.resolve.fallback.tls = false;
+    }
+
     // Increase memory limit for webpack
     config.performance = {
       ...config.performance,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000,
+      hints: false, // Disable size warnings
     };
     
     return config;
