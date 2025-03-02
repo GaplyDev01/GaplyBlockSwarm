@@ -17,7 +17,8 @@ const nextConfig = {
       'recharts',
       '@solana/web3.js',
       '@solana/wallet-adapter-react-ui'
-    ]
+    ],
+    instrumentationHook: true
   },
   images: {
     unoptimized: true, // Disable image optimization for now to avoid build issues

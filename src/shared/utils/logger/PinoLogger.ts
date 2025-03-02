@@ -1,11 +1,13 @@
 import pino from 'pino';
 import { ILogger } from './ILogger';
+import tracker from '@middleware.io/agent-apm-nextjs';
 
 /**
- * PinoLogger implementation of ILogger using Pino
+ * PinoLogger implementation of ILogger using Pino with Middleware.io integration
  */
 export class PinoLogger implements ILogger {
   private logger: pino.Logger;
+  private moduleName: string;
 
   /**
    * Create a new PinoLogger
@@ -20,9 +22,12 @@ export class PinoLogger implements ILogger {
     const isProduction = process.env.NODE_ENV === 'production';
     const defaultLevel = isProduction ? 'info' : 'debug';
     
+    // Store module name for middleware.io logs
+    this.moduleName = options?.module || 'app';
+    
     const pinoOptions: pino.LoggerOptions = {
       level: options?.level || defaultLevel,
-      base: { module: options?.module || 'app' },
+      base: { module: this.moduleName },
     };
 
     // Add additional context if provided
@@ -59,6 +64,15 @@ export class PinoLogger implements ILogger {
    */
   info(message: string, context?: unknown): void {
     this.logger.info(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.info === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.moduleName
+      };
+      tracker.info(message, metadata);
+    }
   }
 
   /**
@@ -68,6 +82,15 @@ export class PinoLogger implements ILogger {
    */
   warn(message: string, context?: unknown): void {
     this.logger.warn(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.warn === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.moduleName
+      };
+      tracker.warn(message, metadata);
+    }
   }
 
   /**
@@ -101,6 +124,14 @@ export class PinoLogger implements ILogger {
     }
 
     this.logger.error(combinedContext, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.error === 'function') {
+      tracker.error(message, { 
+        ...combinedContext, 
+        module: this.moduleName 
+      });
+    }
   }
 
   /**
@@ -110,6 +141,15 @@ export class PinoLogger implements ILogger {
    */
   debug(message: string, context?: unknown): void {
     this.logger.debug(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.debug === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.moduleName
+      };
+      tracker.debug(message, metadata);
+    }
   }
 
   /**
@@ -133,10 +173,28 @@ class ChildPinoLogger implements ILogger {
 
   info(message: string, context?: unknown): void {
     this.logger.info(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.info === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.module
+      };
+      tracker.info(message, metadata);
+    }
   }
 
   warn(message: string, context?: unknown): void {
     this.logger.warn(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.warn === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.module
+      };
+      tracker.warn(message, metadata);
+    }
   }
 
   error(message: string, error?: unknown, context?: unknown): void {
@@ -163,10 +221,27 @@ class ChildPinoLogger implements ILogger {
     }
 
     this.logger.error(combinedContext, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.error === 'function') {
+      tracker.error(message, { 
+        ...combinedContext, 
+        module: this.module 
+      });
+    }
   }
 
   debug(message: string, context?: unknown): void {
     this.logger.debug(context || {}, message);
+    
+    // Send to middleware.io as well
+    if (typeof tracker?.debug === 'function') {
+      const metadata = { 
+        ...(typeof context === 'object' ? context as Record<string, unknown> : { context }),
+        module: this.module
+      };
+      tracker.debug(message, metadata);
+    }
   }
 
   child(options: { module: string; [key: string]: unknown }): ILogger {
