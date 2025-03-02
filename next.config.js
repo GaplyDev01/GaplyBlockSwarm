@@ -32,14 +32,13 @@ const nextConfig = {
   // Set to false for Vercel deployment
   trailingSlash: false,
   
-  // Use a simpler build ID for more predictable builds
+  // Use a timestamp-based build ID
   generateBuildId: async () => {
-    return 'blockswarms-build';
+    return `build-${Date.now()}`;
   },
   
   // Add additional configuration for Vercel environment
   env: {
-    NEXT_RUNTIME: 'nodejs',
     VERCEL_DEPLOYMENT: 'true',
   },
   

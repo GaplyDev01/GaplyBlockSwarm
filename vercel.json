@@ -5,7 +5,7 @@
     }
   },
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm run vercel-build",
+  "buildCommand": "node prebuild.js && next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["iad1"],
