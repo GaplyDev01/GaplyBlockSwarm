@@ -56,6 +56,11 @@ export interface ISolanaService {
    * @param endpoint The RPC endpoint URL
    */
   setEndpoint?(endpoint: string): void;
+  
+  // Additional methods used in tests
+  getTokenInfo?(mintAddress: string): Promise<TokenInfo>;
+  getTopTokens?(limit: number): Promise<TokenInfo[]>;
+  getTradingSignal?(tokenSymbol: string): Promise<TradingSignal>;
 }
 
 /**
@@ -134,4 +139,15 @@ export interface TradingSignal {
   timestamp: string;
   confidence: number;
   timeframe: string;
+  
+  // Additional properties used in tests
+  recommendation?: string;
+  indicators?: {
+    macd?: string;
+    rsi?: string;
+    bollingerBands?: string;
+    movingAverages?: string;
+    volumeProfile?: string;
+    [key: string]: string | undefined;
+  };
 }

@@ -524,7 +524,7 @@ export class SolanaServiceV2 implements SolanaService {
         txInfo.type = this.determineTransactionType(instructions, tx.meta, sig.signature);
         
         // Try to extract token information if available
-        const tokenInfo = this.extractTokenInfo(instructions, tx.meta, sig.signature);
+        const tokenInfo = this.extractTokenInfo(instructions as any, tx.meta, sig.signature);
         if (tokenInfo) {
           Object.assign(txInfo, tokenInfo);
         }
@@ -540,9 +540,9 @@ export class SolanaServiceV2 implements SolanaService {
    * Determine the type of transaction
    */
   private determineTransactionType(
-    instructions: ParsedInstruction[],
-    meta: ConfirmedTransactionMeta,
-    signature: TransactionSignature
+    instructions: any[],
+    meta: any,
+    signature: string
   ): 'swap' | 'transfer' | 'send' | 'receive' | 'unknown' {
     try {
       // Check for known DEX program IDs (swaps)
@@ -573,8 +573,8 @@ export class SolanaServiceV2 implements SolanaService {
    * Extract token information from transaction
    */
   private extractTokenInfo(
-    instructions: ParsedInstruction[],
-    meta: ConfirmedTransactionMeta,
+    instructions: any[],
+    meta: any,
     signature: TransactionSignature
   ): Record<string, any> | null {
     try {
@@ -645,22 +645,35 @@ export class SolanaServiceV2 implements SolanaService {
           const parts = log.split(' ');
           for (let i = 0; i < parts.length; i++) {
             if (parts[i] === 'in:' && i + 1 < parts.length) {
-              amountIn = parseFloat(parts[i + 1]);
+              const value = parts[i + 1] || '0';
+              amountIn = parseFloat(value);
             } else if (parts[i] === 'out:' && i + 1 < parts.length) {
-              amountOut = parseFloat(parts[i + 1]);
-            } else if (parts[i].includes('token=')) {
-              const tokenAddress = parts[i].split('=')[1];
-              if (!tokenIn) tokenIn = tokenAddress;
-              else tokenOut = tokenAddress;
+              const value = parts[i + 1] || '0';
+              amountOut = parseFloat(value);
+            } else if (parts[i] && typeof parts[i] === 'string') {
+              // Only proceed if the part exists and is a string
+              // Use a non-null assertion since we've already checked parts[i] is a string
+              const part = parts[i]!; 
+              
+              // Now TypeScript knows part is definitely a string and not undefined
+              if (part.includes('token=')) {
+                const tokenParts = part.split('=');
+                // Ensure tokenAddress is a string and not undefined
+                const tokenAddress = tokenParts.length > 1 ? tokenParts[1] : '';
+                // Since we're providing a default empty string, tokenAddress will never be undefined
+                const safeTokenAddress = (tokenAddress || '').toString();
+                if (!tokenIn) tokenIn = safeTokenAddress;
+                else tokenOut = safeTokenAddress;
+              }
             }
           }
           
           if (tokenIn && tokenOut) {
             return {
-              tokenIn,
-              tokenOut,
-              amountIn,
-              amountOut
+              tokenIn: tokenIn || '',
+              tokenOut: tokenOut || '',
+              amountIn: amountIn || 0,
+              amountOut: amountOut || 0
             };
           }
         }

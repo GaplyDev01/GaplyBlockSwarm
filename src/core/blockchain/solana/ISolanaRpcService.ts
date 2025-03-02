@@ -83,4 +83,16 @@ export interface ISolanaRpcService {
    * @returns Promise indicating success
    */
   unsubscribe(subscriptionId: number): Promise<boolean>;
+  
+  /**
+   * Get the underlying Connection object
+   * @returns Solana web3.js Connection instance
+   */
+  getConnection(): unknown;
+  
+  /**
+   * Check if a wallet is connected
+   * @returns True if a wallet is currently connected
+   */
+  isWalletConnected?(): boolean;
 }

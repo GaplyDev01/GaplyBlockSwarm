@@ -1,5 +1,9 @@
-import { AIProviderRegistry } from '../../core/ai/AIProviderRegistry';
-import { IAIProvider, Message } from '../../core/ai/interfaces/IAIProvider';
+import { AIProviderRegistry } from '../../src/core/ai/AIProviderRegistry';
+import { 
+  IAIProvider, 
+  Message, 
+  ChatCompletionResponse 
+} from '../../src/core/ai/interfaces/IAIProvider';
 import { getTokenInfo } from '../wallet';
 
 interface AIServiceConfig {
@@ -55,7 +59,13 @@ export class AIChatService {
       // Get response from AI provider
       const response = await this.provider.generateChatCompletion(messages, options);
       
-      return response;
+      // Check if the response is a string (old format) or ChatCompletionResponse (new format)
+      if (typeof response === 'string') {
+        return response;
+      } else {
+        // Extract the content from the response object
+        return response.content;
+      }
     } catch (error) {
       console.error('Error in AI chat service:', error);
       return 'I apologize, but I encountered an error processing your request. Please try again later.';

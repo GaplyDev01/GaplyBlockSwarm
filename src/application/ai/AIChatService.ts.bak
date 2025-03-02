@@ -1,50 +1,19 @@
 import { 
   AIMessage, 
   AITool,
-  Message
-} from '../../../core/ai/interfaces/IAIProvider';
-
-// Define local types
-interface ChatCompletionOptions {
-  messages: AIMessage[];
-  model?: string;
-  temperature?: number;
-  maxTokens?: number;
-  tools?: AITool[];
-  toolChoice?: any;
-}
-
-interface ChatCompletionResponse {
-  id: string;
-  model: string;
-  content: string;
-  finishReason: string;
-  toolCalls?: any[];
-  role?: string;
-}
-
-type StreamHandler = (event: any) => void;
-import { AIProviderRegistry } from '../../../core/ai/AIProviderRegistry';
-import { ILogger } from '../../../shared/utils/logger/ILogger';
-
-// Alias types to use imported interfaces
-type CompletionOpts = ChatCompletionOptions;
-type CompletionResp = ChatCompletionResponse;
-type StreamEventHandler = StreamHandler;
-
-// Helper function to generate random ID
-const generateId = () => Math.random().toString(36).substring(2, 15);
-
-// Import SolanaTool
-import { SolanaTool } from '../../infrastructure/ai/tools/SolanaTools';
-
-// Import the actual ISolanaService interface to ensure type compatibility
-import { ISolanaService as CoreISolanaService } from '../../core/blockchain/solana/ISolanaService';
+  ChatCompletionOptions,
+  ChatCompletionResponse,
+  StreamHandler
+} from '@/core/ai/interfaces/IAIProvider';
+import { AIProviderRegistry } from '@/core/ai/AIProviderRegistry';
+import { ILogger } from '@/shared/utils/logger/ILogger';
+import { generateId } from '@/shared/utils/helpers';
+import { SolanaTools } from '@/infrastructure/ai/tools/SolanaTools';
+import { ISolanaService } from '@/core/blockchain/solana/ISolanaService';
 
 /**
  * Chat history interface
  */
-// Export the interface for use by other modules
 export interface ChatHistory {
   id: string;
   name: string;
@@ -83,7 +52,7 @@ export class AIChatService {
   private registry: AIProviderRegistry;
   private logger: ILogger;
   private chatHistories: Map<string, ChatHistory> = new Map();
-  private solanaTools?: SolanaTool;
+  private solanaTools?: SolanaTools;
   private toolHandlers: Map<string, ToolHandler> = new Map();
   
   /**
@@ -92,40 +61,24 @@ export class AIChatService {
    * @param logger Logger instance
    * @param solanaService Optional Solana service for blockchain integration
    */
-  // Constructor moved down for organization
-
-  constructor(registry: AIProviderRegistry, logger: ILogger, solanaService?: Partial<CoreISolanaService>) {
+  constructor(registry: AIProviderRegistry, logger: ILogger, solanaService?: ISolanaService) {
     this.registry = registry;
-    this.logger = logger;
+    this.logger = logger.child({ module: 'AIChatService' });
     
-    try {
-      // Initialize Solana tools if service is provided
-      if (solanaService) {
-        // Use a type assertion to handle the partial implementation
-        this.solanaTools = new SolanaTool(solanaService as CoreISolanaService);
-        
-        // Register Solana tool handlers for methods that exist
-        const solanaHandler: ToolHandler = async (name, args) => {
-          if (this.solanaTools) {
-            if (typeof this.solanaTools.handleToolCall === 'function') {
-              return await this.solanaTools.handleToolCall(name, args);
-            }
-          }
-          return { error: 'Tool handler not available' };
-        };
-        
-        // Register handlers for all Solana tools if available
-        if (this.solanaTools && typeof this.solanaTools.getAllTools === 'function') {
-          const solanaToolFunctions = this.solanaTools.getAllTools();
-          for (const tool of solanaToolFunctions) {
-            if (tool.function && tool.function.name) {
-              this.toolHandlers.set(tool.function.name, solanaHandler);
-            }
-          }
-        }
+    // Initialize Solana tools if service is provided
+    if (solanaService) {
+      this.solanaTools = new SolanaTools(solanaService);
+      
+      // Register Solana tool handlers
+      const solanaHandler: ToolHandler = async (name, args) => {
+        return await this.solanaTools!.handleToolCall(name, args);
+      };
+      
+      // Register handlers for all Solana tools
+      const solanaTools = this.solanaTools.getAllTools();
+      for (const tool of solanaTools) {
+        this.toolHandlers.set(tool.function.name, solanaHandler);
       }
-    } catch (error) {
-      console.warn('Failed to initialize Solana tools:', error);
     }
   }
   
@@ -147,31 +100,7 @@ export class AIChatService {
     
     // Add Solana tools if available
     if (this.solanaTools) {
-      try {
-        // Check if solanaTools has a getAllTools method
-        if (typeof this.solanaTools.getAllTools === 'function') {
-          const solanaTools = this.solanaTools.getAllTools();
-          if (Array.isArray(solanaTools)) {
-            tools.push(...solanaTools);
-          }
-        } 
-        // Fallback to manually getting tools if available
-        else if (typeof this.solanaTools.getWalletTools === 'function' &&
-                 typeof this.solanaTools.getTradingTools === 'function') {
-          const walletTools = this.solanaTools.getWalletTools();
-          const tradingTools = this.solanaTools.getTradingTools();
-          
-          if (Array.isArray(walletTools)) {
-            tools.push(...walletTools);
-          }
-          
-          if (Array.isArray(tradingTools)) {
-            tools.push(...tradingTools);
-          }
-        }
-      } catch (error) {
-        console.error('Error getting Solana tools:', error);
-      }
+      tools.push(...this.solanaTools.getAllTools());
     }
     
     return tools;
@@ -262,8 +191,21 @@ export class AIChatService {
     return this.chatHistories.get(chatId) || null;
   }
   
-  // Already defined later in the file
-
+  /**
+   * Get all chats
+   * @param userId Optional user ID to filter by
+   * @returns Array of chat histories
+   */
+  getAllChats(userId?: string): ChatHistory[] {
+    const chats = Array.from(this.chatHistories.values());
+    
+    if (userId) {
+      return chats.filter(chat => chat.userId === userId);
+    }
+    
+    return chats;
+  }
+  
   /**
    * Delete a chat
    * @param chatId Chat ID
@@ -312,21 +254,16 @@ export class AIChatService {
     } = options;
     
     try {
-      // Use static methods from AIProviderRegistry to get the provider
+      // Get the specified provider or default
       const aiProvider = provider 
-        ? AIProviderRegistry.getProvider(provider)
-        : AIProviderRegistry.getDefaultProvider();
-        
-      // Safety check - make sure we have a valid provider
-      if (!aiProvider) {
-        throw new Error(`No AI provider available${provider ? ` for ${provider}` : ''}`);
-      }
+        ? this.registry.getProvider(provider)
+        : this.registry.getDefaultProvider();
       
       // Determine which tools to include
       const availableTools = tools || this.getAvailableTools();
       
       // Check if tools should be included based on provider capability
-      const finalTools = (typeof aiProvider.supportsTools === "function" && (typeof aiProvider.supportsTools === "function" && aiProvider.supportsTools())) ? availableTools : undefined;
+      const finalTools = (typeof aiProvider.supportsTools === "function" && aiProvider.supportsTools()) ? availableTools : undefined;
       
       // Create completion options
       const completionOptions: ChatCompletionOptions = {
@@ -338,14 +275,12 @@ export class AIChatService {
         toolChoice,
       };
       
-      // Get completion from provider with safe type handling
-      const completion = typeof aiProvider.generateChatCompletion === 'function'
-        ? await aiProvider.generateChatCompletion(completionOptions)
-        : { id: 'mock', model: 'unknown', content: 'Error: Provider not available', finishReason: 'error' };
+      // Get completion from provider
+      const completion = await aiProvider.createChatCompletion(completionOptions);
       
       // Handle any tool calls in the response
       if (completion.toolCalls && completion.toolCalls.length > 0) {
-        const toolResults = await this.handleToolCalls(completion?.toolCalls || []);
+        const toolResults = await this.handleToolCalls(completion.toolCalls);
         
         // Add tool results as assistant message
         const toolResultsContent = `Tool results:\n${JSON.stringify(toolResults, null, 2)}`;
@@ -408,7 +343,7 @@ export class AIChatService {
    */
   async getStreamingCompletion(
     options: CompletionOptions,
-    onEvent: (event: any) => void
+    onEvent: StreamHandler
   ): Promise<void> {
     const { 
       messages, 
@@ -422,28 +357,24 @@ export class AIChatService {
     } = options;
     
     try {
-      // Use static methods from AIProviderRegistry to get the provider
+      // Get the specified provider or default
       const aiProvider = provider 
-        ? AIProviderRegistry.getProvider(provider)
-        : AIProviderRegistry.getDefaultProvider();
-        
-      // Safety check - make sure we have a valid provider
-      if (!aiProvider) {
-        throw new Error(`No AI provider available${provider ? ` for ${provider}` : ''}`);
-      }
+        ? this.registry.getProvider(provider)
+        : this.registry.getDefaultProvider();
       
       // Determine which tools to include
       const availableTools = tools || this.getAvailableTools();
       
       // Check if tools should be included based on provider capability
-      const finalTools = (typeof aiProvider.supportsTools === "function" && (typeof aiProvider.supportsTools === "function" && aiProvider.supportsTools())) ? availableTools : undefined;
+      const finalTools = (typeof aiProvider.supportsTools === "function" && aiProvider.supportsTools()) ? availableTools : undefined;
       
-      // Create completion options (without stream property)
+      // Create completion options
       const completionOptions: ChatCompletionOptions = {
         messages,
         model,
         temperature,
         maxTokens,
+        stream: true,
         tools: finalTools,
         toolChoice,
       };
@@ -453,7 +384,7 @@ export class AIChatService {
       let toolCalls: any[] = [];
       
       // Wrap the event handler to accumulate the complete response
-      const wrappedHandler = async (event: any) => {
+      const wrappedHandler: StreamHandler = async (event) => {
         // Add to the full content if there's content in the event
         if (event.content) {
           fullContent += event.content;
@@ -496,12 +427,10 @@ export class AIChatService {
             const chat = this.chatHistories.get(chatId);
             if (chat) {
               // Add user message if not already in history
-              if (messages.length > 0 && messages[messages.length - 1]?.role === 'user') {
+              if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
                 const lastMessage = messages[messages.length - 1];
-                if (lastMessage && (
-                    chat.messages.length === 0 || 
-                    (chat.messages[chat.messages.length - 1]?.content !== lastMessage.content)
-                )) {
+                if (chat.messages.length === 0 || 
+                    chat.messages[chat.messages.length - 1].content !== lastMessage.content) {
                   chat.messages.push(lastMessage);
                 }
               }
@@ -517,9 +446,7 @@ export class AIChatService {
               // Update chat metadata
               chat.updatedAt = Date.now();
               chat.modelProvider = aiProvider.getName();
-              chat.modelName = event.model || (typeof aiProvider.getDefaultModel === 'function' 
-                                ? aiProvider.getDefaultModel() 
-                                : 'unknown');
+              chat.modelName = event.model || aiProvider.getDefaultModel();
               
               this.chatHistories.set(chatId, chat);
             }
@@ -537,16 +464,8 @@ export class AIChatService {
         }
       };
       
-      // Get streaming completion from provider with safe type handling
-      if (typeof aiProvider.generateStreamingChatCompletion === 'function') {
-        await aiProvider.generateStreamingChatCompletion(completionOptions, wrappedHandler);
-      } else {
-        // Fallback if streaming not supported
-        wrappedHandler({ 
-          content: "Streaming not supported by this provider", 
-          isComplete: true 
-        });
-      }
+      // Get streaming completion from provider
+      await aiProvider.createStreamingChatCompletion(completionOptions, wrappedHandler);
     } catch (error) {
       this.logger.error('Error getting streaming AI completion', error);
       throw error;
@@ -560,20 +479,11 @@ export class AIChatService {
    */
   async getAvailableModels(provider?: string): Promise<string[]> {
     try {
-      // Use static methods from AIProviderRegistry to get the provider
       const aiProvider = provider 
-        ? AIProviderRegistry.getProvider(provider)
-        : AIProviderRegistry.getDefaultProvider();
+        ? this.registry.getProvider(provider)
+        : this.registry.getDefaultProvider();
         
-      // Safety check - make sure we have a valid provider
-      if (!aiProvider) {
-        throw new Error(`No AI provider available${provider ? ` for ${provider}` : ''}`);
-      }
-        
-      // Check if the method exists and call it
-      return typeof aiProvider.getAvailableModels === 'function' 
-        ? await aiProvider.getAvailableModels() 
-        : [];
+      return await aiProvider.getAvailableModels();
     } catch (error) {
       this.logger.error('Error getting available models', error);
       return [];
@@ -585,9 +495,7 @@ export class AIChatService {
    * @returns Array of provider names
    */
   getAvailableProviders(): string[] {
-    // Get providers from registry instance
-    const providers = this.registry.getAvailableProviders();
-    return providers;
+    return this.registry.getAvailableProviders();
   }
   
   /**
@@ -615,24 +523,11 @@ export class AIChatService {
    */
   async getTokenCount(messages: AIMessage[], provider?: string): Promise<number> {
     try {
-      // Use static methods from AIProviderRegistry to get the provider
       const aiProvider = provider 
-        ? AIProviderRegistry.getProvider(provider)
-        : AIProviderRegistry.getDefaultProvider();
+        ? this.registry.getProvider(provider)
+        : this.registry.getDefaultProvider();
         
-      // Safety check - make sure we have a valid provider
-      if (!aiProvider) {
-        throw new Error(`No AI provider available${provider ? ` for ${provider}` : ''}`);
-      }
-        
-      // Check if method exists and call it safely
-      if (typeof aiProvider.getTokenCount === 'function') {
-        return await aiProvider.getTokenCount(messages);
-      }
-      
-      // Fallback token counting if method not available
-      const totalChars = messages.reduce((sum, msg) => sum + msg.content.length, 0);
-      return Math.ceil(totalChars / 4);
+      return await aiProvider.getTokenCount(messages);
     } catch (error) {
       this.logger.error('Error getting token count', error);
       
@@ -650,20 +545,11 @@ export class AIChatService {
    */
   getContextWindowSize(provider?: string, model?: string): number {
     try {
-      // Use static methods from AIProviderRegistry to get the provider
       const aiProvider = provider 
-        ? AIProviderRegistry.getProvider(provider)
-        : AIProviderRegistry.getDefaultProvider();
+        ? this.registry.getProvider(provider)
+        : this.registry.getDefaultProvider();
         
-      // Safety check - make sure we have a valid provider
-      if (!aiProvider) {
-        throw new Error(`No AI provider available${provider ? ` for ${provider}` : ''}`);
-      }
-        
-      if (typeof aiProvider.getContextWindowSize === 'function') {
-        return aiProvider.getContextWindowSize(model);
-      }
-      return 4096; // Fallback to a safe default
+      return aiProvider.getContextWindowSize(model);
     } catch (error) {
       this.logger.error('Error getting context window size', error);
       return 4096; // Fallback to a conservative default
@@ -679,21 +565,6 @@ export class AIChatService {
       this.chatHistories.set(chat.id, chat);
     }
     this.logger.info(`Imported ${chats.length} chats from storage`);
-  }
-  
-  /**
-   * Get all chats
-   * @param userId Optional user ID to filter by
-   * @returns Array of chat histories
-   */
-  getAllChats(userId?: string): ChatHistory[] {
-    const chats = Array.from(this.chatHistories.values());
-    
-    if (userId) {
-      return chats.filter(chat => chat.userId === userId);
-    }
-    
-    return chats;
   }
   
   /**

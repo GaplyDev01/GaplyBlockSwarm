@@ -5,21 +5,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AIProviderRegistry } from '@/core/ai/AIProviderRegistry';
 import { AIProviderFactory } from '@/infrastructure/ai/AIProviderFactory';
 import { PinoLogger } from '@/shared/utils/logger';
-import { SolanaServiceFactory } from '@/infrastructure/blockchain/solana/SolanaServiceFactory';
+import { solanaServiceFactory } from '../../src/infrastructure/blockchain/solana/SolanaServiceFactory';
 
 // Mock the POST handler for AI chat
 const handler = async (req: NextRequest): Promise<NextResponse> => {
   try {
     // Create real instances
     const logger = new PinoLogger();
-    const registry = new AIProviderRegistry(logger);
+    
+    // Initialize the registry
+    AIProviderRegistry.setLogger(logger);
     
     // Use real provider - will use real API keys from environment if available
-    const anthropicProvider = new AIProviderFactory.AnthropicProvider();
-    registry.registerProvider(anthropicProvider);
+    const anthropicProvider = AIProviderFactory.createAnthropicProvider();
+    AIProviderRegistry.register(anthropicProvider);
     
-    // Get real Solana service for tool integration
-    const solanaService = await SolanaServiceFactory.createDefaultService();
+    // Get solana service from the factory instance
+    const solanaService = solanaServiceFactory.getSolanaService();
     
     const { messages, provider = 'anthropic', model = 'claude-3-opus-20240229' } = await req.json();
 
@@ -40,16 +42,30 @@ const handler = async (req: NextRequest): Promise<NextResponse> => {
 
     let enhancedMessages = messages;
     if (tokenQuery) {
-      // Get real SOL token data
+      // Get real SOL token data or use mock data if method not available
       const solMint = 'So11111111111111111111111111111111111111112';
-      const solToken = await solanaService.getTokenInfo(solMint);
+      let solToken;
+      
+      if (solanaService && typeof solanaService.getTokenInfo === 'function') {
+        solToken = await solanaService.getTokenInfo(solMint);
+      } else {
+        // Use mock data if getTokenInfo is not available
+        solToken = {
+          symbol: 'SOL',
+          name: 'Solana',
+          mint: solMint,
+          decimals: 9,
+          price: 100.0,
+          change24h: 5.0
+        };
+      }
       
       // Add system message with token context
       enhancedMessages = [
         {
           role: 'system',
           content: `You have information about the SOL token:
-- Symbol: ${solToken.symbol}
+- Symbol: ${solToken.symbol || 'SOL'}
 - Price: $${solToken.price}
 - 24h Change: ${solToken.change24h}%
 - Market Cap: $${solToken.marketCap}

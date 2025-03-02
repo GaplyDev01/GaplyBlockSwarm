@@ -89,10 +89,12 @@ export class SolanaRpc implements SolanaRpcInterface {
         ? { mint: new PublicKey(options.mint) }
         : { programId: new PublicKey(options.programId!) };
 
+      // TypeScript workaround - explicitly specify the required parameters
+      // and use 'as any' for the options which has additional properties
       return await this.connection.getTokenAccountsByOwner(
         pubkey, 
         filter, 
-        { encoding: 'jsonParsed', commitment: commitment as Commitment }
+        { commitment: commitment as Commitment } as any
       );
     } catch (error) {
       logger.error('Error getting token accounts:', error);
@@ -143,9 +145,9 @@ export class SolanaRpc implements SolanaRpcInterface {
    */
   async unsubscribe(subscriptionId: number): Promise<boolean> {
     try {
-      const success = await this.connection.removeAccountChangeListener(subscriptionId);
-      logger.info(`Unsubscribed from subscription ${subscriptionId}: ${success}`);
-      return success;
+      await this.connection.removeAccountChangeListener(subscriptionId);
+      logger.info(`Unsubscribed from subscription ${subscriptionId}`);
+      return true; // Return a boolean instead of the void result from removeAccountChangeListener
     } catch (error) {
       logger.error(`Error unsubscribing from ${subscriptionId}:`, error);
       throw error;

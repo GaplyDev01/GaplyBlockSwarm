@@ -13,9 +13,9 @@ export const dynamicPage = 'force-dynamic';
 export const runtime = 'edge';
 
 // Import components
-import { ChatContainer } from '@/src/presentation/components/ai/chat-container';
-import { useAIContext } from '@/src/presentation/context/ai-context';
-import { AIProviderOption } from '@/src/presentation/components/ai/provider-selector';
+import { ChatContainer } from '../../presentation/components/ai/chat-container';
+import { useAIContext } from '../../presentation/context/ai-context';
+import { AIProviderOption } from '../../presentation/components/ai/provider-selector';
 
 function AIChatPage() {
   const { isSignedIn, isLoaded } = useAuth();

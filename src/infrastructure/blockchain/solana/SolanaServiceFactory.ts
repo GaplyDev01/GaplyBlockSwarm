@@ -19,6 +19,15 @@ export class SolanaServiceFactory {
   }
   
   /**
+   * Create a new Solana service
+   * @param useMock Whether to use mock data
+   * @returns Promise resolving to a Solana service
+   */
+  public async createService(useMock: boolean = false): Promise<ISolanaService> {
+    return this.getSolanaService(useMock);
+  }
+  
+  /**
    * Get the singleton instance of the factory
    * @returns SolanaServiceFactory instance
    */
@@ -77,8 +86,8 @@ export class SolanaServiceFactory {
     this.solanaRpcService = new SolanaRpcService(this.logger, endpoint);
     
     // Update the endpoint on the Solana service if it exists
-    if (this.solanaService && 'setEndpoint' in this.solanaService) {
-      this.solanaService.setEndpoint(endpoint);
+    if (this.solanaService && typeof this.solanaService === 'object' && 'setEndpoint' in this.solanaService) {
+      (this.solanaService as any).setEndpoint(endpoint);
     }
     
     this.logger.info(`Updated RPC endpoint to: ${endpoint}`);

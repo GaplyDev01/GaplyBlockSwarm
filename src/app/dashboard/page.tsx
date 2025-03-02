@@ -1,10 +1,10 @@
 'use client';
 
-// Force dynamic rendering - never statically generate this page
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
 import React, { useState, useEffect } from 'react';
+
+// Force dynamic rendering - never statically generate this page
+const dynamic_rendering = 'force-dynamic';
+const runtime_setting = 'edge';
 import { useUserContext } from '@/lib/context/user-context';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
 import { UserButton } from '@clerk/nextjs';
@@ -76,5 +76,5 @@ function DashboardPage() {
 }
 
 // Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
-export default dynamic(() => Promise.resolve(DashboardPage), { ssr: false });
+import { default as nextDynamic } from 'next/dynamic';
+export default nextDynamic(() => Promise.resolve(DashboardPage), { ssr: false });

@@ -47,7 +47,17 @@ export class SolanaService implements ISolanaService {
     rpcService: ISolanaRpcService,
     mockTokenData?: TokenInfo[]
   ) {
-    this.logger = logger.child({ module: 'SolanaService' });
+    // Safely create child logger if method exists
+    this.logger = logger;
+    if (logger && typeof logger.child === 'function') {
+      try {
+        this.logger = logger.child({ module: 'SolanaService' });
+      } catch (error) {
+        // Fall back to original logger
+        console.warn('Failed to create child logger');
+      }
+    }
+    
     this.rpcService = rpcService;
     
     if (mockTokenData) {

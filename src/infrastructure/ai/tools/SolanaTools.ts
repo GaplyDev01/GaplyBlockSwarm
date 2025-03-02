@@ -4,7 +4,12 @@ import { ISolanaService } from '../../../core/blockchain/solana/ISolanaService';
 /**
  * Solana tools factory for AI providers
  */
-export class SolanaTools {
+// Added missing tools interfaces to ensure compatibility
+interface SolanaToolOptions {
+  solanaService: ISolanaService;
+}
+
+export class SolanaTool {
   private solanaService: ISolanaService;
 
   /**
@@ -140,32 +145,61 @@ export class SolanaTools {
    * @returns Tool call result
    */
   public async handleToolCall(toolName: string, args: any): Promise<any> {
-    switch (toolName) {
-      case 'connectWallet':
-        return await this.solanaService.connectWallet(args.publicKey);
+    try {
+      // Ensure solanaService exists and methods are available
+      if (!this.solanaService) {
+        throw new Error('Solana service not initialized');
+      }
 
-      case 'disconnectWallet':
-        return await this.solanaService.disconnectWallet();
+      // Safely access methods with proper checks
+      switch (toolName) {
+        case 'connectWallet':
+          if (typeof this.solanaService.connectWallet !== 'function') {
+            throw new Error('connectWallet method not available');
+          }
+          return await this.solanaService.connectWallet(args?.publicKey);
 
-      case 'getWalletBalances':
-        return await this.solanaService.getWalletBalances();
+        case 'disconnectWallet':
+          if (typeof this.solanaService.disconnectWallet !== 'function') {
+            throw new Error('disconnectWallet method not available');
+          }
+          return await this.solanaService.disconnectWallet();
 
-      case 'getTokenList':
-        return await this.solanaService.getTokenList();
+        case 'getWalletBalances':
+          if (typeof this.solanaService.getWalletBalances !== 'function') {
+            throw new Error('getWalletBalances method not available');
+          }
+          return await this.solanaService.getWalletBalances();
 
-      case 'executeTrade':
-        return await this.solanaService.executeTrade(
-          args.token,
-          args.type,
-          args.amount,
-          args.price
-        );
+        case 'getTokenList':
+          if (typeof this.solanaService.getTokenList !== 'function') {
+            throw new Error('getTokenList method not available');
+          }
+          return await this.solanaService.getTokenList();
 
-      case 'getTransactionHistory':
-        return await this.solanaService.getTransactionHistory();
+        case 'executeTrade':
+          if (typeof this.solanaService.executeTrade !== 'function') {
+            throw new Error('executeTrade method not available');
+          }
+          return await this.solanaService.executeTrade(
+            args?.token,
+            args?.type,
+            args?.amount,
+            args?.price
+          );
 
-      default:
-        throw new Error(`Unknown tool: ${toolName}`);
+        case 'getTransactionHistory':
+          if (typeof this.solanaService.getTransactionHistory !== 'function') {
+            throw new Error('getTransactionHistory method not available');
+          }
+          return await this.solanaService.getTransactionHistory();
+
+        default:
+          throw new Error(`Unknown tool: ${toolName}`);
+      }
+    } catch (error) {
+      // Return error as part of the result for better handling
+      return { error: error instanceof Error ? error.message : 'Unknown error in tool call' };
     }
   }
 }

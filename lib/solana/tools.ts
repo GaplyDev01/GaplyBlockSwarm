@@ -144,7 +144,7 @@ export class SolanaTools {
    * @param tokenMint Token mint address or symbol
    * @returns Token analytics data including price, volume, market cap, etc.
    */
-  async getTokenAnalytics(tokenMint: string): Promise<TokenAnalytics> {
+  async getTokenAnalytics(tokenMint: string): Promise<any> {
     try {
       // Get token info from our token info method
       const tokenInfo = await this.getTokenInfo(tokenMint);
@@ -176,8 +176,9 @@ export class SolanaTools {
       // Get price history for volatility calculation
       let volatility = 8.5; // Default value
       try {
-        if (cgData.symbol) {
-          const priceHistory = await getTokenPriceHistory(cgData.symbol.toLowerCase(), 30);
+        const cgSymbol = (cgData as any)?.symbol;
+        if (cgSymbol) {
+          const priceHistory = await getTokenPriceHistory(cgSymbol.toLowerCase(), 30);
           if (priceHistory.prices.length > 0) {
             // Calculate standard deviation of price changes as volatility
             const prices = priceHistory.prices.map((p: any) => p.price);
@@ -196,16 +197,54 @@ export class SolanaTools {
         console.error('Error calculating volatility:', volatilityError);
       }
       
+      // Type the combined data object
+      interface TokenAnalyticsResult {
+        price: number;
+        priceChange24h: number;
+        volume24h: number;
+        marketCap: number;
+        allTimeHigh: number;
+        allTimeLow: number;
+        liquidityDepth: number;
+        tradingVolume7d: number;
+        priceVolatility30d: number;
+      }
+      
+      // Safe getters for possibly undefined fields
+      const getPrice = () => {
+        return (tokenInfo as any)?.price || (cgData as any)?.price || 0;
+      };
+      
+      const getPriceChange = () => {
+        return (tokenInfo as any)?.priceChange || (cgData as any)?.priceChange || -1.2;
+      };
+      
+      const getVolume = () => {
+        return (tokenInfo as any)?.volume || (cgData as any)?.volume || 42500000;
+      };
+      
+      const getMarketCap = () => {
+        return (tokenInfo as any)?.marketCap || (cgData as any)?.marketCap || 325000000;
+      };
+      
+      const getAllTimeHigh = () => {
+        return (cgData as any)?.allTimeHigh || 12.45;
+      };
+      
+      const getAllTimeLow = () => {
+        return (cgData as any)?.allTimeLow || 0.12;
+      };
+      
       // Combine data from different sources with fallbacks to mock data
-      return {
-        price: tokenInfo.price || cgData.price || 0,
-        priceChange24h: tokenInfo.priceChange || cgData.priceChange || -1.2,
-        volume24h: tokenInfo.volume || cgData.volume || 42500000,
-        marketCap: tokenInfo.marketCap || cgData.marketCap || 325000000,
-        allTimeHigh: cgData.allTimeHigh || 12.45,
-        allTimeLow: cgData.allTimeLow || 0.12,
+      const result: TokenAnalyticsResult = {
+        price: getPrice(),
+        priceChange24h: getPriceChange(),
+        volume24h: getVolume(),
+        marketCap: getMarketCap(),
+        allTimeHigh: getAllTimeHigh(),
+        allTimeLow: getAllTimeLow(),
         liquidityDepth: 3450000, // Currently mock data
-        tradingVolume7d: cgData.volume ? cgData.volume * 7 : 168000000,
+        tradingVolume7d: getVolume() * 7,
         priceVolatility30d: volatility
       };
     } catch (error) {
@@ -249,8 +288,8 @@ export class SolanaTools {
         const prices = priceHistory.prices.map((p: any) => p.price);
         
         // Calculate a simple RSI (14-period)
-        const gains = [];
-        const losses = [];
+        const gains: number[] = [];
+        const losses: number[] = [];
         
         for (let i = 1; i < prices.length; i++) {
           const change = prices[i] - prices[i-1];
@@ -283,8 +322,8 @@ export class SolanaTools {
         const firstHalf = prices.slice(0, Math.floor(prices.length / 2));
         const secondHalf = prices.slice(Math.floor(prices.length / 2));
         
-        const firstHalfAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
-        const secondHalfAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
+        const firstHalfAvg = firstHalf.reduce((sum: number, val: number) => sum + val, 0) / firstHalf.length;
+        const secondHalfAvg = secondHalf.reduce((sum: number, val: number) => sum + val, 0) / secondHalf.length;
         
         if (secondHalfAvg > firstHalfAvg * 1.03) {
           technicalIndicators.trend = 'bullish';
@@ -385,9 +424,9 @@ export class SolanaTools {
       const fromTokenInfo = await this.getTokenInfo(params.fromToken);
       const toTokenInfo = await this.getTokenInfo(params.toToken);
       
-      // Use mint addresses if available
-      const inputMint = fromTokenInfo.mintAddress;
-      const outputMint = toTokenInfo.mintAddress;
+      // Use mint addresses if available (handle undefined properly)
+      const inputMint = fromTokenInfo?.mintAddress || '';
+      const outputMint = toTokenInfo?.mintAddress || '';
       
       if (!inputMint || !outputMint) {
         throw new Error('Could not resolve token mint addresses');
@@ -400,7 +439,7 @@ export class SolanaTools {
           const routesResponse = await jupiter.getRoutes({
             inputMint,
             outputMint,
-            amount: params.amount * Math.pow(10, fromTokenInfo.decimals) // Convert to lamports or smallest token unit
+            amount: params.amount * Math.pow(10, fromTokenInfo?.decimals || 9) // Convert to lamports or smallest token unit
           });
           
           if (!routesResponse || !routesResponse.routesInfos || routesResponse.routesInfos.length === 0) {
@@ -410,8 +449,13 @@ export class SolanaTools {
           // Get best route (first one is usually best)
           const bestRoute = routesResponse.routesInfos[0];
           
+          // Make sure we have a valid route
+          if (!bestRoute) {
+            throw new Error('No valid routes found for this swap');
+          }
+          
           // Convert output amount back to human-readable format
-          const outputDecimals = toTokenInfo.decimals;
+          const outputDecimals = toTokenInfo?.decimals || 9;
           const outAmount = bestRoute.outAmount / Math.pow(10, outputDecimals);
           
           // Calculate price
@@ -419,7 +463,7 @@ export class SolanaTools {
           
           // Calculate gas fees and price impact
           const estimatedFees = 0.000005; // Mock fee in SOL - in real implementation this would be estimated
-          const priceImpact = bestRoute.priceImpactPct || 0;
+          const priceImpact = bestRoute?.priceImpactPct || 0;
           
           // Record execution time for monitoring
           const executionTime = Date.now() - startTime;
@@ -435,7 +479,7 @@ export class SolanaTools {
             estimatedFees,
             txId: undefined,
             route: {
-              marketName: bestRoute.marketInfos[0]?.amm?.label || 'Jupiter',
+              marketName: bestRoute?.marketInfos?.[0]?.amm?.label || 'Jupiter',
               inAmount: params.amount,
               outAmount
             }

@@ -14,8 +14,10 @@ export default function rateLimit(options: RateLimitOptions) {
   // Cleanup function to remove old entries
   const cleanup = () => {
     const now = Date.now();
-    for (const [token, timestamps] of cache.entries()) {
-      const validTimestamps = timestamps.filter(ts => now - ts < interval);
+    // Use Array.from to avoid TypeScript iterator error
+    const entries = Array.from(cache.entries());
+    for (const [token, timestamps] of entries) {
+      const validTimestamps = timestamps.filter((ts: number) => now - ts < interval);
       if (validTimestamps.length === 0) {
         cache.delete(token);
       } else {
@@ -59,12 +61,17 @@ export default function rateLimit(options: RateLimitOptions) {
       response.headers.set('X-RateLimit-Limit', limit.toString());
       response.headers.set('X-RateLimit-Remaining', Math.max(0, limit - requestCount).toString());
       
-      if (requestCount >= limit) {
+      if (requestCount >= limit && validTimestamps.length > 0) {
         // Get the oldest timestamp in the current window
         const oldestTimestamp = validTimestamps[0];
-        const reset = Math.ceil((oldestTimestamp + interval - now) / 1000);
-        
-        response.headers.set('X-RateLimit-Reset', reset.toString());
+        // Make sure we have a valid timestamp
+        if (oldestTimestamp) {
+          const reset = Math.ceil((oldestTimestamp + interval - now) / 1000);
+          response.headers.set('X-RateLimit-Reset', reset.toString());
+        } else {
+          // Fallback reset time if we can't calculate it properly
+          response.headers.set('X-RateLimit-Reset', (interval / 1000).toString());
+        }
         throw new Error('Rate limit exceeded');
       }
     }

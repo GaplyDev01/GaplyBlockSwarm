@@ -1,7 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { logger } from '../../../../lib/logger';
-import { CoinGeckoToken, JupiterToken, Token, CoinGeckoApiResponse, JupiterApiResponse } from '../../../../lib/types/tokens';
+// Define token interfaces inline since imports are failing
+interface CoinGeckoToken {
+  id: string;
+  symbol: string;
+  name: string;
+  image?: string;
+  current_price?: number;
+  market_cap?: number;
+  market_cap_rank?: number;
+  total_volume?: number;
+  price_change_percentage_24h?: number;
+  circulating_supply?: number;
+  total_supply?: number;
+  platforms?: Record<string, string>;
+  searchNote?: string;
+}
+
+interface JupiterToken {
+  address?: string;
+  symbol?: string;
+  name?: string;
+  logoURI?: string;
+  tags?: string[];
+  extensions?: Record<string, unknown>;
+  searchNote?: string;
+  id?: string;
+  image?: string;
+  current_price?: number;
+  price_change_percentage_24h?: number;
+  market_cap?: number;
+  total_volume?: number;
+  circulating_supply?: number;
+  total_supply?: number;
+  is_jupiter_token?: boolean;
+}
 
 // Interfaces are now imported using relative paths instead of aliases
 
@@ -59,21 +92,21 @@ export async function GET(request: NextRequest) {
       // Log all search results for debugging
       console.log(`Raw search results from CoinGecko: ${searchResults.length} tokens`);
       if (searchResults.length > 0) {
-        console.log(`First few results: ${searchResults.slice(0, 3).map(t => t.symbol).join(', ')}`);
+        console.log(`First few results: ${searchResults.slice(0, 3).map((t: CoinGeckoToken) => t.symbol ?? 'unknown').join(', ')}`);
       }
       
       // Less restrictive filter - include any tokens that match our query directly
       // as well as Solana tokens
       const solanaTokens = searchResults.filter((token: CoinGeckoToken) => {
         const isDirectMatch = 
-          token.symbol.toLowerCase() === query.toLowerCase() || 
-          token.id.toLowerCase() === query.toLowerCase();
+          (token.symbol?.toLowerCase() ?? '') === query.toLowerCase() || 
+          (token.id?.toLowerCase() ?? '') === query.toLowerCase();
           
         const isSolanaToken = 
           token.platforms && 
           (token.platforms.solana || 
-           token.name.toLowerCase().includes('solana') || 
-           token.symbol.toLowerCase() === 'sol');
+           (token.name?.toLowerCase() ?? '').includes('solana') || 
+           (token.symbol?.toLowerCase() ?? '') === 'sol');
            
         return isDirectMatch || isSolanaToken;
       });
@@ -252,7 +285,7 @@ export async function GET(request: NextRequest) {
             
             // For specific tokens we know are special cases
             if ((query.toLowerCase() === 'symx' || query.toLowerCase() === 'sy') && 
-                token.symbol.toLowerCase().includes(query)) {
+                token.symbol && token.symbol.toLowerCase().includes(query)) {
               token.searchNote = 'This token is not listed on CoinGecko, so price data is unavailable';
             }
           });

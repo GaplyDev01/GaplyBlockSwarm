@@ -50,7 +50,16 @@ export class InMemoryChatRepository implements IChatRepository {
   private logger: ILogger;
   
   constructor(logger: ILogger) {
-    this.logger = logger.child({ module: 'InMemoryChatRepository' });
+    // Safely create child logger if method exists
+    this.logger = logger;
+    if (logger && typeof logger.child === 'function') {
+      try {
+        this.logger = logger.child({ module: 'InMemoryChatRepository' });
+      } catch (error) {
+        // Fall back to original logger
+        console.warn('Failed to create child logger');
+      }
+    }
   }
   
   async getById(id: string): Promise<ChatHistory | null> {

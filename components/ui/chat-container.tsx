@@ -13,8 +13,8 @@ export interface Message {
 
 export interface ChatContainerProps {
   messages: Message[]
-  onSendMessage: (message: string) => void
-  onStopGeneration?: () => void
+  onSend: (message: string) => void
+  onStop?: () => void
   isGenerating?: boolean
   isDisabled?: boolean
   title?: string
@@ -24,8 +24,8 @@ export interface ChatContainerProps {
 
 export function ChatContainer({
   messages,
-  onSendMessage,
-  onStopGeneration,
+  onSend,
+  onStop,
   isGenerating = false,
   isDisabled = false,
   title = "AI Chat",
@@ -82,8 +82,8 @@ export function ChatContainer({
             ))}    <div ref={messagesEndRef} /></div>
         )}
       </CardContent>    <CardFooter className="p-4 border-t border-border">    <MessageInput
-          onSend={onSendMessage}
-          onStop={onStopGeneration}
+          onSend={onSend}
+          onStop={onStop}
           isGenerating={isGenerating}
           isDisabled={isDisabled}
           suggestions={suggestions}

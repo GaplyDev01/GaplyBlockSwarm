@@ -1,9 +1,9 @@
 'use client';
 
-// Force dynamic rendering - never statically generate this page  
-export const dynamic = 'force-dynamic';
-
 import { SignIn } from '@clerk/nextjs';
+
+// Force dynamic rendering - never statically generate this page  
+const dynamic_rendering = 'force-dynamic';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -52,5 +52,5 @@ function LoginPage() {
 }
 
 // Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
-export default dynamic(() => Promise.resolve(LoginPage), { ssr: false });
+import { default as nextDynamic } from 'next/dynamic';
+export default nextDynamic(() => Promise.resolve(LoginPage), { ssr: false });

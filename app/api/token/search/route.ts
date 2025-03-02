@@ -59,28 +59,28 @@ export async function GET(request: NextRequest) {
       // Log all search results for debugging
       console.log(`Raw search results from CoinGecko: ${searchResults.length} tokens`);
       if (searchResults.length > 0) {
-        console.log(`First few results: ${searchResults.slice(0, 3).map(t => t.symbol).join(', ')}`);
+        console.log(`First few results: ${searchResults.slice(0, 3).map((t: any) => t.symbol ?? 'unknown').join(', ')}`);
       }
       
       // Less restrictive filter - include any tokens that match our query directly
       // as well as Solana tokens
-      const solanaTokens = searchResults.filter((token: CoinGeckoToken) => {
+      const solanaTokens = searchResults.filter((token: any) => {
         const isDirectMatch = 
-          token.symbol.toLowerCase() === query.toLowerCase() || 
-          token.id.toLowerCase() === query.toLowerCase();
+          (token.symbol?.toLowerCase() ?? '') === query.toLowerCase() || 
+          (token.id?.toLowerCase() ?? '') === query.toLowerCase();
           
         const isSolanaToken = 
           token.platforms && 
           (token.platforms.solana || 
-           token.name.toLowerCase().includes('solana') || 
-           token.symbol.toLowerCase() === 'sol');
+           (token.name?.toLowerCase() ?? '').includes('solana') || 
+           (token.symbol?.toLowerCase() ?? '') === 'sol');
            
         return isDirectMatch || isSolanaToken;
       });
       
       if (solanaTokens.length > 0) {
         // For search results, we need to get the full data for each token
-        const tokenIds = solanaTokens.map((token: CoinGeckoToken) => token.id).join(',');
+        const tokenIds = solanaTokens.map((token: any) => token.id).join(',');
         
         // Get detailed data for these tokens
         const detailUrl = `${apiBase}/coins/markets`;
@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
       const allTokens = response.data;
       
       // Filter tokens based on the query
-      const filteredTokens = allTokens.filter((token: CoinGeckoToken) => 
+      const filteredTokens = allTokens.filter((token: any) => 
         token.name.toLowerCase().includes(query) || 
         token.symbol.toLowerCase().includes(query) ||
         token.id.toLowerCase().includes(query)
@@ -203,7 +203,7 @@ export async function GET(request: NextRequest) {
         
         // Get specific tokens from the Jupiter API
         const filteredJupiterTokens = jupiterTokens
-          .filter((token: JupiterToken): boolean => {
+          .filter((token: any): boolean => {
             const nameMatch = token.name && token.name.toLowerCase().includes(query);
             const symbolMatch = token.symbol && token.symbol.toLowerCase().includes(query);
             const addressMatch = token.address && token.address.toLowerCase().includes(query);
@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
             
             return Boolean(nameMatch || symbolMatch || addressMatch || tagMatch);
           })
-          .map((token: JupiterToken): JupiterToken => {
+          .map((token: any): any => {
             // Try to find a logo URL, defaulting to a placeholder if not found
             let logoUrl = token.logoURI;
             if (!logoUrl || logoUrl.includes('unknown')) {
@@ -246,13 +246,13 @@ export async function GET(request: NextRequest) {
           console.log('Adding search notes to Jupiter tokens');
           
           // Add a note to indicate these are tokens without price data
-          filteredJupiterTokens.forEach((token: JupiterToken) => {
+          filteredJupiterTokens.forEach((token: any) => {
             // Always add a note for Jupiter tokens
             token.searchNote = 'This token data is from Jupiter API, price data may be limited';
             
             // For specific tokens we know are special cases
             if ((query.toLowerCase() === 'symx' || query.toLowerCase() === 'sy') && 
-                token.symbol.toLowerCase().includes(query)) {
+                token.symbol && token.symbol.toLowerCase().includes(query)) {
               token.searchNote = 'This token is not listed on CoinGecko, so price data is unavailable';
             }
           });

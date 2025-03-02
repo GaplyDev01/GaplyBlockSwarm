@@ -341,9 +341,12 @@ export class RealSolanaService implements SolanaService {
             if (tx?.meta && tx.transaction.message.instructions) {
               const instructions = tx.transaction.message.instructions;
               
-              if (this.isTokenTransfer(instructions)) {
+              // Convert instructions to the expected format
+              const typedInstructions = this.convertInstructionsType(instructions);
+              
+              if (this.isTokenTransfer(typedInstructions)) {
                 txInfo.type = 'transfer';
-              } else if (this.isSwapTransaction(instructions)) {
+              } else if (this.isSwapTransaction(typedInstructions)) {
                 txInfo.type = 'swap';
               }
             }
@@ -363,11 +366,22 @@ export class RealSolanaService implements SolanaService {
       );
 
       logger.info(`Retrieved ${transactions.length} transactions`);
-      return transactions;
+      
+      // Ensure all transactions have valid types
+      const validatedTransactions = transactions.map(tx => {
+        // Ensure transaction type is one of the allowed values
+        if (typeof tx.type === 'string' && !['swap', 'transfer', 'send', 'receive', 'unknown'].includes(tx.type)) {
+          return {...tx, type: 'unknown' as const};
+        }
+        return tx;
+      }) as TransactionInfo[];
+      
+      return validatedTransactions;
     } catch (error) {
       logger.error('Error fetching transaction history:', error);
       
-      // Return mock transactions as fallback
+      // Return mock transactions as fallback - use getInstance to access singleton
+      const mockSolanaService = MockSolanaService.getInstance();
       const mockTransactions = await mockSolanaService.getTransactionHistory();
       logger.warn(`Using ${mockTransactions.length} mock transactions due to error`);
       return mockTransactions;
@@ -408,11 +422,29 @@ export class RealSolanaService implements SolanaService {
   }
 
   /**
+   * Helper method to convert instructions to the SolanaInstruction type
+   */
+  private convertInstructionsType(instructions: any[]): SolanaInstruction[] {
+    return instructions.map(ix => {
+      // Convert PublicKey[] to string[]
+      const accounts = Array.isArray(ix.accounts) 
+        ? ix.accounts.map((acc: any) => typeof acc === 'object' ? acc.toString() : String(acc)) 
+        : [];
+      
+      return {
+        programId: typeof ix.programId === 'object' ? ix.programId.toString() : String(ix.programId || ''),
+        data: ix.data || '',
+        accounts
+      };
+    });
+  }
+
+  /**
    * Check if transaction instructions include a token transfer
    */
   private isTokenTransfer(instructions: SolanaInstruction[]): boolean {
     return instructions.some(instr => {
-      const programId = typeof instr.programId === 'object' ? instr.programId.toString() : '';
+      const programId = typeof instr.programId === 'object' ? instr.programId.toString() : instr.programId;
       return programId === TOKEN_PROGRAM_ID.toString();
     });
   }
@@ -424,7 +456,7 @@ export class RealSolanaService implements SolanaService {
     const dexProgramIds = ['Jupiter', 'Orca', 'Raydium'];
     
     return instructions.some(instr => {
-      const programId = typeof instr.programId === 'object' ? instr.programId.toString() : '';
+      const programId = typeof instr.programId === 'object' ? instr.programId.toString() : instr.programId || '';
       return dexProgramIds.some(dex => programId.toLowerCase().includes(dex.toLowerCase()));
     });
   }

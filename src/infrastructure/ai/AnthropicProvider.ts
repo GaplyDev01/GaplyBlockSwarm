@@ -1,10 +1,61 @@
+// Import from the /core version for backwards compatibility
+import {
+  AITool as CoreAITool,
+  Message as CoreMessage,
+  IAIProvider as CoreIAIProvider
+} from '../../../core/ai/interfaces/IAIProvider';
+
+// Import from the /src version for newer code
 import {
   AIMessage,
-  AITool,
-  ChatCompletionOptions,
-  ChatCompletionResponse,
-  StreamHandler
+  AITool
 } from '../../core/ai/interfaces/IAIProvider';
+
+// Define necessary interfaces locally to avoid import issues
+interface ChatCompletionOptions {
+  messages: AIMessage[];
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+  stream?: boolean;
+  tools?: AITool[];
+  toolChoice?: 'auto' | 'required' | 'none' | { type: 'function'; function: { name: string } };
+}
+
+interface ChatCompletionResponse {
+  id: string;
+  model: string;
+  content: string;
+  finishReason: string;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  toolCalls?: {
+    type: 'function';
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }[];
+}
+
+type StreamHandler = (event: {
+  id?: string;
+  model?: string;
+  content?: string;
+  finishReason?: string;
+  isComplete: boolean;
+  toolCalls?: {
+    type: 'function';
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }[];
+}) => void;
+
 import { BaseAIProvider } from '../../core/ai/BaseAIProvider';
 import { ILogger } from '../../shared/utils/logger/ILogger';
 
@@ -25,9 +76,33 @@ const CONTEXT_WINDOW_SIZES: Record<string, number> = {
 /**
  * Anthropic provider for AI completions
  */
-export class AnthropicProvider extends BaseAIProvider {
+// Implement both interfaces to maintain compatibility
+export class AnthropicProvider extends BaseAIProvider implements CoreIAIProvider {
   private static ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-  private tools?: AITool[];
+  // Initialize fields with default values to satisfy TypeScript
+  protected logger: ILogger = {} as ILogger;
+  protected apiKey: string = '';
+  protected defaultModel: string = 'claude-3-sonnet-20240229';
+
+  /**
+   * Get token count for messages
+   * @param messages Messages to count
+   * @returns Promise with estimated token count
+   */
+  async getTokenCount(messages: AIMessage[]): Promise<number> {
+    // Anthropic doesn't have a public token counting endpoint
+    // Use the estimate formula with a 4 character:1 token ratio
+    const totalChars = messages.reduce((sum, msg) => sum + msg.content.length, 0);
+    return Math.ceil(totalChars / 4);
+  }
+  
+  /**
+   * Get default model for this provider
+   * @returns The default model name
+   */
+  getDefaultModel(): string {
+    return this.defaultModel || 'claude-3-sonnet-20240229';
+  }
   
   /**
    * Create a new AnthropicProvider
@@ -41,6 +116,23 @@ export class AnthropicProvider extends BaseAIProvider {
     defaultModel: string = 'claude-3-sonnet-20240229'
   ) {
     super(logger, apiKey, defaultModel);
+    
+    // These assignments are needed for TypeScript to be happy
+    // but they technically duplicate what BaseAIProvider does
+    this.logger = logger;
+    this.apiKey = apiKey;
+    this.defaultModel = defaultModel;
+  }
+  
+  /**
+   * Log API usage statistics
+   * @param model Model used
+   * @param promptTokens Prompt tokens used
+   * @param completionTokens Completion tokens used
+   */
+  protected logUsage(model: string, promptTokens: number, completionTokens?: number): void {
+    const totalTokens = promptTokens + (completionTokens || 0);
+    this.logger.info(`Usage: ${model}, ${promptTokens} prompt tokens, ${completionTokens || 'N/A'} completion tokens, ${totalTokens} total tokens`);
   }
   
   /**
@@ -67,9 +159,40 @@ export class AnthropicProvider extends BaseAIProvider {
   }
   
   /**
-   * Create a chat completion
+   * Legacy implementation for compatible with CoreIAIProvider
+   * @param messages Array of messages in the conversation
+   * @param options Provider-specific options
    */
-  async createChatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
+  generateChatCompletion(
+    messages: CoreMessage[] | AIMessage[] | ChatCompletionOptions,
+    options?: any
+  ): Promise<ChatCompletionResponse> {
+    // Handle the legacy interface (/core version)
+    if (Array.isArray(messages)) {
+      // Convert CoreMessage[] to AIMessage[]
+      const aiMessages = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      // Call the new implementation
+      return this.generateChatCompletionInternal({
+        messages: aiMessages,
+        ...options
+      }).then(response => {
+        // For legacy interface, return a wrapped response
+        return response;
+      });
+    }
+    
+    // Handle the new interface (/src version)
+    return this.generateChatCompletionInternal(messages as ChatCompletionOptions);
+  }
+  
+  /**
+   * Internal implementation that works with the new structured format
+   */
+  private async generateChatCompletionInternal(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     const { messages, model, temperature, maxTokens, tools } = options;
     const modelToUse = model || this.defaultModel;
     
@@ -133,15 +256,65 @@ export class AnthropicProvider extends BaseAIProvider {
         }] : undefined
       };
     } catch (error) {
-      this.logger.error('Error creating chat completion', error);
+      this.logger.error('Error generating chat completion', error);
       throw error;
     }
   }
   
   /**
-   * Create a streaming chat completion
+   * Legacy implementation of streaming chat completion
+   * @param messages Messages to send
+   * @param onChunk Callback for each chunk
+   * @param options Additional options
    */
-  async createStreamingChatCompletion(
+  async generateStreamingChatCompletion(
+    messages: CoreMessage[] | AIMessage[] | ChatCompletionOptions,
+    onChunkOrEvent: ((chunk: any) => void) | StreamHandler,
+    options?: any
+  ): Promise<void> {
+    // Handle the legacy interface (/core version)
+    if (Array.isArray(messages)) {
+      // Convert CoreMessage[] to AIMessage[]
+      const aiMessages = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      // Call internal implementation with appropriate parameters
+      if (typeof onChunkOrEvent === 'function' && options) {
+        // Legacy format: messages[], callback, options
+        return this.generateStreamingChatCompletionInternal(
+          { messages: aiMessages, ...options },
+          (event) => {
+            // Convert streaming event to simple chunk format for legacy callback
+            if (event.content) {
+              (onChunkOrEvent as Function)(event.content);
+            }
+            if (event.isComplete) {
+              (onChunkOrEvent as Function)({ done: true });
+            }
+          }
+        );
+      } else {
+        // New format with array: messages[], callback
+        return this.generateStreamingChatCompletionInternal(
+          { messages: aiMessages }, 
+          onChunkOrEvent as StreamHandler
+        );
+      }
+    }
+    
+    // New interface (/src version)
+    return this.generateStreamingChatCompletionInternal(
+      messages as ChatCompletionOptions, 
+      onChunkOrEvent as StreamHandler
+    );
+  }
+  
+  /**
+   * Internal implementation for streaming chat completion
+   */
+  private async generateStreamingChatCompletionInternal(
     options: ChatCompletionOptions,
     onEvent: StreamHandler
   ): Promise<void> {
@@ -309,6 +482,8 @@ export class AnthropicProvider extends BaseAIProvider {
   
   /**
    * Get the context window size for a model
+   * @param model Optional model name to get context window size for
+   * @returns The context window size in tokens
    */
   getContextWindowSize(model?: string): number {
     const modelToCheck = model || this.defaultModel;
@@ -316,7 +491,8 @@ export class AnthropicProvider extends BaseAIProvider {
   }
   
   /**
-   * Check if this provider supports tools
+   * Check if this provider supports tools/function calling
+   * @returns true if the provider supports tools, false otherwise
    */
   supportsTools(): boolean {
     return true;
@@ -324,15 +500,16 @@ export class AnthropicProvider extends BaseAIProvider {
   
   /**
    * Set tools for this provider
-   * @param tools Array of tools to use
+   * @param tools Array of AI tools
    */
-  setTools(tools: AITool[]): void {
+  setTools(tools: CoreAITool[] | AITool[]): void {
     this.logger.info(`Setting ${tools.length} tools for Anthropic provider`);
-    this.tools = tools;
+    this.tools = tools as AITool[];
   }
   
   /**
-   * Get the current tools
+   * Get tools configured for this provider
+   * @returns Array of configured AI tools
    */
   getTools(): AITool[] {
     return this.tools || [];
@@ -343,11 +520,10 @@ export class AnthropicProvider extends BaseAIProvider {
    */
   private convertToAnthropicMessages(messages: AIMessage[]): any[] {
     return messages.map(msg => {
-      // Convert roles
-      let role = msg.role;
-      if (role === 'assistant') role = 'assistant';
-      else if (role === 'user') role = 'user';
-      else if (role === 'system') role = 'system';
+      // Ensure valid roles for Anthropic API
+      const role = ['assistant', 'user', 'system'].includes(msg.role) 
+        ? msg.role 
+        : 'user'; // Default to user if unknown role
       
       return {
         role,

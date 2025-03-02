@@ -35,17 +35,21 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     initialModel || (providers[0]?.models[0]?.id || '')
   );
 
-  const {
-    sendMessage,
-    isProcessing,
-    activeProvider,
-    currentChatId,
-  } = useAIChat({
-    chatId,
-    provider: selectedProvider,
-    model: selectedModel,
-    onChatCreated,
+  // Extended useAIChat with additional state
+  const aiChat = useAIChat({
+    tokenSymbol: undefined,
+    aiProvider: selectedProvider,
   });
+  
+  // Extract the properties we need
+  const { 
+    sendMessage, 
+    isLoading: isProcessing,
+    selectedProvider: activeProvider
+  } = aiChat;
+  
+  // Track the current chat ID
+  const [currentChatId, setCurrentChatId] = useState<string | undefined>(chatId);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -70,18 +74,19 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     
     setMessages((prev) => [...prev, userMessage]);
     
-    // Send message to the AI service
-    const result = await sendMessage(content);
-    
-    if (result) {
-      // Add AI response
-      setMessages((prev) => [
-        ...prev, 
-        {
-          role: 'assistant',
-          content: result.content,
-        },
-      ]);
+    try {
+      // Send message to the AI service
+      await sendMessage(content);
+      
+      // The hook will handle state updates internally
+      // If needed, we could sync messages from the hook's state
+      
+      // Notify parent about chat creation if needed
+      if (!chatId && currentChatId && onChatCreated) {
+        onChatCreated(currentChatId);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
   };
 
@@ -90,8 +95,11 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     setSelectedProvider(providerId);
     
     // Auto-select the first model for the new provider
-    if (newProvider && newProvider.models.length > 0) {
-      setSelectedModel(newProvider.models[0].id);
+    if (newProvider && newProvider.models && newProvider.models.length > 0) {
+      const firstModel = newProvider.models[0];
+      if (firstModel) {
+        setSelectedModel(firstModel.id);
+      }
     }
   };
 
@@ -100,7 +108,8 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   };
   
   // Get the current provider name for display
-  const providerName = providers.find(p => p.id === activeProvider)?.name || 'AI Assistant';
+  const currentProvider = providers.find(p => p.id === activeProvider);
+  const providerName = currentProvider ? currentProvider.name : 'AI Assistant';
 
   return (<div className="flex flex-col h-full max-h-full bg-sapphire-900 border border-emerald-400/20 rounded-lg overflow-hidden">
       {showProviderSelector && (    <div className="bg-sapphire-800/80 backdrop-blur-sm border-b border-emerald-400/20 p-2">    <ProviderSelector

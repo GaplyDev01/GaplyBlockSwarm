@@ -1,23 +1,24 @@
 'use client';
 
-// Force dynamic rendering - never statically generate this page
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
 import React, { useEffect, useState } from 'react';
-import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
+
+// Force dynamic rendering - never statically generate this page
+const dynamic_rendering = 'force-dynamic';
+const runtime_setting = 'edge';
+import { ConnectWalletButton } from '@/src/presentation/components/wallet/ConnectWalletButton';
 import { LiveWalletBalance } from '@/components/wallet/live-wallet-balance';
 import { WalletDashboard } from '@/components/wallet/wallet-dashboard';
 import { WalletTransactions } from '@/components/wallet/wallet-transactions';
 import { WalletTransactionsV2 } from '@/components/wallet/wallet-transactions-v2';
 import { WalletContextProvider } from '@/lib/context/wallet-context';
-import { logger } from '@/lib/logger';
+import { logger } from '@/shared/utils/logger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChatContainer } from '@/components/ui/chat-container';
 import { TokenInfo } from '@/components/ui/token-info';
-import { MessageRole } from '@/components/ui/message';
+// Import MessageRole directly from type definition
+type MessageRole = 'user' | 'assistant' | 'system';
 import { generateId } from '@/lib/utils';
 import Link from 'next/link';
 import { ArrowLeft, BarChart2, Bot, Brain } from 'lucide-react';
@@ -264,13 +265,14 @@ Is there anything specific about Solana you'd like to learn more about?`;
                   Technical Analysis
                 </TabsTrigger>
               </TabsList>    <TabsContent value="chat" className="h-full mt-0 flex-1 flex flex-col">    <ChatContainer
-                  messages={messages}
-                  onSendMessage={handleSendMessage}
-                  onStopGeneration={handleStopGeneration}
+                  onSend={handleSendMessage}
+                  onStop={handleStopGeneration}
                   isGenerating={isGenerating}
                   title="Solana AI Assistant"
                   suggestions={suggestions}
                   className="h-full"
+                  messages={messages}
+                  isDisabled={false}
                 />
               </TabsContent>    <TabsContent value="analysis" className="mt-0 h-full">    <Card variant="glass" className="h-full flex flex-col">    <CardHeader className="py-3 border-b border-border">    <CardTitle className="text-lg font-cyber text-shadow-neon">Technical Analysis</CardTitle>
                   </CardHeader>    <CardContent className="flex-1 p-6">    <div className="flex flex-col items-center justify-center h-full text-center space-y-6">    <div className="animate-pulse-glow border border-emerald-400/50 rounded-full p-6">    <div className="w-16 h-16 text-emerald-400">    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">    <path d="M3 3v18h18" />    <path d="m19 9-5 5-4-4-3 3" />
@@ -292,5 +294,5 @@ Is there anything specific about Solana you'd like to learn more about?`;
 }
 
 // Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
-export default dynamic(() => Promise.resolve(SolanaV2DemoPage), { ssr: false });
+import { default as nextDynamic } from 'next/dynamic';
+export default nextDynamic(() => Promise.resolve(SolanaV2DemoPage), { ssr: false });

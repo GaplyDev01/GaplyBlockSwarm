@@ -30,5 +30,5 @@ export interface ILogger {
   /**
    * Create a child logger with additional context
    */
-  child(bindings: object): ILogger;
+  child?(bindings: object): ILogger;
 }

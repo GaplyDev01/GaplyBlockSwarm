@@ -1,10 +1,10 @@
 'use client';
 
-// Force dynamic rendering - never statically generate this page
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
 import React, { useEffect, useState } from 'react';
+
+// Force dynamic rendering - never statically generate this page
+const dynamic_rendering = 'force-dynamic';
+const runtime_setting = 'edge';
 import { ConnectWalletButton } from '@/components/wallet/connect-wallet-button';
 import { LiveWalletBalance } from '@/components/wallet/live-wallet-balance';
 import { WalletDashboard } from '@/components/wallet/wallet-dashboard';
@@ -265,8 +265,8 @@ Is there anything specific about Solana you'd like to learn more about?`;
                 </TabsTrigger>
               </TabsList>    <TabsContent value="chat" className="h-full mt-0 flex-1 flex flex-col">    <ChatContainer
                   messages={messages}
-                  onSendMessage={handleSendMessage}
-                  onStopGeneration={handleStopGeneration}
+                  onSend={handleSendMessage}
+                  onStop={handleStopGeneration}
                   isGenerating={isGenerating}
                   title="Solana AI Assistant"
                   suggestions={suggestions}
@@ -292,5 +292,5 @@ Is there anything specific about Solana you'd like to learn more about?`;
 }
 
 // Export as default with dynamic import to skip SSR
-import dynamic from 'next/dynamic';
-export default dynamic(() => Promise.resolve(SolanaV2DemoPage), { ssr: false });
+import { default as nextDynamic } from 'next/dynamic';
+export default nextDynamic(() => Promise.resolve(SolanaV2DemoPage), { ssr: false });

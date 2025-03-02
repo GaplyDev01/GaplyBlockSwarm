@@ -1,3 +1,11 @@
+// Import from the /core version for backwards compatibility
+import {
+  AITool as CoreAITool,
+  Message as CoreMessage,
+  IAIProvider as CoreIAIProvider
+} from '../../../core/ai/interfaces/IAIProvider';
+
+// Import from the /src version for newer code
 import {
   AIMessage,
   AITool,
@@ -23,9 +31,31 @@ const CONTEXT_WINDOW_SIZES: Record<string, number> = {
 /**
  * Groq provider for AI completions
  */
-export class GroqProvider extends BaseAIProvider {
+// Implement both interfaces to maintain compatibility
+export class GroqProvider extends BaseAIProvider implements CoreIAIProvider {
+  // Initialize fields with default values to satisfy TypeScript
+  protected apiKey: string = '';
+  protected logger: ILogger = {} as ILogger;
+  protected defaultModel: string = 'llama3-70b-8192';
+  
+  /**
+   * Get default model for this provider
+   * @returns The default model name
+   */
+  getDefaultModel(): string {
+    return this.defaultModel || 'llama3-70b-8192';
+  }
   private static GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-  private tools?: AITool[];
+
+  /**
+   * Get token count for messages
+   */
+  async getTokenCount(messages: AIMessage[]): Promise<number> {
+    // Groq doesn't provide a direct token counting endpoint
+    // Fallback to rough estimate: 1 token ≈ 4 characters for English text
+    const totalChars = messages.reduce((sum, msg) => sum + msg.content.length, 0);
+    return Math.ceil(totalChars / 4);
+  }
   
   /**
    * Create a new GroqProvider
@@ -39,6 +69,23 @@ export class GroqProvider extends BaseAIProvider {
     defaultModel: string = 'llama3-70b-8192'
   ) {
     super(logger, apiKey, defaultModel);
+    
+    // These assignments are needed for TypeScript to be happy
+    // but they technically duplicate what BaseAIProvider does
+    this.logger = logger;
+    this.apiKey = apiKey;
+    this.defaultModel = defaultModel;
+  }
+  
+  /**
+   * Log API usage statistics
+   * @param model Model used
+   * @param promptTokens Prompt tokens used
+   * @param completionTokens Completion tokens used
+   */
+  protected logUsage(model: string, promptTokens: number, completionTokens?: number): void {
+    const totalTokens = promptTokens + (completionTokens || 0);
+    this.logger.info(`Usage: ${model}, ${promptTokens} prompt tokens, ${completionTokens || 'N/A'} completion tokens, ${totalTokens} total tokens`);
   }
   
   /**
@@ -83,10 +130,47 @@ export class GroqProvider extends BaseAIProvider {
   }
   
   /**
-   * Create a chat completion
+   * Generate a chat completion
+   * @param options Options for generating a chat completion or array of messages
+   * @param optionalSettings Optional settings when using message array format
    */
-  async createChatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    const { messages, model, temperature, maxTokens, tools, toolChoice } = options;
+  async generateChatCompletion(
+    options: ChatCompletionOptions | AIMessage[] | CoreMessage[], 
+    optionalSettings?: any
+  ): Promise<ChatCompletionResponse> {
+    // Handle different parameter formats to support both old and new API
+    let messages: AIMessage[];
+    let model = this.defaultModel;
+    let temperature: number | undefined;
+    let maxTokens: number | undefined;
+    let tools: AITool[] | undefined;
+    let toolChoice: any;
+    
+    if (Array.isArray(options)) {
+      // Old API: messages array as first parameter, settings object as second
+      // Convert CoreMessage[] or AIMessage[] to AIMessage[]
+      messages = options.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      if (optionalSettings) {
+        model = optionalSettings.model || this.defaultModel;
+        temperature = optionalSettings.temperature;
+        maxTokens = optionalSettings.maxTokens;
+        tools = optionalSettings.tools;
+        toolChoice = optionalSettings.toolChoice;
+      }
+    } else {
+      // New API: options object contains everything
+      messages = options.messages;
+      model = options.model || this.defaultModel;
+      temperature = options.temperature;
+      maxTokens = options.maxTokens;
+      tools = options.tools;
+      toolChoice = options.toolChoice;
+    }
+    
     const modelToUse = model || this.defaultModel;
     
     try {
@@ -157,9 +241,59 @@ export class GroqProvider extends BaseAIProvider {
   }
   
   /**
-   * Create a streaming chat completion
+   * Legacy implementation of streaming chat completion
+   * @param messages Messages to send
+   * @param onChunk Callback for each chunk
+   * @param options Additional options
    */
-  async createStreamingChatCompletion(
+  async generateStreamingChatCompletion(
+    messages: CoreMessage[] | AIMessage[] | ChatCompletionOptions,
+    onChunkOrEvent: ((chunk: any) => void) | StreamHandler,
+    options?: any
+  ): Promise<void> {
+    // Handle the legacy interface (/core version)
+    if (Array.isArray(messages)) {
+      // Convert CoreMessage[] to AIMessage[]
+      const aiMessages = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      // Call internal implementation with appropriate parameters
+      if (typeof onChunkOrEvent === 'function' && options) {
+        // Legacy format: messages[], callback, options
+        return this.generateStreamingChatCompletionInternal(
+          { messages: aiMessages, ...options },
+          (event) => {
+            // Convert streaming event to simple chunk format for legacy callback
+            if (event.content) {
+              (onChunkOrEvent as Function)(event.content);
+            }
+            if (event.isComplete) {
+              (onChunkOrEvent as Function)({ done: true });
+            }
+          }
+        );
+      } else {
+        // New format with array: messages[], callback
+        return this.generateStreamingChatCompletionInternal(
+          { messages: aiMessages }, 
+          onChunkOrEvent as StreamHandler
+        );
+      }
+    }
+    
+    // New interface (/src version)
+    return this.generateStreamingChatCompletionInternal(
+      messages as ChatCompletionOptions, 
+      onChunkOrEvent as StreamHandler
+    );
+  }
+  
+  /**
+   * Internal implementation for streaming chat completion
+   */
+  private async generateStreamingChatCompletionInternal(
     options: ChatCompletionOptions,
     onEvent: StreamHandler
   ): Promise<void> {
@@ -210,8 +344,8 @@ export class GroqProvider extends BaseAIProvider {
       
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
       let messageId: string | undefined;
+      let buffer = '';
       let contentSoFar = '';
       
       while (true) {
@@ -318,7 +452,16 @@ export class GroqProvider extends BaseAIProvider {
   }
   
   /**
+   * Set tools for CoreIAIProvider compatibility
+   */
+  setTools(tools: CoreAITool[] | AITool[]): void {
+    this.tools = tools as AITool[];
+  }
+  
+  /**
    * Get context window size for model
+   * @param model Optional model name to get context window size for
+   * @returns The context window size in tokens
    */
   getContextWindowSize(model?: string): number {
     const modelToCheck = model || this.defaultModel;
@@ -326,28 +469,21 @@ export class GroqProvider extends BaseAIProvider {
   }
   
   /**
-   * Check if provider supports tools
+   * Check if provider supports tools/function calling
+   * @returns true if the provider supports tools, false otherwise
    */
   supportsTools(): boolean {
     return true;
   }
   
   /**
-   * Set tools for this provider
-   * @param tools Array of tools to use
-   */
-  setTools(tools: AITool[]): void {
-    this.logger.info(`Setting ${tools.length} tools for Groq provider`);
-    this.tools = tools;
-  }
-  
-  /**
-   * Get the current tools
+   * Get tools configured for this provider
+   * @returns Array of configured AI tools
    */
   getTools(): AITool[] {
     return this.tools || [];
   }
-  
+
   /**
    * Convert messages to OpenAI format
    * Groq uses OpenAI-compatible format

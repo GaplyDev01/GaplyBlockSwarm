@@ -59,21 +59,21 @@ export async function GET(request: NextRequest) {
       // Log all search results for debugging
       console.log(`Raw search results from CoinGecko: ${searchResults.length} tokens`);
       if (searchResults.length > 0) {
-        console.log(`First few results: ${searchResults.slice(0, 3).map(t => t.symbol).join(', ')}`);
+        console.log(`First few results: ${searchResults.slice(0, 3).map((t: any) => t.symbol ?? 'unknown').join(', ')}`);
       }
       
       // Less restrictive filter - include any tokens that match our query directly
       // as well as Solana tokens
-      const solanaTokens = searchResults.filter((token: CoinGeckoToken) => {
+      const solanaTokens = searchResults.filter((token: any) => {
         const isDirectMatch = 
-          token.symbol.toLowerCase() === query.toLowerCase() || 
-          token.id.toLowerCase() === query.toLowerCase();
+          (token.symbol?.toLowerCase() ?? '') === query.toLowerCase() || 
+          (token.id?.toLowerCase() ?? '') === query.toLowerCase();
           
         const isSolanaToken = 
           token.platforms && 
           (token.platforms.solana || 
-           token.name.toLowerCase().includes('solana') || 
-           token.symbol.toLowerCase() === 'sol');
+           (token.name?.toLowerCase() ?? '').includes('solana') || 
+           (token.symbol?.toLowerCase() ?? '') === 'sol');
            
         return isDirectMatch || isSolanaToken;
       });

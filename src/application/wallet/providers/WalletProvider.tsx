@@ -202,11 +202,28 @@ const InnerWalletProvider = ({
         adapter.name.toLowerCase().includes('solflare')
       );
       
-      const walletToSelect = phantomWallet || solflareWallet || availableWallets[0];
-      logger.info('WalletContext: Selecting wallet:', walletToSelect.name);
-
-      // Select the wallet
-      select(walletToSelect.name);
+      // Safe wallet selection with fallbacks
+      const walletToSelect = phantomWallet || solflareWallet || (availableWallets.length > 0 ? availableWallets[0] : null);
+      
+      // Only proceed if we have a wallet to select
+      if (walletToSelect) {
+        logger.info('WalletContext: Selecting wallet:', walletToSelect.name);
+        
+        // Select the wallet if name property exists
+        if (typeof walletToSelect.name === 'string') {
+          select(walletToSelect.name);
+        } else {
+          logger.error('WalletContext: Selected wallet has no name property');
+          setError('Invalid wallet configuration');
+          setStoreError('Invalid wallet configuration');
+          return;
+        }
+      } else {
+        logger.error('WalletContext: No wallets available for selection');
+        setError('No wallets available');
+        setStoreError('No wallets available');
+        return;
+      }
 
       // Allow time for selection to register
       await new Promise(resolve => setTimeout(resolve, 300));

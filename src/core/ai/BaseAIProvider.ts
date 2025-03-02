@@ -1,6 +1,7 @@
 import { 
   IAIProvider, 
   AIMessage, 
+  AITool,
   ChatCompletionOptions, 
   ChatCompletionResponse,
   StreamHandler
@@ -15,6 +16,7 @@ export abstract class BaseAIProvider implements IAIProvider {
   protected logger: ILogger;
   protected apiKey: string;
   protected defaultModel: string;
+  protected tools: AITool[] = [];
   
   /**
    * Create a new BaseAIProvider
@@ -23,7 +25,18 @@ export abstract class BaseAIProvider implements IAIProvider {
    * @param defaultModel Default model for the provider
    */
   constructor(logger: ILogger, apiKey: string, defaultModel: string) {
-    this.logger = logger.child({ module: this.getName() });
+    this.logger = logger;
+    
+    // Only create child logger if the method exists
+    if (logger && typeof logger.child === 'function') {
+      try {
+        this.logger = logger.child({ module: this.getName() });
+      } catch (error) {
+        // Fallback to original logger if child creation fails
+        console.warn('Failed to create child logger, using parent logger instead');
+      }
+    }
+    
     this.apiKey = apiKey;
     this.defaultModel = defaultModel;
     
@@ -45,18 +58,28 @@ export abstract class BaseAIProvider implements IAIProvider {
   abstract getAvailableModels(): Promise<string[]>;
   
   /**
-   * Create a chat completion
+   * Generate a chat completion
    * Must be implemented by derived classes
+   * @param options Options for generating a chat completion (or messages array for legacy support)
+   * @param optionalSettings Optional settings when using message array format
+   * @returns A ChatCompletionResponse object
    */
-  abstract createChatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse>;
+  abstract generateChatCompletion(
+    options: ChatCompletionOptions | AIMessage[],
+    optionalSettings?: any
+  ): Promise<ChatCompletionResponse>;
   
   /**
-   * Create a streaming chat completion
+   * Generate a streaming chat completion
    * Must be implemented by derived classes
+   * @param optionsOrMessages Options object or array of messages
+   * @param onEventOrOptions Callback function or options object
+   * @param optionalOnEvent Optional callback when using old API format
    */
-  abstract createStreamingChatCompletion(
-    options: ChatCompletionOptions,
-    onEvent: StreamHandler
+  abstract generateStreamingChatCompletion(
+    optionsOrMessages: ChatCompletionOptions | AIMessage[],
+    onEventOrOptions: StreamHandler | any,
+    optionalOnEvent?: StreamHandler
   ): Promise<void>;
   
   /**
@@ -80,15 +103,37 @@ export abstract class BaseAIProvider implements IAIProvider {
    */
   async getTokenCount(messages: AIMessage[]): Promise<number> {
     // Very rough estimate: 1 token ≈ 4 characters for English text
-    const totalChars = messages.reduce((sum, msg) => sum + msg.content.length, 0);
+    const totalChars = messages.reduce((sum, msg) => sum + (msg.content?.length || 0), 0);
     return Math.ceil(totalChars / 4);
   }
   
   /**
    * Get context window size for model
-   * Must be implemented by derived classes
+   * Default implementation returns a conservative estimate
+   * Override in derived classes for accurate sizes
    */
-  abstract getContextWindowSize(model?: string): number;
+  getContextWindowSize(model?: string): number {
+    return 4096; // Conservative default
+  }
+  
+  /**
+   * Get tools configured for this provider
+   * Default implementation returns the tools array
+   */
+  getTools(): AITool[] {
+    return this.tools;
+  }
+  
+  /**
+   * Set tools for this provider
+   * Default implementation stores tools and logs a warning if tools not supported
+   */
+  setTools(tools: AITool[]): void {
+    this.tools = tools;
+    if (!this.supportsTools()) {
+      this.logger.warn(`Tools set but not supported by provider: ${this.getName()}`);
+    }
+  }
   
   /**
    * Validate API key

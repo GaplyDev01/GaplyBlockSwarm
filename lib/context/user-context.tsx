@@ -17,7 +17,14 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn, user } = useUser();
   
-  return (<UserContext.Provider value={{ isLoaded, isSignedIn, user }}>
+  // Ensure isSignedIn is always a boolean value
+  const safeIsSignedIn: boolean = isSignedIn || false;
+  
+  return (<UserContext.Provider value={{ 
+      isLoaded, 
+      isSignedIn: safeIsSignedIn, 
+      user 
+    }}>
       {children}
     </UserContext.Provider>
   );

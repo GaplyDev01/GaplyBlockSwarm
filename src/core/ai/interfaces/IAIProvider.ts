@@ -9,7 +9,14 @@ export type MessageRole = 'user' | 'assistant' | 'system';
 export interface AIMessage {
   role: MessageRole;
   content: string;
+  timestamp?: Date;
+  id?: string;
 }
+
+/**
+ * For backward compatibility with old interface
+ */
+export type Message = AIMessage;
 
 /**
  * Tool definition for AI providers that support tools/functions
@@ -101,21 +108,31 @@ export interface IAIProvider {
   getDefaultModel(): string;
 
   /**
-   * Supports tools/functions
+   * Check if the provider supports tools/functions
    */
   supportsTools(): boolean;
 
   /**
-   * Create a chat completion
+   * Generate a chat completion
+   * @param options Options for generating a chat completion (or messages array for legacy support)
+   * @param optionalSettings Optional settings when using message array format
+   * @returns A ChatCompletionResponse object
    */
-  createChatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse>;
+  generateChatCompletion(
+    options: ChatCompletionOptions | AIMessage[],
+    optionalSettings?: any
+  ): Promise<ChatCompletionResponse>;
 
   /**
-   * Create a streaming chat completion
+   * Generate a streaming chat completion
+   * @param optionsOrMessages Options object or array of messages
+   * @param onEventOrOptions Callback function or options object
+   * @param optionalOnEvent Optional callback when using old API format
    */
-  createStreamingChatCompletion(
-    options: ChatCompletionOptions,
-    onEvent: StreamHandler
+  generateStreamingChatCompletion(
+    optionsOrMessages: ChatCompletionOptions | AIMessage[],
+    onEventOrOptions: StreamHandler | any,
+    optionalOnEvent?: StreamHandler
   ): Promise<void>;
 
   /**
@@ -127,4 +144,14 @@ export interface IAIProvider {
    * Get context window size for model
    */
   getContextWindowSize(model?: string): number;
+  
+  /**
+   * Get tools configured for this provider
+   */
+  getTools(): AITool[];
+  
+  /**
+   * Set tools for this provider
+   */
+  setTools(tools: AITool[]): void;
 }
